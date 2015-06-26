@@ -28,12 +28,12 @@ const double z_shift = 0; //800V
 
 
 const double rec_lenght = 30000; // (points)
-const double threshold_der = -6; // mV
+const double threshold_der = -7; // mV
 
 int main()
 {
 	//file with raw data
-	FILE *work_file = fopen("D:\\Data_work\\afterpulsing\\265T_24.00V_000_wf_1.dat", "r");
+	FILE *work_file = fopen("D:\\Data_work\\afterpulsing\\265T_24.00V_002_wf_1.dat", "r");
 	if (work_file == NULL)
 	{
 		cout << "Error read file" << endl;
@@ -47,6 +47,9 @@ int main()
 
 	vector<double> xv;
 	vector<double> yv;
+	
+	cout.precision(3);
+	cout.scientific;
 
 	//read file with raw data
 	while (!feof(work_file))
@@ -56,6 +59,11 @@ int main()
 
 		xv.push_back(x);
 		yv.push_back(y);
+
+		
+
+		if (xv.size() % 100000 == 0)
+			cout << scientific << "Reading of the file ... There are " << xv.size() << " points now (" << xv.size() * 4E-9 << "seconds )" << endl;
 	}
 
 	//calculate derivative
@@ -115,82 +123,6 @@ int main()
 
 	}
 
-
-
-	/*double x1,y;*/
-
-	/*vector<double> xv(20E6);
-	vector<double> yv(20E6);
-
-	bool flag=1;
-
-	int fCounter = 0;
-
-	for(int count=0; count<1 ; count++)
-	{
-	int i_last=0;
-	xv.clear();
-	yv.clear();
-
-	FILE *work_file=fopen("C:\\diplom\\SPM_gain\\March_14_1.602V_gain.txt", "r");
-	if (work_file!=NULL)
-	cout << "C:\\diplom\\SPM_gain\\March_14_1.602V_gain.txt" << endl;
-
-	ofstream file_test("C:\\diplom\\SPM_gain\\test.txt");
-
-	double counter=0;
-	while (!feof(work_file))
-	{
-	fscanf(work_file,"%lf %lf\n", &x1, &y);
-
-	x1=counter*2E-10;
-	y*=1000;
-
-	xv.push_back(x1);
-	yv.push_back(y);
-
-	if (xv.size() % 1000000 == 0)
-	cout << xv.size() << endl;
-
-	counter++;
-
-	if (counter < 1000000)
-	file_test << x1 << "\t" << y << endl;
-	}
-
-	for(int i=0; i < xv.size(); i++)
-	{
-
-	stringstream sst;
-	sst << "C:\\diplom\\SPM_gain\\signals\\signal" <<  std::setw(7) << std::setfill('0') << fCounter <<".dat";
-	ofstream file_out(sst.str().c_str());
-
-	if( yv[i]<threshold && flag && ( (i + 100) < 20E6))
-	{
-
-	double x_shift=xv[i-150];
-	for(int j=(i-150); j<(i+250); j++)
-	{
-	file_out << xv[j]-x_shift << "\t" << yv[j] << endl;
-	}
-	flag=0;
-
-	if (fCounter%100==0 )
-	cout << "fCounter=\t" << fCounter << endl;
-	fCounter++;
-	}
-
-	if(yv[i]>threshold && flag==0)
-	{
-	flag=1;
-	}
-
-
-	}
-	}
-
-
-	*/
 
 	system("PAUSE");
 	return 0;
