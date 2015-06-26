@@ -1,0 +1,29 @@
+﻿Сборка начата 16.03.2014 18:39:50.
+     1>Проект "C:\diplom\VS\signal_processing\signal_processing_SPM_gain\my_prog\my_prog.vcxproj" в узле 2 (целевые объекты build).
+     1>InitializeBuildStatus:
+         Создание "Release\my_prog.unsuccessfulbuild", так как было задано "AlwaysCreate".
+       ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /IC:\root\include /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt main.cpp
+         main.cpp
+     1>main.cpp(34): warning C4244: аргумент: преобразование "double" в "unsigned int", возможна потеря данных
+     1>main.cpp(35): warning C4244: аргумент: преобразование "double" в "unsigned int", возможна потеря данных
+     1>main.cpp(47): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\stdio.h(234): см. объявление "fopen"
+     1>main.cpp(56): warning C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\stdio.h(253): см. объявление "fscanf"
+     1>main.cpp(73): warning C4018: <: несоответствие типов со знаком и без знака
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\diplom\VS\signal_processing\signal_processing_SPM_gain\Release\my_prog.exe" /INCREMENTAL:NO /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Release\my_prog.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\diplom\VS\signal_processing\signal_processing_SPM_gain\Release\my_prog.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\diplom\VS\signal_processing\signal_processing_SPM_gain\Release\my_prog.lib" /MACHINE:X86 Release\main.obj
+         Создание кода
+         Создание кода завершено
+         my_prog.vcxproj -> C:\diplom\VS\signal_processing\signal_processing_SPM_gain\Release\my_prog.exe
+       Manifest:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /outputresource:"C:\diplom\VS\signal_processing\signal_processing_SPM_gain\Release\my_prog.exe;#1" /manifest Release\my_prog.exe.intermediate.manifest
+       FinalizeBuildStatus:
+         Файл "Release\my_prog.unsuccessfulbuild" удаляется.
+         Обращение к "Release\my_prog.lastbuildstate".
+     1>Построение проекта "C:\diplom\VS\signal_processing\signal_processing_SPM_gain\my_prog\my_prog.vcxproj" завершено (целевые объекты build).
+
+Построение успешно завершено.
+
+Затраченное время: 00:00:01.78

@@ -1,0 +1,14 @@
+Hello!
+
+I use SP5600A.
+I want to measure dark count rate, so I tried to use SiPM Kit Control Software.
+If I use SP5600 and DT5720A, I don't have any problems(Screenshot_1, install_1).
+
+I want to use another (not SP5600) Power Supply and Amplification Unit and measure the staircase again (install_2).
+Unfortunately, your program don't work in this case (Screenshot_2).
+At the same time I do have signal (Screenshot_3).
+
+And I see something strange: if I turn on voltage on the ch.1 of the SP5600 I get staircase.
+Is this staircase correct or wrong?
+
+I don't have opportunity to check this.
