@@ -33,7 +33,7 @@ const double threshold_der = -7; // mV
 int main()
 {
 	string directory_init = "D:\\Data_work\\afterpulsing\\265T_24.00V\\";
-	string directory_raw = directory_init + "raw\\265T_24.00V_001_wf_1.dat";
+	string directory_raw = directory_init + "raw\\265T_24.00V_003_wf_1.dat";
 
 	string directory_time = directory_init + "time.dat";
 	string directory_charge = directory_init + "charge.dat";
@@ -100,11 +100,11 @@ int main()
 				{
 					//calculate baseline
 					baseline = 0;
-					for (int j = (i - 20); j < (i - 10); j++)
+					for (int j = (i - 10); j < (i - 5); j++)
 					{
 						baseline += yv[j];
 					}
-					baseline /= 10;
+					baseline /= 5;
 
 					////calculate integral
 					//integral = 0;
