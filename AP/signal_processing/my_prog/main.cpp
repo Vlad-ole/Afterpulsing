@@ -4,7 +4,7 @@
 #include <sstream>
 #include <iomanip>
 
-
+#include "FFT.h"
 #include <stdio.h>
 #include <conio.h>
 #include <dos.h>
@@ -12,8 +12,6 @@
 #include <time.h>
 #include <sys/timeb.h>
 #include <iostream>
-#include <sstream>
-#include <iomanip>
 #include <math.h>
 
 using namespace std;
@@ -32,8 +30,8 @@ const double threshold_der = -7; // mV
 
 int main()
 {
-	string directory_init = "D:\\Data_work\\afterpulsing\\265T_24.00V\\";
-	string directory_raw = directory_init + "raw\\265T_24.00V_003_wf_1.dat";
+	string directory_init = "D:\\Data_work\\afterpulsing\\275T_71.00V_ham_33_25\\";
+	string directory_raw = directory_init + "raw\\ham_test_000_wf_1.dat";
 
 	string directory_time = directory_init + "time.dat";
 	string directory_charge = directory_init + "charge.dat";
@@ -52,6 +50,8 @@ int main()
 	ofstream file_time(directory_time);
 	ofstream file_charge(directory_charge);
 	ofstream file_time_charge(directory_time_charge);
+
+	ofstream file_out(directory_init + "out.dat");
 
 
 	vector<double> xv;
@@ -78,10 +78,18 @@ int main()
 		{
 			cout << "part " << counter << " was started" << endl;
 			counter++;
-					
-			
+
+
+			////filter
+			//for (int k = 5; k < rec_lenght; k++)
+			//{
+			//	yv[k] = (yv[k - 4] + yv[k - 3] + yv[k - 2] + yv[k - 1] + yv[k]) / 5;
+			//	//file_out << k << "\t" << yv[k] << endl;
+			//}
+
+			//calculate derivative	
 			yv_der.push_back(0);
-			for (int i = 1; i < xv.size(); i++)
+			for (int i = 1; i < rec_lenght; i++)
 			{
 				yv_der.push_back(yv[i] - yv[i - 1]);
 				//file_out << xv[i] << "\t" << yv_der[i] << endl;
@@ -100,11 +108,12 @@ int main()
 				{
 					//calculate baseline
 					baseline = 0;
-					for (int j = (i - 10); j < (i - 5); j++)
+					for (int j = (i - 6); j < (i - 5); j++)
 					{
 						baseline += yv[j];
 					}
-					baseline /= 5;
+
+					baseline /= 1;
 
 					////calculate integral
 					//integral = 0;
@@ -147,16 +156,13 @@ int main()
 			xv.clear();
 			yv.clear();
 			yv_der.clear();
+						
 
 		}
 
-
-
-
 	}
 
-
-
+	fclose(work_file);
 
 	system("PAUSE");
 	return 0;
