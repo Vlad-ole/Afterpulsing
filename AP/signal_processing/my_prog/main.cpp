@@ -15,23 +15,15 @@
 #include <math.h>
 
 using namespace std;
-const double threshold = -100; // in mV
-double time_v = 400;//=150; //in nanoseconds!!!
-const double shift = -100; //in nanoseconds
-const double shift_initial = 1000; //in nanoseconds
-const double ADC_time = 1.0 / 5; //in nanoseconds
-const double ADC_time_absolute = ADC_time*pow(10.0, -9); //in seconds
-//const double z_shift=-6.05442; //750V
-const double z_shift = 0; //800V
 
 
-const int rec_lenght = 30000; // (points)
+const int rec_lenght = 50; // (points)
 const double threshold_der = -7; // mV
 
 int main()
 {
-	string directory_init = "D:\\Data_work\\afterpulsing\\275T_71.00V_ham_33_25\\";
-	string directory_raw = directory_init + "raw\\ham_test_000_wf_1.dat";
+	string directory_init = "D:\\Data_work\\recovery_time\\Hamamatsu_S10362-33-025C\\295K_73.00V\\";
+	string directory_raw = directory_init + "raw\\recovery_time_000_wf_1.dat";
 
 	string directory_time = directory_init + "time.dat";
 	string directory_charge = directory_init + "charge.dat";
