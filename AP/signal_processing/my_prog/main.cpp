@@ -52,6 +52,7 @@ int main()
 	ofstream file_time_charge(directory_time_charge);
 
 	ofstream file_out(directory_init + "out.dat");
+	ofstream file_1e(directory_init + "//1e//1e.dat");
 
 
 	vector<double> xv;
@@ -104,7 +105,7 @@ int main()
 
 			for (int i = 0; i < xv.size(); i++)
 			{
-				if ((yv_der[i] < threshold_der) && flag && (i > 150) && ( (i + 5) < xv.size() ) )
+				if ((yv_der[i] < threshold_der) && flag && (i > 150) && ( (i + 30) < xv.size() ) )
 				{
 					//calculate baseline
 					baseline = 0;
@@ -138,6 +139,17 @@ int main()
 					{
 						file_time << xv[i] - x_time << endl;
 						file_time_charge << xv[i] - x_time << "\t" << integral << endl;
+					}
+
+
+					if (x_time > 200)
+					{
+						int counter_2 = 0;
+						for (int l = (i - 10); l < (i + 30); l++)
+						{
+							file_1e << counter_2 << "\t" << yv[l] << endl;
+							counter_2++;
+						}						
 					}
 
 					x_time = xv[i];

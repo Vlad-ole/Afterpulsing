@@ -1,14 +1,14 @@
-﻿Build started 30.06.2015 13:50:14.
+﻿Build started 30.06.2015 15:37:44.
      1>Project "D:\git_repositories\Afterpulsing\AP\signal_processing\my_prog\my_prog.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I"C:\root_v5.34.26\fftw-3.3.4-dll32" /IC:\root_v5.34.26\include /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /Gm /EHsc /MDd /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /GR /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt main.cpp
          main.cpp
      1>d:\git_repositories\afterpulsing\ap\signal_processing\my_prog\main.cpp(42): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
                  c:\program files (x86)\microsoft visual studio 12.0\vc\include\stdio.h(211) : see declaration of 'fopen'
-     1>d:\git_repositories\afterpulsing\ap\signal_processing\my_prog\main.cpp(71): warning C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+     1>d:\git_repositories\afterpulsing\ap\signal_processing\my_prog\main.cpp(72): warning C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
                  c:\program files (x86)\microsoft visual studio 12.0\vc\include\stdio.h(230) : see declaration of 'fscanf'
-     1>d:\git_repositories\afterpulsing\ap\signal_processing\my_prog\main.cpp(105): warning C4018: '<' : signed/unsigned mismatch
-     1>d:\git_repositories\afterpulsing\ap\signal_processing\my_prog\main.cpp(107): warning C4018: '<' : signed/unsigned mismatch
+     1>d:\git_repositories\afterpulsing\ap\signal_processing\my_prog\main.cpp(106): warning C4018: '<' : signed/unsigned mismatch
+     1>d:\git_repositories\afterpulsing\ap\signal_processing\my_prog\main.cpp(108): warning C4018: '<' : signed/unsigned mismatch
        Link:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"D:\git_repositories\Afterpulsing\AP\signal_processing\Debug\my_prog.exe" /INCREMENTAL /NOLOGO complexDict.lib dequeDict.lib freetype.lib libAfterImage.lib libASImage.lib libASImageGui.lib libCint.lib libCintex.lib libCore.lib libEG.lib libEGPythia6.lib libEGPythia8.lib libEve.lib libFitPanel.lib libFoam.lib libFTGL.lib libFumili.lib libGdml.lib libGed.lib libGenetic.lib libGenVector.lib libGeom.lib libGeomBuilder.lib libGeomPainter.lib libGLEW.lib libGpad.lib libGraf.lib libGraf3d.lib libGui.lib libGuiBld.lib libGuiHtml.lib libGviz3d.lib libHist.lib libHistPainter.lib libHtml.lib libMathCore.lib libMathMore.lib libMatrix.lib libMinuit.lib libMinuit2.lib libMLP.lib libNet.lib libPhysics.lib libPostscript.lib libProof.lib libProofBench.lib libProofDraw.lib libProofPlayer.lib libPyROOT.lib libQuadp.lib libRecorder.lib libReflex.lib libReflexDict.lib libRGL.lib libRHTTP.lib libRint.lib libRIO.lib libRODBC.lib libRooFit.lib libRooFitCore.lib libRooStats.lib libRootAuth.lib libSessionViewer.lib libSmatrix.lib libSpectrum.lib libSpectrumPainter.lib libSPlot.lib libSQLIO.lib libTable.lib libThread.lib libTMVA.lib libTree.lib libTreePlayer.lib libTreeViewer.lib libUnuran.lib libVMC.lib libWin32gdk.lib libXMLIO.lib listDict.lib map2Dict.lib mapDict.lib mathtext.lib multimap2Dict.lib multimapDict.lib multisetDict.lib setDict.lib vectorDict.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:\git_repositories\Afterpulsing\AP\signal_processing\Debug\my_prog.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\git_repositories\Afterpulsing\AP\signal_processing\Debug\my_prog.lib" /MACHINE:X86 Debug\FFT.obj
          Debug\main.obj
@@ -17,4 +17,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:00.78
+Time Elapsed 00:00:00.70
