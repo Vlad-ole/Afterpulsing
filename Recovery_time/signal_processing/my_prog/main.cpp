@@ -116,62 +116,80 @@ int main()
 
 			file_amp << amplitude << endl;
 
+
+			int number_of_pulsing = 0;
 			if (amplitude > 3630)
 			{
-				counter_2++;
+
+
+
 				for (int i = 0; i < xv.size(); i++)
 				{
 
-					yv_average[i] += yv[i];
+					if ((yv_der[i] < threshold_der) && flag /* && (i > 150) && ( (i + 30) < xv.size() )*/)
+					{
+						number_of_pulsing++;
+
+						////calculate baseline
+						//baseline = 0;
+						//for (int j = (i - 8); j < (i - 5); j++)
+						//{
+						//	baseline += yv[j];
+						//}
+
+						//baseline /= 3;
+
+
+						////calculate amplitude
+						//integral = 5000;
+						//for (int j = (i - 5); j < (i + 5); j++)
+						//{
+						//	if (yv[j] < integral)
+						//		integral = yv[j];
+						//}
+
+						//integral = baseline - integral;
 
 
 
-					//if ((yv_der[i] < threshold_der) && flag /* && (i > 150) && ( (i + 30) < xv.size() )*/ )
-					//{
-					//	//calculate baseline
-					//	baseline = 0;
-					//	for (int j = (i - 8); j < (i - 5); j++)
-					//	{
-					//		baseline += yv[j];
-					//	}
+						//if (x_time != 0 /*&& x_time > 200*/)
+						//{
+						//	file_charge << integral << endl;
+						//	
+						//	file_time << xv[i] - x_time << endl;
+						//	file_time_charge << xv[i] - x_time << "\t" << integral << endl;
 
-					//	baseline /= 3;
+						//}
 
-					//	
-					//	//calculate amplitude
-					//	integral = 5000;
-					//	for (int j = (i - 5); j < (i + 5); j++)
-					//	{
-					//		if (yv[j] < integral)
-					//			integral = yv[j];
-					//	}
+						x_time = xv[i];
 
-					//	integral = baseline - integral;
-
-					//	
-
-					//	if (x_time != 0 /*&& x_time > 200*/)
-					//	{
-					//		file_charge << integral << endl;
-					//		
-					//		file_time << xv[i] - x_time << endl;
-					//		file_time_charge << xv[i] - x_time << "\t" << integral << endl;
-
-					//	}
-
-					//	x_time = xv[i];
-
-					//	flag = 0;
-					//}
+						flag = 0;
+					}
 
 
-					//if (yv[i] > threshold_der && flag == 0 && ((xv[i] - x_time) > 1))
-					//{
-					//	flag = 1;
-					//}
+					if (yv[i] > threshold_der && flag == 0 && ((xv[i] - x_time) > (1)))
+					{
+						flag = 1;
+					}
 
 				}
+
+
+
 			}
+
+
+			if (number_of_pulsing == 1 && amplitude > 3630)
+			{
+				
+				counter_2++;
+				for (int i = 0; i < rec_lenght; i++)
+				{					
+					yv_average[i] += yv[i];
+				}
+
+			}
+
 
 			xv.clear();
 			yv.clear();
