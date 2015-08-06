@@ -9,7 +9,7 @@ void hist_2d(char name[])
 	Double_t x, y;
 	FILE *f = fopen(name,"r");
 	
-	TH2F *h2 = new TH2F("hist", "hist_", 7000, -300, 7300, 35, -5, 30);
+	TH2F *h2 = new TH2F("hist", "hist_", 7000, -300, 7300, 35, -5, 60);
 		
 	while (!feof(f))
 	{ 

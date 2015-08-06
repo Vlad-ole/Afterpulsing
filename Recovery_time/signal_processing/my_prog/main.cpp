@@ -17,13 +17,13 @@
 using namespace std;
 
 
-const int rec_lenght = 296; // (points)
+const int rec_lenght = 96; // (points)
 const double threshold_der = -7; // mV
 
 int main()
 {
-	string directory_init = "D:\\Data_work\\recovery_time\\Hamamatsu_S10362-33-025C\\295K_73.00V\\";
-	string directory_raw = directory_init + "raw\\recovery_time_004_wf_1.dat";
+	string directory_init = "D:\\Data_work\\recovery_time\\Hamamatsu_S10362-33-025C\\290K_72.78V\\";
+	string directory_raw = directory_init + "raw\\dump_000_wf_1.dat";
 
 	string directory_time = directory_init + "time.dat";
 	string directory_charge = directory_init + "charge.dat";
@@ -120,9 +120,7 @@ int main()
 			int number_of_pulsing = 0;
 			if (amplitude > 3630)
 			{
-
-
-
+				
 				for (int i = 0; i < xv.size(); i++)
 				{
 
