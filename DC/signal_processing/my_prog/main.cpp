@@ -25,7 +25,7 @@ bool filter = false;
 
 int main()
 {
-	string directory_init = "D:\\Data_work\\dark_current\\Hamamatsu_S10362-33-025C\\275K_73.30V\\";
+	string directory_init = "D:\\Data_work\\dark_current\\Hamamatsu_S10362-33-025C\\295\\295K_71.90V\\";
 	string directory_raw = directory_init + "raw\\dump_000_wf_1.dat";
 
 
