@@ -38,7 +38,7 @@ Double_t fitFunction(Double_t *x,Double_t *par)
 		//return V_0;
 }
 
-void fit_recovery_time(char name[])
+void fit_recovery_time_tektronix(char name[])
 {
 	TCanvas *c1 = new TCanvas("c1","A Simple Graph Example",200,10,700,500);
 	c1->SetGrid();
@@ -49,7 +49,7 @@ void fit_recovery_time(char name[])
 	std::vector<double> xverr;
 	std::vector<double> yverr;
 		
-	int rec_lenght = 296;
+	int rec_lenght = 1500;
 		
 	Double_t x, y, xerr, yerr;
 	FILE *f = fopen(name,"r");
@@ -59,7 +59,7 @@ void fit_recovery_time(char name[])
 	while (!feof(f))
 	{ 
 		fscanf(f,"%lf %lf %lf %lf\n", &x, &y, &xerr, &yerr);
-		xv.push_back(x*4); // in ns
+		xv.push_back(x*0.2); // in ns
 		yv.push_back(y);
 		
 		//xverr.push_back(xerr*4);
@@ -96,15 +96,15 @@ void fit_recovery_time(char name[])
 			
 			
 			TGraphErrors * gr = new TGraphErrors(xv.size(), &xv[0], &yv[0], &xverr[0], &yverr[0]);
-			TF1 *fitFcn = new TF1("fitFcn", fitFunction, 0, 250, 6);
+			TF1 *fitFcn = new TF1("fitFcn", fitFunction, 0, 1600, 6);
 			
 			double base_line = 0;
-			for(int j = 0; j < 20; j++)
+			for(int j = 0; j < 300; j++)
 			{
 				base_line += yv[j];			
 			}
 			
-			base_line /= 20;
+			base_line /= 300;
 			
 			//cout << base_line << endl;
 			
@@ -119,7 +119,7 @@ void fit_recovery_time(char name[])
 			*/
 			
 			//convolution
-			fitFcn->SetParLimits(0, 35, 50); // A
+			fitFcn->SetParLimits(0, -0.1, 0); // A
 			
 			 //sigma
 			fitFcn->SetParameter(1, 5);

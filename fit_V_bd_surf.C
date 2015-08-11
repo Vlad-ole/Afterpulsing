@@ -6,12 +6,19 @@ using namespace std;
 
 Double_t fitFunction(Double_t *x, Double_t *par) 
 { 
+	double T = x[0];
+	double V = x[1];
+	
+	double a = par[0];
+	double b = par[1];
+	double c = par[2];
+	
 	//return par[0] * pow(x[0], 1.5) * TMath::Exp(- par[1] / x[0] ) * TMath::Exp( par[2] * x[1] );  // exp
-	return par[0] * pow(x[0], 1.5) * TMath::Exp(- par[1] / x[0] ) * ( par[2] * x[1] + par[3] ); // line
+	return a*V + b*T + c;
 }
 
 
-void fit_dc_surf(char name[])
+void fit_V_bd_surf(char name[])
 {
 	TCanvas *c1 = new TCanvas("c1","A Simple Graph Example",200,10,700,500);
 	c1->SetGrid();
@@ -24,44 +31,40 @@ void fit_dc_surf(char name[])
 	std::vector<double> yerrv;
 	std::vector<double> zerrv;
 	
-	Double_t x, y, z, xerr, yerr, zerr;
+	Double_t x, y, z;
 	FILE *f = fopen(name,"r");
 	
 	while (!feof(f))
 	{ 
-		fscanf(f,"%lf %lf %lf %lf %lf %lf\n", &x, &xerr, &y, &yerr, &z, &zerr);
+		fscanf(f,"%lf %lf %lf \n", &x, &y, &z);
 		xv.push_back(x); 
 		yv.push_back(y);
 		zv.push_back(z);
 		
-		xerrv.push_back(xerr);
-		yerrv.push_back(yerr);
-		zerrv.push_back(zerr);
+		
 	}	
 
+			for (int i = 0; i < xv.size(); i++)
+			{
+				xerrv.push_back(0.29);
+				yerrv.push_back(0.01);
+				zerrv.push_back(1);
+			}
+			
+			
 			TGraph2DErrors * gr = new TGraph2DErrors(xv.size(), &xv[0], &yv[0], &zv[0], &xerrv[0], &yerrv[0], &zerrv[0]);
-			TF2 *fitFcn = new TF2("fitFcn", fitFunction, 260, 300, 2, 6, 4);
+			TF2 *fitFcn = new TF2("fitFcn", fitFunction, 260, 300, 68, 75, 3);
+	
 			
-			//exp	
-			/*			
-			fitFcn->SetParameter(0, 1E5); 
-			fitFcn->SetParameter(1, 3133); 
-			fitFcn->SetParameter(2, 0.442); 
-				
-			fitFcn->SetParLimits(0, 0, 1E10);
-			fitFcn->SetParLimits(1, 1000, 5000);
-			fitFcn->SetParLimits(2, 0.1, 1);
-			*/
+			fitFcn->SetParameter(0, 4.80590e+001); 
+			fitFcn->SetParameter(1, -1.97756e+000); 
+			fitFcn->SetParameter(2, -2.74847e+003); 
+
 			
-			fitFcn->SetParameter(0, 300); 
-			fitFcn->SetParameter(1, 3133); 
-			fitFcn->SetParameter(2, 1E5); 
-			fitFcn->SetParameter(3, -1E4); 
+			fitFcn->SetParLimits(0, 1, 100);
+			fitFcn->SetParLimits(1, -10, 0);
+			fitFcn->SetParLimits(2, -10000, -100);
 			
-			fitFcn->SetParLimits(0, 0, 1000);
-			fitFcn->SetParLimits(1, 1000, 5000);
-			fitFcn->SetParLimits(2, 1E5, 1E6);
-			fitFcn->SetParLimits(3, -1E6, -1E3);
 			
 			
 			gr->Fit("fitFcn", "R");	
