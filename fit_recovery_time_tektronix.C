@@ -49,7 +49,7 @@ void fit_recovery_time_tektronix(char name[])
 	std::vector<double> xverr;
 	std::vector<double> yverr;
 		
-	int rec_lenght = 1500;
+	int rec_lenght = 10000;
 		
 	Double_t x, y, xerr, yerr;
 	FILE *f = fopen(name,"r");
@@ -58,7 +58,7 @@ void fit_recovery_time_tektronix(char name[])
 	
 	while (!feof(f))
 	{ 
-		fscanf(f,"%lf %lf %lf %lf\n", &x, &y, &xerr, &yerr);
+		fscanf(f,"%lf %lf\n", &x, &y);
 		xv.push_back(x*0.2); // in ns
 		yv.push_back(y);
 		
@@ -69,19 +69,19 @@ void fit_recovery_time_tektronix(char name[])
 		{
 			double disp = 0;
 			double avg = 0;
-			for (int j = 100; j < 250; j++)
+			for (int j = 400; j < 800; j++)
 			{
 				avg += yv[j];
 			}
 			
-			avg /= 150;
+			avg /= 800;
 			
-			for (int j = 100; j < 250; j++)
+			for (int j = 400; j < 800; j++)
 			{
 				disp += pow(yv[j] - avg, 2.0);
 			}
 			
-			disp /= 150;
+			disp /= 400;
 			
 			disp = sqrt(disp);
 			
@@ -96,15 +96,15 @@ void fit_recovery_time_tektronix(char name[])
 			
 			
 			TGraphErrors * gr = new TGraphErrors(xv.size(), &xv[0], &yv[0], &xverr[0], &yverr[0]);
-			TF1 *fitFcn = new TF1("fitFcn", fitFunction, 0, 1600, 6);
+			TF1 *fitFcn = new TF1("fitFcn", fitFunction, 950, 1500, 6);
 			
 			double base_line = 0;
-			for(int j = 0; j < 300; j++)
+			for(int j = 400; j < 800; j++)
 			{
 				base_line += yv[j];			
 			}
 			
-			base_line /= 300;
+			base_line /= 400;
 			
 			//cout << base_line << endl;
 			
@@ -118,22 +118,29 @@ void fit_recovery_time_tektronix(char name[])
 			fitFcn->SetParLimits(4, base_line, base_line);
 			*/
 			
+			
 			//convolution
-			fitFcn->SetParLimits(0, -0.1, 0); // A
+			fitFcn->SetParameter(0, 0.012);
+			fitFcn->SetParLimits(0, 0.008, 0.025); // A
 			
 			 //sigma
-			fitFcn->SetParameter(1, 5);
-			fitFcn->SetParLimits(1, 5, 5);
+			fitFcn->SetParameter(1, 2);
+			fitFcn->SetParLimits(1, 2, 8);
 			//fitFcn->FixParameter(1, 0);
 			
-			fitFcn->SetParLimits(2, 15, 30); // tau_rec
-			fitFcn->SetParLimits(3, 1, 8); // tau_rise
+			// tau_rec
+			fitFcn->SetParameter(2, 15);
+			fitFcn->SetParLimits(2, 10, 30);
+			
+			fitFcn->SetParameter(3, 10);
+			fitFcn->SetParLimits(3, 1, 15); // tau_rise
 			
 			fitFcn->SetParameter(4, base_line);
 			fitFcn->SetParLimits(4, base_line, base_line);
 			
-			fitFcn->SetParLimits(5, 80, 110); //t_0
-					
+			fitFcn->SetParameter(5, 1000);
+			fitFcn->SetParLimits(5, 900, 1100); //t_0
+				
 			
 			gr->Fit("fitFcn", "R");	
 			gr->SetMarkerColor(4);

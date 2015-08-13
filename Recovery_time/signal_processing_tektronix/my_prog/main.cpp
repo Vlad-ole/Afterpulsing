@@ -18,7 +18,7 @@ using namespace std;
 
 
 const int rec_lenght = 19999981; // (points)
-const double threshold_der = -7; // mV
+const double threshold_der = -0.006; // mV
 const double threshold = -0.008; // V
 const double threshold_2e = -0.018; // V
 
@@ -43,15 +43,26 @@ int main()
 	ofstream file_out(directory_init + "out.dat");
 	ofstream file_test(directory_init + "test.dat");
 
+	ofstream file_derivative(directory_init + "derivative.dat");
+	//ofstream file_der_staircase(directory_init + "der_staircase.dat");
+
+	ofstream file_test_signal(directory_init + "test_signal.dat");
+
+	ofstream file_num_1e(directory_init + "num_1e.dat");
 
 	vector<double> xv;
 	vector<double> yv;
 
+	vector<double> yv_der;
+
 	vector<double> yv_average;
 
-	int time_pre =  (100 / 0.2);
-	int time_post = (200 / 0.2);
-	int time_gate = time_post + time_pre;
+	const int time_pre = (1000 / 0.2);
+	const int time_post = (1000 / 0.2);
+
+
+	const int time_gate = time_post + time_pre;
+	const int step = 20;
 
 	cout << time_pre << "\t" << time_post << "\t" << time_gate << endl;
 
@@ -84,103 +95,178 @@ int main()
 
 		if (xv.size() % 100000 == 0)
 		{
-			cout << double (xv.size()) / rec_lenght * 100 << " %" << endl;
+			cout << double(xv.size()) / rec_lenght * 100 << " %" << endl;
 			//break;
 		}
 
 
-		if (xv.size() % rec_lenght == 0) // if you don't have enough memory, you shoud decrease rec_lenght parameter (only here)
+		if (xv.size() % rec_lenght == 0) // 
 		{
 			cout << "part " << counter << " was started" << endl;
 			counter++;
 
+
+			//caclulate derivative
+			for (int i = 0; i < (xv.size() - step); i++)
+			{
+				yv_der.push_back(yv[i + step] - yv[i]);
+			}
+
+			// лестница для производной
+			/*bool flag_0 = 1;
+			int th_der_count = 0;
+			double th_der_time_last = 0;
+
+			for (double th_der = 0; th_der > -0.03; th_der-=0.0004)
+			{			
+				
+				th_der_count = 0;
+				for (int i = 0; i < (xv.size() - step); i++)
+				{
+					if ((yv_der[i] < th_der) && flag_0 && (i > time_pre) && ((i + time_post) < (xv.size() - step)))
+					{
+						th_der_count++;
+						flag_0 = 0;
+						th_der_time_last = xv[i];
+					}
+
+					if (yv_der[i] > th_der && flag_0 == 0 && ((xv[i] - th_der_time_last) > 20 * 2E-10) )
+					{
+						flag_0 = 1;
+					}
+
+				}
+
+				file_der_staircase << th_der << "\t" << th_der_count << endl;
+
+			}*/
+
+			
 			//caclulate delta time and charge
 			bool flag = 1;
 			double baseline;
 			double integral;
-			double x_time = 0;			
+			double x_time = 0;
+			double amplitude;
+			int total_num_pulsing;
+			bool flag_afp;
+			int x_time_afp;
 			
-						
-			for (int i = 0; i < xv.size(); i++)
+			bool one_time = 1;
+
+			for (int i = 0; i < (xv.size() - step); i++)
 			{
 
-				
-				
-				if ((yv[i] < threshold) && flag && (i > time_pre) && ((i + time_post) < xv.size()))
+				if ((yv[i] < threshold) && flag && (i > time_pre) && ((i + time_post) < (xv.size() - step)))
 				{
-					//calculate amplitude
-					double amplitude = 5000;
+
+					flag_afp = 1;
+					//x_time_afp = i;
+					total_num_pulsing = 0;
+
+
+					//вычисление количества импульсов на отрезке 
 					for (int j = i - time_pre; j < i + time_post; j++)
 					{
-						if (yv[j] < amplitude)
-							amplitude = yv[j];
-					}
-
-					file_amp << amplitude << endl;
-
-					
-					
-					
-					if (amplitude > threshold_2e)
-					{
-						number_of_pulsing++;
-						//cout << "number_of_pulsing " <<  number_of_pulsing << endl;
-						
-						for (int j = -time_pre; j < time_post; j++)
+						if (yv_der[j] < threshold_der && flag_afp)
 						{
-							yv_average[j + time_pre] += yv[i + j];
-							//cout << i + j << "\t" << yv[i + j] << endl;
+							total_num_pulsing++;
+							flag_afp = 0;
 
-							//cout << j << "\t" << time_pre << "\t" << j + time_pre << endl;
-							
-							if ( (j + time_pre) == 512 )
-								cout << yv[i + j] << endl;
-
+							x_time_afp = j;
 						}
 
-						//cout << "yv[i + 11] " << yv[i + 11] << " number_of_pulsing " << number_of_pulsing << endl;
-						//cout << "yv[i + 12] " << yv[i + 12] << " number_of_pulsing " << number_of_pulsing << endl;
-						//cout << "yv[i + 13] " << yv[i + 13] << " number_of_pulsing " << number_of_pulsing << endl;
-						//cout << endl;
+						if (yv_der[j] > threshold_der && (flag_afp == 0) && (j - x_time_afp) > 40)
+						{
+							flag_afp = 1;
+							 
+						}
+					}
+
+					cout << "total_num_pulsing " << total_num_pulsing << endl;
+
+					if (total_num_pulsing == 1 && one_time)
+					{
+						for (int j = i - time_pre; j < i + time_post; j++)
+						{
+							file_test_signal << j << "\t" << yv[j] << endl;
+						}
+						
+						one_time = 0;
+					}
+
+					file_test << total_num_pulsing << endl;
+
+
+					amplitude = 5000;
+					if (total_num_pulsing == 1) // отбрасывание послеимпульсов
+					{
+						for (int j = i - time_pre; j < i + time_post; j++) // нахождение максимальной амплитуды
+						{
+							if (yv[j] < amplitude)
+								amplitude = yv[j];
+						}
+
+						if (amplitude > threshold_2e && amplitude < threshold) // проверка, что импульс одноэлектронный
+						{
+
+							number_of_pulsing++;
+							for (int j = -time_pre; j < time_post; j++)// записть значений в вектор среднего
+							{
+								yv_average[j + time_pre] += yv[i + j];
+							}
+						}
 
 					}
 
-					x_time = xv[i];
 
+
+					x_time = xv[i];
 					flag = 0;
+
 				}
 
 
-				//cout << "(xv[i] - x_time) " << (xv[i] - x_time) << "time_post / (2E-10) " << time_post << endl;
-
-				if ( yv[i] > threshold && flag == 0 && ( (xv[i] - x_time) > time_post*2E-10 ) )
+				if (yv[i] > threshold && flag == 0 && ((xv[i] - x_time) > time_post*2E-10))
 				{
 					flag = 1;
 				}
-
 			}
+
+
+
+			////writre file with derivative
+
+			//for (int k = step; k < 50000; k++)
+			//{
+			//	file_derivative << k*2E-10 << "\t" << yv[k + step] - yv[k] << endl;
+			//}
+
+
+			//for (int k = step; k < 50000; k++)
+			//{
+			//	file_part_signal << xv[k] << "\t" << yv[k] << endl;
+			//}
+
 
 			xv.clear();
 			yv.clear();
-
 		}
 
 	}
 
-	cout << yv_average[512] << endl;
 
-	for (int i = 0; i < (time_gate ); i++)
-	{
-		file_test << i << "\t" << yv_average[i] << endl;
-	}
-	
+
+
 	for (int i = 0; i < (time_gate); i++)
 	{
 		file_average_signal << i << "\t" << yv_average[i] / number_of_pulsing << endl;
 	}
-	
+
 	cout << "number_of_pulsing = \t" << number_of_pulsing << endl;
 
+
+	file_num_1e << number_of_pulsing  << endl;
 
 	fclose(work_file);
 
