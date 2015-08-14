@@ -25,7 +25,7 @@ bool filter = false;
 
 int main()
 {
-	string directory_init = "D:\\Data_work\\dark_current\\Hamamatsu_S10362-33-025C\\295\\295K_71.90V\\";
+	string directory_init = "D:\\Data_work\\dark_current\\Hamamatsu_S10362-33-025C\\295\\295K_73.00V\\";
 	string directory_raw = directory_init + "raw\\dump_000_wf_1.dat";
 
 
@@ -87,9 +87,9 @@ int main()
 			//filter
 			if (filter)
 			{
-				for (int k = 5; k < rec_lenght; k++)
+				for (int k = 3; k < rec_lenght; k++)
 				{
-					yv[k] = (yv[k - 4] + yv[k - 3] + yv[k - 2] + yv[k - 1] + yv[k]) / 5;
+					yv[k] = (yv[k - 2] + yv[k - 1] + yv[k]) / 3;
 					//file_out << k << "\t" << yv[k] << endl;
 				}
 			}
@@ -99,25 +99,45 @@ int main()
 			for (int threshold = threshold_init; threshold > threshold_final; threshold--)
 			{
 				signal_counter = 0;
+				flag = 1;
+				x_time = 0;
 
 				//int threshold = threshold_init;
 
 				for (int i = 0; i < xv.size(); i++)
 				{
 
+					//slava variant
 					if ((yv[i] < threshold) && flag /* && (i > 150) && ( (i + 30) < xv.size() )*/)
 					{
 						signal_counter++;
 						x_time = xv[i];
 						flag = 0;
-						//cout << "signal" << endl;
 					}
 
 
-					if (yv[i] > threshold && flag == 0 && ((xv[i] - x_time) > (1)))
+					if (yv[i] > threshold + 7)// && flag == 0)// && ((xv[i] - x_time) > (25)))
 					{
 						flag = 1;
 					}
+
+
+					////vlad variant
+					//int t_dead = 1;
+
+					//if ( (yv[i] < threshold) && flag && (i + t_dead) < xv.size() )
+					//{
+					//	signal_counter++;
+					//	x_time = xv[i];
+					//	flag = 0;
+					//}
+
+
+					//if (yv[i] > threshold && flag == 0 && ((xv[i] - x_time) > (t_dead)))
+					//{
+					//	flag = 1;
+					//}
+
 
 				}
 

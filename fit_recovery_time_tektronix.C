@@ -4,6 +4,31 @@
 
 using namespace std;
 
+
+double F(double t, double sigma, double tau)
+{
+	return TMath::Exp( (sigma*sigma - 2*t*sigma) / (2*tau*tau) ) * ( 1 + TMath::Erf( (t - sigma*sigma/tau) / (sigma * sqrt(2)) ) );
+}
+
+
+Double_t fitFunction(Double_t *x,Double_t *par) 
+{ 
+	double A = par[0];
+	double t_0 = par[1];
+	double tau_rec_fast = par[2];
+	double tau_rise = par[3];
+	double V_0 = par[4];
+
+	double sigma = par[5];
+
+	double t = x[0] - t_0;
+	double tau_total_fast = (tau_rec_fast * tau_rise) / (tau_rec_fast + tau_rise);
+	
+
+	return -(A/2) * ( F(t, sigma, tau_rec_fast) + F(t, sigma, tau_total_fast) )  + V_0; 
+
+}
+
 /*
 Double_t fitFunction(Double_t *x,Double_t *par) 
 { 
@@ -14,29 +39,6 @@ Double_t fitFunction(Double_t *x,Double_t *par)
 		return par[4];
 }
 */
-
-Double_t fitFunction(Double_t *x,Double_t *par) 
-{ 
-	double A = par[0];
-	double sigma = par[1];
-	double tau_rec = par[2];
-	double tau_rise = par[3];
-	double V_0 = par[4];
-	double t_0 = par[5];
-	
-	double t = x[0] - t_0;
-	double tau_total = (tau_rec * tau_rise) / (tau_rec + tau_rise);
-	
-	double arg_1 = (pow(sigma, 2.0) - 2*t*tau_rec) / (2 * pow(tau_rec, 2.0)) ;
-	double arg_2 = ( t - pow(sigma, 2.0) / tau_rec ) / ( sigma * sqrt(2) );
-	double arg_3 = (pow(sigma, 2.0) - 2*t*tau_total) / (2 * pow(tau_total, 2.0));
-	double arg_4 = ( t - pow(sigma, 2.0) / tau_total ) / ( sigma * sqrt(2) );
-	
-	//if (t > 0)	
-		return -(A/2) * ( TMath::Exp( arg_1 ) * ( 1 + TMath::Erf(arg_2) )  + TMath::Exp( arg_3 ) * ( 1 + TMath::Erf(arg_4) ) ) + V_0; 
-	//else
-		//return V_0;
-}
 
 void fit_recovery_time_tektronix(char name[])
 {
@@ -96,7 +98,7 @@ void fit_recovery_time_tektronix(char name[])
 			
 			
 			TGraphErrors * gr = new TGraphErrors(xv.size(), &xv[0], &yv[0], &xverr[0], &yverr[0]);
-			TF1 *fitFcn = new TF1("fitFcn", fitFunction, 950, 1500, 6);
+			TF1 *fitFcn = new TF1("fitFcn", fitFunction, 950, 1100, 6);
 			
 			double base_line = 0;
 			for(int j = 400; j < 800; j++)
@@ -106,12 +108,18 @@ void fit_recovery_time_tektronix(char name[])
 			
 			base_line /= 400;
 			
-			//cout << base_line << endl;
-			
 			/*
-			fitFcn->SetParLimits(0, 15, 40); 
-			fitFcn->SetParLimits(1, 85, 100); 
+			//exp model
+			fitFcn->SetParameter(0, 4.74969e-002); // A
+			fitFcn->SetParLimits(0, 0, 1); 
+			
+			fitFcn->SetParameter(1, 9.96439e+002); // t_0
+			fitFcn->SetParLimits(1, 900, 1000); 
+			
+			fitFcn->SetParameter(2, 1.67762e+001); // tau_rec
 			fitFcn->SetParLimits(2, 5, 40); 
+			
+			fitFcn->SetParameter(3, 1.41106e+001); // tau_rise
 			fitFcn->SetParLimits(3, 1, 25);
 			
 			fitFcn->SetParameter(4, base_line);
@@ -119,28 +127,44 @@ void fit_recovery_time_tektronix(char name[])
 			*/
 			
 			
+			
 			//convolution
 			fitFcn->SetParameter(0, 0.012);
-			fitFcn->SetParLimits(0, 0.008, 0.025); // A
+			fitFcn->SetParLimits(0, 0.001, 0.1); // A
 			
-			 //sigma
-			fitFcn->SetParameter(1, 2);
-			fitFcn->SetParLimits(1, 2, 8);
-			//fitFcn->FixParameter(1, 0);
+			//t_0
+			fitFcn->SetParameter(1, 1000);
+			fitFcn->SetParLimits(1, 990, 1010); 
 			
 			// tau_rec
-			fitFcn->SetParameter(2, 15);
-			fitFcn->SetParLimits(2, 10, 30);
-			
-			fitFcn->SetParameter(3, 10);
-			fitFcn->SetParLimits(3, 1, 15); // tau_rise
-			
+			fitFcn->SetParameter(2, 1.67762e+001);
+			fitFcn->SetParLimits(2, 8, 18);
+
+			// tau_rise
+			fitFcn->SetParameter(3, 1.41106e+001);
+			fitFcn->SetParLimits(3, 5, 15); 
+
 			fitFcn->SetParameter(4, base_line);
 			fitFcn->SetParLimits(4, base_line, base_line);
 			
-			fitFcn->SetParameter(5, 1000);
-			fitFcn->SetParLimits(5, 900, 1100); //t_0
+			//sigma
+			fitFcn->SetParameter(5, 2);
+			fitFcn->SetParLimits(5, 2, 2);
+			//fitFcn->FixParameter(1, 0);
+					
+			
+			
+			
+			/*
+			fitFcn->SetParameter(6, 40);
+			fitFcn->SetParLimits(6, 40, 40); //tau_rec_slow
 				
+			fitFcn->SetParameter(7, 0);
+			fitFcn->FixParameter(7, 0); //R_slow
+			
+			fitFcn->SetParameter(8, 1);
+			fitFcn->SetParLimits(8, 1, 1); //R_fast
+			*/
 			
 			gr->Fit("fitFcn", "R");	
 			gr->SetMarkerColor(4);

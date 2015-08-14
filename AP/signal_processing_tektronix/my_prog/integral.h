@@ -1,0 +1,1 @@
+double integral(double ordinate, double min_x, double max_x);
