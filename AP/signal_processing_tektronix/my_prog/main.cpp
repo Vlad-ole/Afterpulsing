@@ -44,6 +44,9 @@ int main()
 	ofstream file_dc_rate(directory_init + "dc_rate.dat");
 	ofstream file_chi2(directory_init + "chi2.dat");
 
+	ofstream file_part(directory_init + "part.dat");
+
+
 	//**********************************************
 	//stop
 
@@ -87,6 +90,8 @@ int main()
 		yv.push_back(y);
 
 		time_number++;
+
+
 
 		//cout << time_number * 2E-10 << "\t" << y << endl;
 
@@ -153,18 +158,6 @@ int main()
 
 					cout << "total_num_pulsing " << total_num_pulsing << endl;
 
-					if (total_num_pulsing == 1 && one_time)
-					{
-						for (int j = i - time_pre; j < i + time_post; j++)
-						{
-							file_test_signal << j << "\t" << yv[j] << endl;
-						}
-						
-						one_time = 0;
-					}
-
-					file_test << total_num_pulsing << endl;
-
 
 					amplitude = 5000;
 					if (total_num_pulsing == 1) // отбрасывание послеимпульсов
@@ -207,18 +200,6 @@ int main()
 
 	}
 
-
-
-
-	for (int i = 0; i < (time_gate); i++)
-	{
-		file_average_signal << i << "\t" << yv_average[i] / number_of_pulsing << endl;
-	}
-
-	cout << "number_of_pulsing = \t" << number_of_pulsing << endl;
-
-
-	file_num_1e << number_of_pulsing  << endl;
 
 	fclose(work_file);
 

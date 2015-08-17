@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <vector>
 
 using namespace std;
 
@@ -25,7 +26,7 @@ Double_t fitFunction(Double_t *x,Double_t *par)
 	double tau_total_fast = (tau_rec_fast * tau_rise) / (tau_rec_fast + tau_rise);
 	
 
-	return -(A/2) * ( F(t, sigma, tau_rec_fast) + F(t, sigma, tau_total_fast) )  + V_0; 
+	return -(A/2) * ( F(t, sigma, tau_rec_fast) - F(t, sigma, tau_total_fast) )  + V_0; 
 
 }
 
@@ -57,6 +58,10 @@ void fit_recovery_time_tektronix(char name[])
 	FILE *f = fopen(name,"r");
 
 	int counter = 1;
+	
+	//string name_out = name + "_residue";
+	//ofstream residue(name_out.c_str());
+	ofstream residue("D:\\Data_work\\tektronix_signal\\265K\\265K_72.59\\residue.dat");
 	
 	while (!feof(f))
 	{ 
@@ -96,9 +101,11 @@ void fit_recovery_time_tektronix(char name[])
 				yverr.push_back(disp);
 			}
 			
+			double left_limit = 950;
+			double right_limit = 1040;
 			
 			TGraphErrors * gr = new TGraphErrors(xv.size(), &xv[0], &yv[0], &xverr[0], &yverr[0]);
-			TF1 *fitFcn = new TF1("fitFcn", fitFunction, 950, 1100, 6);
+			TF1 *fitFcn = new TF1("fitFcn", fitFunction, left_limit, right_limit, 6);
 			
 			double base_line = 0;
 			for(int j = 400; j < 800; j++)
@@ -138,18 +145,18 @@ void fit_recovery_time_tektronix(char name[])
 			
 			// tau_rec
 			fitFcn->SetParameter(2, 1.67762e+001);
-			fitFcn->SetParLimits(2, 8, 18);
+			fitFcn->SetParLimits(2, 2, 18);
 
 			// tau_rise
-			fitFcn->SetParameter(3, 1.41106e+001);
+			fitFcn->SetParameter(3, 9);
 			fitFcn->SetParLimits(3, 5, 15); 
 
 			fitFcn->SetParameter(4, base_line);
 			fitFcn->SetParLimits(4, base_line, base_line);
 			
 			//sigma
-			fitFcn->SetParameter(5, 2);
-			fitFcn->SetParLimits(5, 2, 2);
+			fitFcn->SetParameter(5, 0.7);
+			fitFcn->SetParLimits(5, 0.6, 5);
 			//fitFcn->FixParameter(1, 0);
 					
 			
@@ -174,12 +181,24 @@ void fit_recovery_time_tektronix(char name[])
 
 			//gSystem->Sleep(3000);			
 			
-			/*
-			for (int j =0; j < xv.size(); j++)
+			int left_point = left_limit / 0.2;
+			int right_point = right_limit / 0.2;
+			
+			double par_vector[6];
+			double x_vector[1];
+			
+			for (int j = 0; j < 6; j++)
 			{
-				cout << xv[j] << "\t" << yv[j] << "\t" << xverr[j] << "\t" << yverr[j] << endl;
+				par_vector[j] = fitFcn->GetParameter(j);
 			}
-			*/
+						
+			
+			for (int j = left_point; j < right_point; j++)
+			{
+				x_vector[0] = xv[j];
+				residue << xv[j] << "\t" <<  yv[j] - fitFunction(x_vector, par_vector) << endl;
+			}
+			
 			
 			c1->Update();
 							
