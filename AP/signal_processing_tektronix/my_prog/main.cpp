@@ -200,7 +200,6 @@ int main()
 
 	}
 
-
 	fclose(work_file);
 
 	system("PAUSE");
