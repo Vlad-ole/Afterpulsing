@@ -43,6 +43,11 @@ double fitFunction_2(Double_t *x,Double_t *par)
 	return fitFunction(x,par) + fitFunction(x, &par[6]);
 }
 
+double fitFunction_3(Double_t *x,Double_t *par)
+{
+	return fitFunction(x,par) + fitFunction(x, &par[6]) + fitFunction(x, &par[12]);
+}
+
 /*
 Double_t fitFunction(Double_t *x,Double_t *par) 
 { 
@@ -69,11 +74,12 @@ void fit_tektronix_pars(char name[])
 		//c1->SetGrid();
 	//}
 	
-	TGraphErrors * gr;
+	
 	
 	TObjArray Hlist_all(0); // create an array
 	TObjArray Hlist_chi2_fnc1(0);
 	TObjArray Hlist_chi2_fnc2(0);
+	TObjArray Hlist_chi2_fnc3(0);
 	
 	TNtuple *ntuple = new TNtuple("ntuple","data from ascii file","x:y");
 	
@@ -110,6 +116,7 @@ void fit_tektronix_pars(char name[])
 	
 	ofstream amp_chi2_fnc1("D:\\Data_work\\tektronix_signal\\265K\\265K_72.59\\amp_chi2_fnc1.dat");
 	ofstream amp_chi2_fnc2("D:\\Data_work\\tektronix_signal\\265K\\265K_72.59\\amp_chi2_fnc2.dat");
+	ofstream amp_chi2_fnc3("D:\\Data_work\\tektronix_signal\\265K\\265K_72.59\\amp_chi2_fnc3.dat");
 		
 	
 	double disp = 0.00113151;
@@ -168,7 +175,7 @@ void fit_tektronix_pars(char name[])
 						
 				if ((yv_der[i] < threshold_der) && flag && (i > time_pre) && ((i + time_post) < (xv.size() - step)))
 				{
-					gr = new TGraphErrors(time_pre + time_post, &xv[i-time_pre], &yv[i-time_pre], &xverr[i-time_pre], &yverr[i-time_pre]);
+					TGraphErrors * gr = new TGraphErrors(time_pre + time_post, &xv[i-time_pre], &yv[i-time_pre], &xverr[i-time_pre], &yverr[i-time_pre]);
 					TF1 *fitFcn = new TF1("fitFcn", fitFunction, xv[i-time_pre], xv[i+time_post], num_of_param);
 					
 					cout << "*************** " << endl;
@@ -227,10 +234,18 @@ void fit_tektronix_pars(char name[])
 
 					amp_chi2_fnc1 << fitFcn->GetParameter(0) << "\t" << fitFcn->GetChisquare() << endl;
 					
+					
+					//delete gr;
+					//-------------------------------------------------------
+					
 					if(fitFcn->GetChisquare() > 5000 && fitFcn->GetParameter(0) > 0.01)
 					{
+						TGraphErrors * gr_2 = new TGraphErrors(time_pre + time_post, &xv[i-time_pre], &yv[i-time_pre], &xverr[i-time_pre], &yverr[i-time_pre]);
 						TF1 *fitFcn_fnc2 = new TF1("fitFcn_fnc2", fitFunction_2, xv[i-time_pre], xv[i+time_post], num_of_param*2);
 						
+						gr_2->SetMarkerColor(4);
+						gr_2->SetMarkerStyle(kFullCircle);
+												
 						// A
 						fitFcn_fnc2->SetParameter(0, 0.012);
 						fitFcn_fnc2->SetParLimits(0, 0.001, 1000); 
@@ -273,13 +288,91 @@ void fit_tektronix_pars(char name[])
 						fitFcn_fnc2->SetParameter(11, 1.64932);
 						fitFcn_fnc2->SetParLimits(11, 1.64932, 1.64932);
 						
-						gr->Fit("fitFcn_fnc2", "R");	
+						gr_2->Fit("fitFcn_fnc2", "R");	
 						
-						Hlist_chi2_fnc2.Add(gr);
+						Hlist_chi2_fnc2.Add(gr_2);
 						
 						amp_chi2_fnc2 << fitFcn_fnc2->GetParameter(0) << "\t" << fitFcn_fnc2->GetChisquare() << endl;
 						
 					}
+					
+					
+					/*if(fitFcn_fnc2->GetChisquare() > 5000 && fitFcn->GetParameter(0) > 0.01)
+					{
+						TGraphErrors * gr_3 = new TGraphErrors(time_pre + time_post, &xv[i-time_pre], &yv[i-time_pre], &xverr[i-time_pre], &yverr[i-time_pre]);
+						TF1 *fitFcn_fnc3 = new TF1("fitFcn_fnc3", fitFunction_3, xv[i-time_pre], xv[i+time_post], num_of_param*3);
+						
+						gr_3->SetMarkerColor(4);
+						gr_3->SetMarkerStyle(kFullCircle);
+												
+						// A
+						fitFcn_fnc3->SetParameter(0, 0.012);
+						fitFcn_fnc3->SetParLimits(0, 0.001, 1000); 
+						
+						fitFcn_fnc3->SetParameter(6, 0.012);
+						fitFcn_fnc3->SetParLimits(6, 0.001, 1000); 
+						
+						fitFcn_fnc3->SetParameter(12, 0.012);
+						fitFcn_fnc3->SetParLimits(12, 0.001, 1000); 
+						
+						//t_0
+						fitFcn_fnc3->SetParameter(1, (xv[i-time_pre] + xv[i+time_post])/2.0 );
+						fitFcn_fnc3->SetParLimits(1, xv[i-time_pre], xv[i+time_post]);
+						
+						fitFcn_fnc3->SetParameter(7, (xv[i-time_pre] + xv[i+time_post])/2.0 );
+						fitFcn_fnc3->SetParLimits(7, xv[i-time_pre], xv[i+time_post]);
+						
+						fitFcn_fnc3->SetParameter(13, (xv[i-time_pre] + xv[i+time_post])/2.0 );
+						fitFcn_fnc3->SetParLimits(13, xv[i-time_pre], xv[i+time_post]);
+						
+						// tau_rec
+						fitFcn_fnc3->SetParameter(2, 17.7373);
+						fitFcn_fnc3->SetParLimits(2, 17.7373, 17.7373);
+						
+						fitFcn_fnc3->SetParameter(8, 17.7373);
+						fitFcn_fnc3->SetParLimits(8, 17.7373, 17.7373);
+						
+						fitFcn_fnc3->SetParameter(14, 17.7373);
+						fitFcn_fnc3->SetParLimits(14, 17.7373, 17.7373);
+						
+						// tau_rise
+						fitFcn_fnc3->SetParameter(3, 10.5194);
+						fitFcn_fnc3->SetParLimits(3, 10.5194, 10.5194);
+						
+						fitFcn_fnc3->SetParameter(9, 10.5194);
+						fitFcn_fnc3->SetParLimits(9, 10.5194, 10.5194);
+						
+						fitFcn_fnc3->SetParameter(15, 10.5194);
+						fitFcn_fnc3->SetParLimits(15, 10.5194, 10.5194);
+						
+						base_line = -3.91000e-004;
+						fitFcn_fnc3->SetParameter(4, base_line);
+						fitFcn_fnc3->SetParLimits(4, base_line, base_line);
+						
+						fitFcn_fnc3->SetParameter(10, base_line);
+						fitFcn_fnc3->SetParLimits(10, base_line, base_line);
+						
+						fitFcn_fnc3->SetParameter(16, base_line);
+						fitFcn_fnc3->SetParLimits(16, base_line, base_line);
+						
+						//sigma
+						fitFcn_fnc3->SetParameter(5, 1.64932);
+						fitFcn_fnc3->SetParLimits(5, 1.64932, 1.64932);
+						
+						fitFcn_fnc3->SetParameter(11, 1.64932);
+						fitFcn_fnc3->SetParLimits(11, 1.64932, 1.64932);
+						
+						fitFcn_fnc3->SetParameter(18, 1.64932);
+						fitFcn_fnc3->SetParLimits(18, 1.64932, 1.64932);
+						
+						gr_3->Fit("fitFcn_fnc3", "R");	
+						
+						Hlist_chi2_fnc3.Add(gr_3);
+						
+						amp_chi2_fnc3 << fitFcn_fnc3->GetParameter(0) << "\t" << fitFcn_fnc3->GetChisquare() << endl;
+						
+					}
+					*/
 					
 					//amp << fitFcn->GetParameter(0) << endl;
 					//ti << fitFcn->GetParameter(1) << endl;
@@ -404,6 +497,10 @@ void fit_tektronix_pars(char name[])
 	
 	TFile ofile("D:\\Data_work\\tektronix_signal\\265K\\265K_72.59\\Hlist_chi2_fnc2.root","RECREATE");
 	Hlist_chi2_fnc2.Write();
+	ofile.Close();
+	
+	TFile ofile("D:\\Data_work\\tektronix_signal\\265K\\265K_72.59\\Hlist_chi2_fnc3.root","RECREATE");
+	Hlist_chi2_fnc3.Write();
 	ofile.Close();
 	
 }
