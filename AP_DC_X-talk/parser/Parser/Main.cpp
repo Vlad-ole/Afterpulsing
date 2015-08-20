@@ -51,7 +51,7 @@ Double_t fitFunction(Double_t *x, Double_t *par)
 
 	double t = x[0] - t_0;
 	double tau_total_fast = (tau_rec_fast * tau_rise) / (tau_rec_fast + tau_rise);
-	
+
 
 	return -(A / 2) * (F(t, sigma, tau_rec_fast) - F(t, sigma, tau_total_fast)) + V_0;
 }
@@ -69,9 +69,14 @@ double fitFunction_3(Double_t *x, Double_t *par)
 
 int main()
 {
-	char name[] = "D:\\Data_work\\tektronix_signal\\265K\\265K_72.59\\raw\\dat.txt";
-	
+	string dir_name = "D:\\Data_work\\tektronix_signal\\295K\\295K_73.90\\";
+	string raw_name = dir_name + "raw\\20M.txt";
+
+	//base_line = -3.91000e-004; // 265K_72.59
+	base_line = 0.00162151; // 295K_73.90
+
 	TObjArray Hlist_all(0); // create an array
+	TObjArray Hlist_amp_cut(0);
 	TObjArray Hlist_chi2_fnc1(0);
 	TObjArray Hlist_chi2_fnc2(0);
 	TObjArray Hlist_chi2_fnc3(0);
@@ -82,20 +87,20 @@ int main()
 	vector<double> xverr;
 	vector<double> yverr;
 
+	vector<double> xv_der_position;
+	vector<double> yv_der_local;
+
 	vector<double> yv_der;
 
 	Double_t x, y, xerr, yerr;
-	FILE *f = fopen(name, "r");
+	FILE *f = fopen(raw_name.c_str(), "r");
 
-	
 
-	ofstream amp_chi2_fnc1("D:\\Data_work\\tektronix_signal\\265K\\265K_72.59\\amp_chi2_fnc1.dat");
-	ofstream amp_chi2_fnc2("D:\\Data_work\\tektronix_signal\\265K\\265K_72.59\\amp_chi2_fnc2.dat");
-	ofstream amp_chi2_fnc3("D:\\Data_work\\tektronix_signal\\265K\\265K_72.59\\amp_chi2_fnc3.dat");
 
-	
+	ofstream amp_chi2_fnc1(dir_name + "amp_chi2_fnc1.dat");
+	ofstream amp_chi2_fnc2(dir_name + "amp_chi2_fnc2.dat");
+	ofstream amp_chi2_fnc3(dir_name + "amp_chi2_fnc3.dat");
 
-	
 
 	while (!feof(f))
 	{
@@ -113,7 +118,7 @@ int main()
 
 		if (xv.size() % rec_lenght == 0)
 		{
-			
+
 			for (int j = 0; j < xv.size(); j++)
 			{
 				xverr.push_back(0);
@@ -129,23 +134,50 @@ int main()
 			}
 
 			bool flag = 1;
-			
+
 			for (int i = 0; i < (xv.size() - step); i++)
 			{
 				if ((yv_der[i] < threshold_der) && flag && (i > time_pre) && ((i + time_post) < (xv.size() - step)))
 				{
+
+					int time_dead = 5;
+					bool flag_local = 1;
+					int x_time_local;
+					for (int j = i - time_pre; j < i + time_post; j++)
+					{
+						if (yv_der[j] < threshold_der && flag_local)
+						{
+							xv_der_position.push_back(xv[j]);
+							flag_local = 0;
+							x_time_local = xv[j];
+						}
+
+						if (yv_der[j] > threshold_der && (xv[j] - x_time_local) > time_dead)
+						{
+							flag_local = 1;
+						}
+					}
+
+					cout << "xv_der_position " << xv_der_position.size() << endl;
+
+					double A_start = 0.05;
+					double Chi2_threshold = 1800;
+
 					TGraphErrors * gr = new TGraphErrors(time_pre + time_post, &xv[i - time_pre], &yv[i - time_pre], &xverr[i - time_pre], &yverr[i - time_pre]);
 					TF1 *fitFcn = new TF1("fitFcn", fitFunction, xv[i - time_pre], xv[i + time_post], num_of_param);
 
 					cout << "*************** " << endl;
 
+					double time_total = xv[i - time_pre] + xv[i + time_post];
+					double time_length = xv[i + time_post] - xv[i - time_pre];
 
 
-					fitFcn->SetParameter(0, 0.012);
+
+					fitFcn->SetParameter(0, A_start);
 					fitFcn->SetParLimits(0, 0.001, 1000); // A
 
 					//t_0
-					fitFcn->SetParameter(1, (xv[i - time_pre] + xv[i + time_post]) / 2.0);
+					fitFcn->SetParameter(1, xv_der_position[0]);
 					fitFcn->SetParLimits(1, xv[i - time_pre], xv[i + time_post]);
 
 					// tau_rec
@@ -156,7 +188,7 @@ int main()
 					fitFcn->SetParameter(3, 10.5194);
 					fitFcn->SetParLimits(3, 10.5194, 10.5194);
 
-					base_line = -3.91000e-004;
+					
 					fitFcn->SetParameter(4, base_line);
 					fitFcn->SetParLimits(4, base_line, base_line);
 
@@ -166,7 +198,7 @@ int main()
 					fitFcn->SetParLimits(5, 1.64932, 1.64932);
 					//fitFcn->FixParameter(1, 0);
 
-					gr->Fit("fitFcn", "R");
+					gr->Fit("fitFcn", "RQ");
 					//gStyle->SetOptFit();
 					//TPaveStats *st = (TPaveStats*)gr->GetListOfFunctions()->FindObject("stats")
 
@@ -183,7 +215,12 @@ int main()
 
 					Hlist_all.Add(gr);
 
-					if (fitFcn->GetChisquare() > 5000 && fitFcn->GetParameter(0) > 0.01)
+					if (fitFcn->GetParameter(0) > 0.01)
+					{
+						Hlist_amp_cut.Add(gr);
+					}
+
+					if (fitFcn->GetChisquare() > Chi2_threshold && fitFcn->GetParameter(0) > 0.01)
 					{
 						Hlist_chi2_fnc1.Add(gr);
 					}
@@ -193,8 +230,16 @@ int main()
 
 					//delete gr;
 					//-------------------------------------------------------
+					double temp = 0;
 
-					if (fitFcn->GetChisquare() > 5000 && fitFcn->GetParameter(0) > 0.01)
+					if (fitFcn->GetChisquare() < Chi2_threshold && fitFcn->GetParameter(0) > 0.01)
+					{
+						amp_chi2_fnc2 << fitFcn->GetParameter(0) << "\t" << fitFcn->GetChisquare() << endl;
+					}
+
+
+
+					if (fitFcn->GetChisquare() > Chi2_threshold && fitFcn->GetParameter(0) > 0.01)
 					{
 						TGraphErrors * gr_2 = new TGraphErrors(time_pre + time_post, &xv[i - time_pre], &yv[i - time_pre], &xverr[i - time_pre], &yverr[i - time_pre]);
 						TF1 *fitFcn_fnc2 = new TF1("fitFcn_fnc2", fitFunction_2, xv[i - time_pre], xv[i + time_post], num_of_param * 2);
@@ -203,17 +248,17 @@ int main()
 						gr_2->SetMarkerStyle(kFullCircle);
 
 						// A
-						fitFcn_fnc2->SetParameter(0, 0.012);
+						fitFcn_fnc2->SetParameter(0, A_start);
 						fitFcn_fnc2->SetParLimits(0, 0.001, 1000);
 
-						fitFcn_fnc2->SetParameter(6, 0.012);
+						fitFcn_fnc2->SetParameter(6, A_start);
 						fitFcn_fnc2->SetParLimits(6, 0.001, 1000);
 
 						//t_0
-						fitFcn_fnc2->SetParameter(1, (xv[i - time_pre] + xv[i + time_post]) / 2.0);
+						fitFcn_fnc2->SetParameter(1, xv_der_position[0]);
 						fitFcn_fnc2->SetParLimits(1, xv[i - time_pre], xv[i + time_post]);
 
-						fitFcn_fnc2->SetParameter(7, (xv[i - time_pre] + xv[i + time_post]) / 2.0);
+						fitFcn_fnc2->SetParameter(7, xv_der_position[1]);
 						fitFcn_fnc2->SetParLimits(7, xv[i - time_pre], xv[i + time_post]);
 
 						// tau_rec
@@ -230,7 +275,7 @@ int main()
 						fitFcn_fnc2->SetParameter(9, 10.5194);
 						fitFcn_fnc2->SetParLimits(9, 10.5194, 10.5194);
 
-						base_line = -3.91000e-004;
+						
 						fitFcn_fnc2->SetParameter(4, base_line);
 						fitFcn_fnc2->SetParLimits(4, base_line, base_line);
 
@@ -244,12 +289,88 @@ int main()
 						fitFcn_fnc2->SetParameter(11, 1.64932);
 						fitFcn_fnc2->SetParLimits(11, 1.64932, 1.64932);
 
-						gr_2->Fit("fitFcn_fnc2", "R");
+						gr_2->Fit("fitFcn_fnc2", "RQ");
 
 						Hlist_chi2_fnc2.Add(gr_2);
 
 						amp_chi2_fnc2 << fitFcn_fnc2->GetParameter(0) << "\t" << fitFcn_fnc2->GetChisquare() << endl;
 
+						temp = fitFcn_fnc2->GetChisquare();
+					}
+
+					if (temp > Chi2_threshold && fitFcn->GetParameter(0) > 0.01)
+					{
+						TGraphErrors * gr_3 = new TGraphErrors(time_pre + time_post, &xv[i - time_pre], &yv[i - time_pre], &xverr[i - time_pre], &yverr[i - time_pre]);
+						TF1 *fitFcn_fnc3 = new TF1("fitFcn_fnc3", fitFunction_3, xv[i - time_pre], xv[i + time_post], num_of_param * 3);
+
+						gr_3->SetMarkerColor(4);
+						gr_3->SetMarkerStyle(kFullCircle);
+
+						// A
+						fitFcn_fnc3->SetParameter(0, A_start);
+						fitFcn_fnc3->SetParLimits(0, 0.001, 1000);
+
+						fitFcn_fnc3->SetParameter(6, A_start);
+						fitFcn_fnc3->SetParLimits(6, 0.001, 1000);
+
+						fitFcn_fnc3->SetParameter(12, A_start);
+						fitFcn_fnc3->SetParLimits(12, 0.001, 1000);
+
+						//t_0
+						fitFcn_fnc3->SetParameter(1, xv_der_position[0]);
+						fitFcn_fnc3->SetParLimits(1, xv[i - time_pre], xv[i + time_post]);
+
+						fitFcn_fnc3->SetParameter(7, xv_der_position[1]);
+						fitFcn_fnc3->SetParLimits(7, xv[i - time_pre], xv[i + time_post]);
+
+						fitFcn_fnc3->SetParameter(13, xv_der_position[2]);
+						fitFcn_fnc3->SetParLimits(13, xv[i - time_pre], xv[i + time_post]);
+
+						// tau_rec
+						fitFcn_fnc3->SetParameter(2, 17.7373);
+						fitFcn_fnc3->SetParLimits(2, 17.7373, 17.7373);
+
+						fitFcn_fnc3->SetParameter(8, 17.7373);
+						fitFcn_fnc3->SetParLimits(8, 17.7373, 17.7373);
+
+						fitFcn_fnc3->SetParameter(14, 17.7373);
+						fitFcn_fnc3->SetParLimits(14, 17.7373, 17.7373);
+
+						// tau_rise
+						fitFcn_fnc3->SetParameter(3, 10.5194);
+						fitFcn_fnc3->SetParLimits(3, 10.5194, 10.5194);
+
+						fitFcn_fnc3->SetParameter(9, 10.5194);
+						fitFcn_fnc3->SetParLimits(9, 10.5194, 10.5194);
+
+						fitFcn_fnc3->SetParameter(15, 10.5194);
+						fitFcn_fnc3->SetParLimits(15, 10.5194, 10.5194);
+
+						
+						fitFcn_fnc3->SetParameter(4, base_line);
+						fitFcn_fnc3->SetParLimits(4, base_line, base_line);
+
+						fitFcn_fnc3->SetParameter(10, base_line);
+						fitFcn_fnc3->SetParLimits(10, base_line, base_line);
+
+						fitFcn_fnc3->SetParameter(16, base_line);
+						fitFcn_fnc3->SetParLimits(16, base_line, base_line);
+
+						//sigma
+						fitFcn_fnc3->SetParameter(5, 1.64932);
+						fitFcn_fnc3->SetParLimits(5, 1.64932, 1.64932);
+
+						fitFcn_fnc3->SetParameter(11, 1.64932);
+						fitFcn_fnc3->SetParLimits(11, 1.64932, 1.64932);
+
+						fitFcn_fnc3->SetParameter(18, 1.64932);
+						fitFcn_fnc3->SetParLimits(18, 1.64932, 1.64932);
+
+						gr_3->Fit("fitFcn_fnc3", "RQ");
+
+						Hlist_chi2_fnc3.Add(gr_3);
+
+						amp_chi2_fnc3 << fitFcn_fnc3->GetParameter(0) << "\t" << fitFcn_fnc3->GetChisquare() << endl;
 					}
 
 
@@ -257,9 +378,7 @@ int main()
 
 
 
-
-
-
+					xv_der_position.clear();
 					x_time = xv[i];
 					flag = 0;
 				}
@@ -269,7 +388,7 @@ int main()
 					flag = 1;
 				}
 			}
-			
+
 			xv.clear();
 			yv.clear();
 
@@ -288,25 +407,34 @@ int main()
 
 	}
 
+	string ofile_0_s = dir_name + "Hlist_all.root";
+	string ofile_01_s = dir_name + "Hlist_amp_cut.root";
+	string ofile_1_s = dir_name + "Hlist_chi2_fnc1.root";
+	string ofile_2_s = dir_name + "Hlist_chi2_fnc2.root";
+	string ofile_3_s = dir_name + "Hlist_chi2_fnc3.root";
 
 	// Open a file, save the ntuple and close the file
-	TFile ofile_0("D:\\Data_work\\tektronix_signal\\265K\\265K_72.59\\Hlist_all.root", "RECREATE");
+	TFile ofile_0(ofile_0_s.c_str(), "RECREATE");
 	Hlist_all.Write();
 	ofile_0.Close();
 
-	TFile ofile_1("D:\\Data_work\\tektronix_signal\\265K\\265K_72.59\\Hlist_chi2_fnc1.root", "RECREATE");
+	TFile ofile_01(ofile_01_s.c_str(), "RECREATE");
+	Hlist_amp_cut.Write();
+	ofile_01.Close();
+
+	TFile ofile_1(ofile_1_s.c_str(), "RECREATE");
 	Hlist_chi2_fnc1.Write();
 	ofile_1.Close();
 
-	TFile ofile_2("D:\\Data_work\\tektronix_signal\\265K\\265K_72.59\\Hlist_chi2_fnc2.root", "RECREATE");
+	TFile ofile_2(ofile_2_s.c_str(), "RECREATE");
 	Hlist_chi2_fnc2.Write();
 	ofile_2.Close();
 
-	TFile ofile_3("D:\\Data_work\\tektronix_signal\\265K\\265K_72.59\\Hlist_chi2_fnc3.root", "RECREATE");
+	TFile ofile_3(ofile_3_s.c_str(), "RECREATE");
 	Hlist_chi2_fnc3.Write();
 	ofile_3.Close();
 
 
 	system("pause");
-	return 0;	
+	return 0;
 }
