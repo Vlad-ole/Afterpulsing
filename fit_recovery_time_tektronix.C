@@ -6,7 +6,7 @@
 
 using namespace std;
 
-const int num_of_param = 8;
+const int num_of_param = 6;
 
 double F(double t, double sigma, double tau)
 {
@@ -27,14 +27,14 @@ Double_t fitFunction(Double_t *x,Double_t *par)
 	double t = x[0] - t_0;
 	double tau_total_fast = (tau_rec_fast * tau_rise) / (tau_rec_fast + tau_rise);	
 	
-	double tau_rec_slow = par[6];
-	double tau_total_slow = (tau_rec_slow * tau_rise) / (tau_rec_slow + tau_rise);
+	//double tau_rec_slow = par[6];
+	//double tau_total_slow = (tau_rec_slow * tau_rise) / (tau_rec_slow + tau_rise);
 	
-	double R_slow = par[7];
+	//double R_slow = par[7];
 
-	//return -(A/2) * ( F(t, sigma, tau_rec_fast) - F(t, sigma, tau_total_fast) )  + V_0; 
+	return -(A/2) * ( F(t, sigma, tau_rec_fast) - F(t, sigma, tau_total_fast) )  + V_0; 
 	
-	return -(A/2) * ( F(t, sigma, tau_rec_fast) - F(t, sigma, tau_total_fast) + R_slow*(F(t, sigma, tau_rec_slow) - F(t, sigma, tau_total_slow)) )  + V_0; 
+	//return -(A/2) * ( F(t, sigma, tau_rec_fast) - F(t, sigma, tau_total_fast) + R_slow*(F(t, sigma, tau_rec_slow) - F(t, sigma, tau_total_slow)) )  + V_0; 
 
 }
 
@@ -74,10 +74,10 @@ void fit_recovery_time_tektronix(char name[])
 	
 	//string name_out = name + "_residue";
 	//ofstream residue(name_out.c_str());
-	ofstream residue_x("D:\\Data_work\\tektronix_signal\\265K\\265K_72.59\\residue_x.dat");
-	ofstream residue_y("D:\\Data_work\\tektronix_signal\\265K\\265K_72.59\\residue_y.dat");
+	//ofstream residue_x("D:\\Data_work\\tektronix_signal\\265K\\265K_72.59\\residue_x.dat");
+	//ofstream residue_y("D:\\Data_work\\tektronix_signal\\265K\\265K_72.59\\residue_y.dat");
 	
-	ofstream check_test("D:\\Data_work\\tektronix_signal\\265K\\265K_72.59\\check_test_conv_fast.dat");
+	//ofstream check_test("D:\\Data_work\\tektronix_signal\\265K\\265K_72.59\\check_test_conv_fast.dat");
 	
 	
 	//double par_vector[num_of_param] = {1, 1000, 20, 5, 0, 0.1};
@@ -102,23 +102,23 @@ void fit_recovery_time_tektronix(char name[])
 		//xverr.push_back(xerr*4);
 		//yverr.push_back(yerr);
 		
-		if (xv.size() % rec_lenght == 0)
+	}	//if (xv.size() % rec_lenght == 0)
 		{
 			double disp = 0;
 			double avg = 0;
-			for (int j = 400; j < 800; j++)
+			for (int j = 100; j < 400; j++)
 			{
 				avg += yv[j] /*+ rnd.Uniform()*0.0005*/;
 			}
 			
-			avg /= 400;
+			avg /= 300;
 			
-			for (int j = 400; j < 800; j++)
+			for (int j = 100; j < 400; j++)
 			{
 				disp += pow(yv[j] - avg, 2.0);
 			}
 			
-			disp /= 400;
+			disp /= 300;
 			
 			disp = sqrt(disp);
 			
@@ -131,19 +131,19 @@ void fit_recovery_time_tektronix(char name[])
 				yverr.push_back(disp);
 			}
 			
-			double left_limit = 950;
-			double right_limit = 1100;
+			double left_limit = 490;
+			double right_limit = 600;
 			
 			TGraphErrors * gr = new TGraphErrors(xv.size(), &xv[0], &yv[0], &xverr[0], &yverr[0]);
 			TF1 *fitFcn = new TF1("fitFcn", fitFunction, left_limit, right_limit, num_of_param);
 			
 			double base_line = 0;
-			for(int j = 400; j < 800; j++)
+			for(int j = 100; j < 400; j++)
 			{
 				base_line += yv[j];			
 			}
 			
-			base_line /= 400;
+			base_line /= 300;
 			
 			/*
 			//exp model
@@ -170,8 +170,8 @@ void fit_recovery_time_tektronix(char name[])
 			fitFcn->SetParLimits(0, 0.001, 1000); // A
 			
 			//t_0
-			fitFcn->SetParameter(1, 1000);
-			fitFcn->SetParLimits(1, 970, 1010); 
+			fitFcn->SetParameter(1, 500);
+			fitFcn->SetParLimits(1, 490, 510); 
 			
 			// tau_rec
 			fitFcn->SetParameter(2, 1.67762e+001);
@@ -179,7 +179,7 @@ void fit_recovery_time_tektronix(char name[])
 
 			// tau_rise
 			fitFcn->SetParameter(3, 5);
-			fitFcn->SetParLimits(3, 3, 25); 
+			fitFcn->SetParLimits(3, 3, 18); 
 
 			fitFcn->SetParameter(4, base_line);
 			fitFcn->SetParLimits(4, base_line, base_line);
@@ -187,10 +187,10 @@ void fit_recovery_time_tektronix(char name[])
 		
 			//sigma
 			fitFcn->SetParameter(5, 1.5);
-			fitFcn->SetParLimits(5, 0.5, 2.5);
+			fitFcn->SetParLimits(5, 1.5, 1.5);
 			//fitFcn->FixParameter(1, 0);
 				
-				
+			/*	
 			//tau_rec_slow
 			fitFcn->SetParameter(6, 38);
 			fitFcn->SetParLimits(6, 27, 80); 
@@ -200,7 +200,7 @@ void fit_recovery_time_tektronix(char name[])
 			fitFcn->SetParameter(7, 0.1);
 			fitFcn->SetParLimits(7, 0, 5); 
 			
-			/*	
+				
 			
 				
 			fitFcn->SetParameter(8, 1);
@@ -225,7 +225,7 @@ void fit_recovery_time_tektronix(char name[])
 				par_vector[j] = fitFcn->GetParameter(j);
 			}
 						
-			
+			/*
 			for (int j = left_point; j < right_point; j++)
 			{
 				x_vector[0] = xv[j];
@@ -240,7 +240,7 @@ void fit_recovery_time_tektronix(char name[])
 			}
 			
 			cout << "square = " << square << endl;
-			
+			*/
 			
 			c1->Update();
 							
@@ -252,6 +252,6 @@ void fit_recovery_time_tektronix(char name[])
 		}
 		
 		
-	}	
+	//}	
 	
 }

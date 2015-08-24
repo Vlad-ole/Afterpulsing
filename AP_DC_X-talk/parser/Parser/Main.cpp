@@ -33,12 +33,13 @@ const int time_pre = (20 / 0.2);
 const int time_post = (100 / 0.2);
 int x_time;
 
-
+//вспомогательная функция
 double F(double t, double sigma, double tau)
 {
 	return TMath::Exp((sigma*sigma - 2 * t*tau) / (2 * tau*tau)) * (1 + TMath::Erf((t - sigma*sigma / tau) / (sigma * sqrt(2))));
 }
 
+//функция, которой буду фитировать
 Double_t fitFunction(Double_t *x, Double_t *par)
 {
 	double A = par[0];
@@ -56,11 +57,13 @@ Double_t fitFunction(Double_t *x, Double_t *par)
 	return -(A / 2) * (F(t, sigma, tau_rec_fast) - F(t, sigma, tau_total_fast)) + V_0;
 }
 
+//сумма двух сигналов
 double fitFunction_2(Double_t *x, Double_t *par)
 {
 	return fitFunction(x, par) + fitFunction(x, &par[6]);
 }
 
+//сумма трех сигналов
 double fitFunction_3(Double_t *x, Double_t *par)
 {
 	return fitFunction(x, par) + fitFunction(x, &par[6]) + fitFunction(x, &par[12]);
@@ -96,12 +99,12 @@ int main()
 	FILE *f = fopen(raw_name.c_str(), "r");
 
 
-
+	// файлы для вывода
 	ofstream amp_chi2_fnc1(dir_name + "amp_chi2_fnc1.dat");
 	ofstream amp_chi2_fnc2(dir_name + "amp_chi2_fnc2.dat");
 	ofstream amp_chi2_fnc3(dir_name + "amp_chi2_fnc3.dat");
 
-
+	//читать файл
 	while (!feof(f))
 	{
 		fscanf(f, "%lf %lf\n", &x, &y);
@@ -110,12 +113,13 @@ int main()
 
 		counter++;
 
-
+		//показать прогресс
 		if (counter % 100000 == 0)
 		{
 			cout << "read file " << counter / double(2E7) * 100 << endl;
 		}
 
+		// обработать записанную информацию. Нужно из-за большого размера файла
 		if (xv.size() % rec_lenght == 0)
 		{
 
@@ -135,11 +139,14 @@ int main()
 
 			bool flag = 1;
 
+			//поиск сигнала по производной
 			for (int i = 0; i < (xv.size() - step); i++)
 			{
 				if ((yv_der[i] < threshold_der) && flag && (i > time_pre) && ((i + time_post) < (xv.size() - step)))
 				{
 
+					//вычисление положения наложенных сигналов по производной
+					//---------------------------------------------
 					int time_dead = 5;
 					bool flag_local = 1;
 					int x_time_local;
@@ -159,10 +166,27 @@ int main()
 					}
 
 					cout << "xv_der_position " << xv_der_position.size() << endl;
+					//---------------------------------------------
 
+					
+					//задать параметры отбора и фита
+					//---------------------------------------------
 					double A_start = 0.05;
 					double Chi2_threshold = 1800;
 
+					base_line = 0;
+					int avg_points = 50;
+					for (int j = i - time_pre; j < (i - time_pre + avg_points); j++)
+					{
+						base_line += yv[j];
+					}
+
+					base_line /= double( avg_points);
+					//---------------------------------------------					
+					
+					
+					
+					
 					TGraphErrors * gr = new TGraphErrors(time_pre + time_post, &xv[i - time_pre], &yv[i - time_pre], &xverr[i - time_pre], &yverr[i - time_pre]);
 					TF1 *fitFcn = new TF1("fitFcn", fitFunction, xv[i - time_pre], xv[i + time_post], num_of_param);
 
@@ -172,7 +196,8 @@ int main()
 					double time_length = xv[i + time_post] - xv[i - time_pre];
 
 
-
+					//выбор параметров фита
+					//--------------------------------------------
 					fitFcn->SetParameter(0, A_start);
 					fitFcn->SetParLimits(0, 0.001, 1000); // A
 
@@ -197,6 +222,7 @@ int main()
 					fitFcn->SetParameter(5, 1.64932);
 					fitFcn->SetParLimits(5, 1.64932, 1.64932);
 					//fitFcn->FixParameter(1, 0);
+					//--------------------------------------------
 
 					gr->Fit("fitFcn", "RQ");
 					//gStyle->SetOptFit();
@@ -205,39 +231,31 @@ int main()
 					gr->SetMarkerColor(4);
 					gr->SetMarkerStyle(kFullCircle);
 
-					/*
-					if(draw_)
-					{
-					gr->Draw("APE");
-					c1->Update();
-					}
-					*/
 
-					Hlist_all.Add(gr);
+					Hlist_all.Add(gr);//записать все графики
 
-					if (fitFcn->GetParameter(0) > 0.01)
+					if (fitFcn->GetParameter(0) > 0.01) // записать графики без шумов
 					{
 						Hlist_amp_cut.Add(gr);
 					}
 
-					if (fitFcn->GetChisquare() > Chi2_threshold && fitFcn->GetParameter(0) > 0.01)
+					if (fitFcn->GetChisquare() > Chi2_threshold && fitFcn->GetParameter(0) > 0.01) // записать графики с большим Chi2
 					{
 						Hlist_chi2_fnc1.Add(gr);
 					}
 
-					amp_chi2_fnc1 << fitFcn->GetParameter(0) << "\t" << fitFcn->GetChisquare() << endl;
+					amp_chi2_fnc1 << fitFcn->GetParameter(0) << "\t" << fitFcn->GetChisquare() << endl; // записать параметры для всех сигналов
 
 
-					//delete gr;
-					//-------------------------------------------------------
-					double temp = 0;
-
+					
+					// фит суммой 2-х сигналов
+					//-----------------------------------------------------
 					if (fitFcn->GetChisquare() < Chi2_threshold && fitFcn->GetParameter(0) > 0.01)
 					{
 						amp_chi2_fnc2 << fitFcn->GetParameter(0) << "\t" << fitFcn->GetChisquare() << endl;
 					}
 
-
+					double temp = 0;
 
 					if (fitFcn->GetChisquare() > Chi2_threshold && fitFcn->GetParameter(0) > 0.01)
 					{
@@ -247,6 +265,8 @@ int main()
 						gr_2->SetMarkerColor(4);
 						gr_2->SetMarkerStyle(kFullCircle);
 
+						//выбор параметров фита
+						//--------------------------------------------
 						// A
 						fitFcn_fnc2->SetParameter(0, A_start);
 						fitFcn_fnc2->SetParLimits(0, 0.001, 1000);
@@ -288,6 +308,7 @@ int main()
 
 						fitFcn_fnc2->SetParameter(11, 1.64932);
 						fitFcn_fnc2->SetParLimits(11, 1.64932, 1.64932);
+						//--------------------------------------------
 
 						gr_2->Fit("fitFcn_fnc2", "RQ");
 
@@ -297,7 +318,12 @@ int main()
 
 						temp = fitFcn_fnc2->GetChisquare();
 					}
+					//-----------------------------------------------------
 
+					
+					
+					//фит суммой 3-х сигналов
+					//-----------------------------------------------------
 					if (temp > Chi2_threshold && fitFcn->GetParameter(0) > 0.01)
 					{
 						TGraphErrors * gr_3 = new TGraphErrors(time_pre + time_post, &xv[i - time_pre], &yv[i - time_pre], &xverr[i - time_pre], &yverr[i - time_pre]);
@@ -306,6 +332,8 @@ int main()
 						gr_3->SetMarkerColor(4);
 						gr_3->SetMarkerStyle(kFullCircle);
 
+						//выбор параметров фита
+						//--------------------------------------------
 						// A
 						fitFcn_fnc3->SetParameter(0, A_start);
 						fitFcn_fnc3->SetParLimits(0, 0.001, 1000);
@@ -365,6 +393,7 @@ int main()
 
 						fitFcn_fnc3->SetParameter(18, 1.64932);
 						fitFcn_fnc3->SetParLimits(18, 1.64932, 1.64932);
+						//--------------------------------------------
 
 						gr_3->Fit("fitFcn_fnc3", "RQ");
 
@@ -372,17 +401,16 @@ int main()
 
 						amp_chi2_fnc3 << fitFcn_fnc3->GetParameter(0) << "\t" << fitFcn_fnc3->GetChisquare() << endl;
 					}
+					//-----------------------------------------------------
 
 
-
-
-
-
+					
 					xv_der_position.clear();
 					x_time = xv[i];
 					flag = 0;
 				}
 
+				//разрешить искать сигнал вновь через время time_post*0.2
 				if (yv_der[i] > threshold_der && flag == 0 && ((xv[i] - x_time) > time_post*0.2))
 				{
 					flag = 1;
@@ -407,6 +435,8 @@ int main()
 
 	}
 
+	//записать графики в файлы
+	//----------------------------------------------------------
 	string ofile_0_s = dir_name + "Hlist_all.root";
 	string ofile_01_s = dir_name + "Hlist_amp_cut.root";
 	string ofile_1_s = dir_name + "Hlist_chi2_fnc1.root";
@@ -433,7 +463,7 @@ int main()
 	TFile ofile_3(ofile_3_s.c_str(), "RECREATE");
 	Hlist_chi2_fnc3.Write();
 	ofile_3.Close();
-
+	//----------------------------------------------------------
 
 	system("pause");
 	return 0;

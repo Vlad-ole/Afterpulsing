@@ -13,6 +13,9 @@
 #include <sys/timeb.h>
 #include <iostream>
 #include <math.h>
+#include "TObjArray.h"
+#include "TGraph.h"
+#include "TFile.h"
 
 using namespace std;
 
@@ -24,9 +27,11 @@ const double threshold_2e = -0.018; // V
 
 int main()
 {
-	string directory_init = "D:\\Data_work\\tektronix_signal\\265K\\265K_72.59\\";
-	string directory_raw = directory_init + "raw\\dat.txt";
+	string directory_init = "D:\\Data_work\\tektronix_signal\\280K\\280K_73.24\\";
+	string directory_raw = directory_init + "raw\\20M.txt";
 
+	TObjArray Hlist_reco_time_bad(0);
+	TObjArray Hlist_reco_time_good(0);
 
 	//file with raw data
 	FILE *work_file = fopen(directory_raw.c_str(), "r");
@@ -57,8 +62,8 @@ int main()
 
 	vector<double> yv_average;
 
-	const int time_pre = (1000 / 0.2);
-	const int time_post = (1000 / 0.2);
+	const int time_pre = (500 / 0.2);
+	const int time_post = (500 / 0.2);
 
 
 	const int time_gate = time_post + time_pre;
@@ -99,17 +104,20 @@ int main()
 			//break;
 		}
 
-
-		if (xv.size() % rec_lenght == 0) // 
+	}
+		//if (xv.size() % rec_lenght == 0) // 
 		{
 			cout << "part " << counter << " was started" << endl;
 			counter++;
 
 
 			//caclulate derivative
-			for (int i = 0; i < (xv.size() - step); i++)
+			for (int i = 0; i < xv.size(); i++)
 			{
-				yv_der.push_back(yv[i + step] - yv[i]);
+				if (i < 20)
+					yv_der.push_back(0);
+				else
+					yv_der.push_back(yv[i] - yv[i - step]);
 			}
 
 			// лестница дл€ производной
@@ -154,10 +162,10 @@ int main()
 			
 			bool one_time = 1;
 
-			for (int i = 0; i < (xv.size() - step); i++)
+			for (int i = 0; i < (xv.size()); i++)
 			{
 
-				if ((yv[i] < threshold) && flag && (i > time_pre) && ((i + time_post) < (xv.size() - step)))
+				if ((yv_der[i] < threshold_der) && flag && (i > time_pre) && ((i + time_post) < (xv.size()) ) )
 				{
 
 					flag_afp = 1;
@@ -207,11 +215,22 @@ int main()
 								amplitude = yv[j];
 						}
 
+						TGraph *gr = new TGraph(time_pre + time_post, &xv[i - time_pre], &yv[i - time_pre]);
+						
+						if (amplitude > -0.008)
+						{							
+							Hlist_reco_time_bad.Add(gr);
+						}
+						
+						Hlist_reco_time_good.Add(gr);
+
+						file_amp << abs(amplitude) << endl;
+
 						if (amplitude > threshold_2e && amplitude < threshold) // проверка, что импульс одноэлектронный
 						{
 
 							number_of_pulsing++;
-							for (int j = -time_pre; j < time_post; j++)// записть значений в вектор среднего
+							for (int j = -time_pre; j < time_post; j++)// запись значений в вектор среднего
 							{
 								yv_average[j + time_pre] += yv[i + j];
 							}
@@ -227,7 +246,7 @@ int main()
 				}
 
 
-				if (yv[i] > threshold && flag == 0 && ((xv[i] - x_time) > time_post*2E-10))
+				if (yv_der[i] > threshold_der && flag == 0 && ((xv[i] - x_time) > time_post*2E-10))
 				{
 					flag = 1;
 				}
@@ -253,10 +272,19 @@ int main()
 			yv.clear();
 		}
 
-	}
+	//}//while
 
 
+	string ofile_0_s = directory_init + "Hlist_reco_time_bad.root";
+	string ofile_1_s = directory_init + "Hlist_reco_time_good.root";
+	
+	TFile ofile_0(ofile_0_s.c_str(), "RECREATE");
+	Hlist_reco_time_bad.Write();
+	ofile_0.Close();
 
+	TFile ofile_1(ofile_1_s.c_str(), "RECREATE");
+	Hlist_reco_time_good.Write();
+	ofile_1.Close();
 
 	for (int i = 0; i < (time_gate); i++)
 	{
