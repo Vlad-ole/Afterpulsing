@@ -83,6 +83,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Monostate.cpp" />
+    <ClCompile Include="RootFit.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Monostate.h" />
+    <ClInclude Include="RootFit.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
