@@ -18,7 +18,7 @@ const int step = 20;
 
 int counter = 0;
 int counter_rec_length = 0;
-const int rec_lenght = 1000000;
+const int rec_lenght = 100000;
 
 const double disp = 0.00113151;
 double base_line;
@@ -27,7 +27,8 @@ double left_limit;
 double right_limit;
 int vector_index;
 
-double threshold_der = -0.006;
+const double threshold_der = -0.006;
+const double threshold = -0.001;
 
 const int time_pre = (20 / 0.2);
 const int time_post = (100 / 0.2);
@@ -83,6 +84,7 @@ int main()
 	TObjArray Hlist_chi2_fnc1(0);
 	TObjArray Hlist_chi2_fnc2(0);
 	TObjArray Hlist_chi2_fnc3(0);
+	TObjArray Hlist_chi2_fnc4(0);
 
 	vector<double> xv;
 	vector<double> yv;
@@ -104,6 +106,13 @@ int main()
 	ofstream amp_chi2_fnc2(dir_name + "amp_chi2_fnc2.dat");
 	ofstream amp_chi2_fnc3(dir_name + "amp_chi2_fnc3.dat");
 
+	ofstream time_i(dir_name + "time_i.dat");
+	ofstream time_delta(dir_name + "time_delta.dat");
+
+	ofstream time_test(dir_name + "time_test.dat");
+
+	//ofstream time(dir_name + "time.dat");
+
 	//читать файл
 	while (!feof(f))
 	{
@@ -123,6 +132,47 @@ int main()
 		if (xv.size() % rec_lenght == 0)
 		{
 
+			//--------------------------------------------------------------------
+			//caclulate derivative
+			for (int i = 0; i < xv.size(); i++)
+			{
+				if (i < step)
+				{
+					yv_der.push_back(0);
+				}
+				else
+				{
+					yv_der.push_back(yv[i] - yv[i - step]);
+				}
+
+			}
+
+			bool flag = 1;
+
+			vector<int> time_start;
+			vector<int> time_finish;
+
+			//поиск начала и конца 
+			for (int i = 0; i < (xv.size() - step); i++)
+			{
+				if ((yv_der[i] < threshold_der) && flag)
+				{
+					xv_der_position.clear();
+					x_time = xv[i];
+					flag = 0;
+					time_start.push_back(i);
+				}
+
+				//разрешить искать сигнал, когда сигнал дойдет до шумов
+				if (yv[i] > threshold && flag == 0 && (xv[i] - x_time) > 5)
+				{
+					time_finish.push_back(i);
+					flag = 1;
+				}
+			}
+
+
+			//вектора с ошибками
 			for (int j = 0; j < xv.size(); j++)
 			{
 				xverr.push_back(0);
@@ -130,204 +180,206 @@ int main()
 			}
 
 
-			//--------------------------------------------------------------------
-			//caclulate derivative
-			for (int i = 0; i < (xv.size() - step); i++)
+
+			//задать параметры отбора и фита
+			//---------------------------------------------
+			double A_start = 0.05;
+			double chi2_per_dof = 3;
+
+			base_line = 0;
+			/*int avg_points = 50;
+			for (int j = i - time_pre; j < (i - time_pre + avg_points); j++)
 			{
-				yv_der.push_back(yv[i + step] - yv[i]);
+			base_line += yv[j];
 			}
 
-			bool flag = 1;
+			base_line /= double(avg_points);*/
+			//---------------------------------------------
 
-			//поиск сигнала по производной
-			for (int i = 0; i < (xv.size() - step); i++)
+			flag = 1;
+			vector<int> time_front;
+			for (int i = 0; i < time_start.size(); i++)
 			{
-				if ((yv_der[i] < threshold_der) && flag && (i > time_pre) && ((i + time_post) < (xv.size() - step)))
+				cout << "calculate fit ... " << i << endl;
+
+				time_front.clear();
+
+				int baseline_shit = 50;
+				int time_start_index = time_start[i] - baseline_shit;
+
+				//найти стартовые параметры для начала сигнала
+				for (int j = time_start_index; j < time_finish[i]; j++)
 				{
-
-					//вычисление положения наложенных сигналов по производной
-					//---------------------------------------------
-					int time_dead = 5;
-					bool flag_local = 1;
-					int x_time_local;
-					for (int j = i - time_pre; j < i + time_post; j++)
+					if (yv_der[j] < threshold_der && flag)
 					{
-						if (yv_der[j] < threshold_der && flag_local)
-						{
-							xv_der_position.push_back(xv[j]);
-							flag_local = 0;
-							x_time_local = xv[j];
-						}
-
-						if (yv_der[j] > threshold_der && (xv[j] - x_time_local) > time_dead)
-						{
-							flag_local = 1;
-						}
+						time_front.push_back(j);
+						flag = 0;
+						x_time = xv[j];
 					}
 
-					cout << "xv_der_position " << xv_der_position.size() << endl;
-					//---------------------------------------------
-
-					
-					//задать параметры отбора и фита
-					//---------------------------------------------
-					double A_start = 0.05;
-					double Chi2_threshold = 1800;
-
-					base_line = 0;
-					int avg_points = 50;
-					for (int j = i - time_pre; j < (i - time_pre + avg_points); j++)
+					if (yv_der[j] > threshold_der && (xv[j] - x_time) > 5)
 					{
-						base_line += yv[j];
+						flag = 1;
 					}
 
-					base_line /= double( avg_points);
-					//---------------------------------------------					
-					
-					
-					
-					
-					TGraphErrors * gr = new TGraphErrors(time_pre + time_post, &xv[i - time_pre], &yv[i - time_pre], &xverr[i - time_pre], &yverr[i - time_pre]);
-					TF1 *fitFcn = new TF1("fitFcn", fitFunction, xv[i - time_pre], xv[i + time_post], num_of_param);
+				}
 
-					cout << "*************** " << endl;
+				//time << time_front[0] << "\t" << time_front[1] << "\t" << time_front[1] - time_front[0] << "\t" << time_front.size() << endl;
 
-					double time_total = xv[i - time_pre] + xv[i + time_post];
-					double time_length = xv[i + time_post] - xv[i - time_pre];
+				TGraphErrors * gr = new TGraphErrors(time_finish[i] - time_start_index, &xv[time_start_index], &yv[time_start_index], &xverr[time_start_index], &yverr[time_start_index]);
+				TF1 *fitFcn = new TF1("fitFcn", fitFunction, xv[time_start_index], xv[time_finish[i]], num_of_param);
 
+				//выбор параметров фита
+				//--------------------------------------------
+				fitFcn->SetParameter(0, A_start);
+				fitFcn->SetParLimits(0, 0.001, 1000); // A
+
+				//t_0
+				fitFcn->SetParameter(1, xv[time_front[0]]);
+				fitFcn->SetParLimits(1, xv[time_start_index], xv[time_finish[i]]);
+
+				// tau_rec
+				fitFcn->SetParameter(2, 17.7373);
+				fitFcn->SetParLimits(2, 17.7373, 17.7373);
+
+				// tau_rise
+				fitFcn->SetParameter(3, 10.5194);
+				fitFcn->SetParLimits(3, 10.5194, 10.5194);
+
+				//baseline
+				fitFcn->SetParameter(4, 0);
+				fitFcn->SetParLimits(4, -0.002, 0.002);
+
+
+				//sigma
+				fitFcn->SetParameter(5, 1.64932);
+				fitFcn->SetParLimits(5, 1.64932, 1.64932);
+				//fitFcn->FixParameter(1, 0);
+				//--------------------------------------------
+
+				gr->Fit("fitFcn", "RQ");
+				gr->SetMarkerColor(4);
+				gr->SetMarkerStyle(kFullCircle);
+
+
+				Hlist_all.Add(gr);//записать все графики
+				
+				amp_chi2_fnc1 << fitFcn->GetParameter(0) << "\t" << fitFcn->GetChisquare() / (time_finish[i] - time_start_index) << endl;
+
+
+
+				if (fitFcn->GetParameter(0) > 0.02 && fitFcn->GetChisquare() / (time_finish[i] - time_start_index) < chi2_per_dof)
+				{
+					amp_chi2_fnc2 << fitFcn->GetParameter(0) << "\t" << fitFcn->GetChisquare() / (time_finish[i] - time_start_index) << endl;
+					amp_chi2_fnc3 << fitFcn->GetParameter(0) << "\t" << fitFcn->GetChisquare() / (time_finish[i] - time_start_index) << endl;
+					time_i << fitFcn->GetParameter(1) << "\t" << fitFcn->GetParameter(0) << endl;
+					Hlist_amp_cut.Add(gr);
+				}
+
+				if (fitFcn->GetChisquare() / (time_finish[i] - time_start_index) > chi2_per_dof)
+				{
+					cout << "\t double ... " << endl;
+
+					TGraphErrors * gr_2 = new TGraphErrors(time_finish[i] - time_start_index, &xv[time_start_index], &yv[time_start_index], &xverr[time_start_index], &yverr[time_start_index]);
+					TF1 *fitFcn_fnc2 = new TF1("fitFcn_fnc2", fitFunction_2, xv[time_start_index], xv[time_finish[i]], num_of_param * 2);
+
+					gr_2->SetMarkerColor(4);
+					gr_2->SetMarkerStyle(kFullCircle);
 
 					//выбор параметров фита
 					//--------------------------------------------
-					fitFcn->SetParameter(0, A_start);
-					fitFcn->SetParLimits(0, 0.001, 1000); // A
+					// A
+					fitFcn_fnc2->SetParameter(0, A_start);
+					fitFcn_fnc2->SetParLimits(0, 0.001, 1000);
+
+					fitFcn_fnc2->SetParameter(6, A_start);
+					fitFcn_fnc2->SetParLimits(6, 0.001, 1000);
 
 					//t_0
-					fitFcn->SetParameter(1, xv_der_position[0]);
-					fitFcn->SetParLimits(1, xv[i - time_pre], xv[i + time_post]);
+					fitFcn_fnc2->SetParameter(1, xv[time_front[0]]);
+					fitFcn_fnc2->SetParLimits(1, xv[time_start_index], xv[time_finish[i]]);
+
+					if (time_front.size() == 1)
+					{
+						fitFcn_fnc2->SetParameter(7, xv[time_front[0]]);
+					}
+					else
+					{
+						fitFcn_fnc2->SetParameter(7, xv[time_front[1]]);
+					}
+
+					fitFcn_fnc2->SetParLimits(7, xv[time_start_index], xv[time_finish[i]]);
+
+
 
 					// tau_rec
-					fitFcn->SetParameter(2, 17.7373);
-					fitFcn->SetParLimits(2, 17.7373, 17.7373);
+					fitFcn_fnc2->SetParameter(2, 17.7373);
+					fitFcn_fnc2->SetParLimits(2, 17.7373, 17.7373);
+
+					fitFcn_fnc2->SetParameter(8, 17.7373);
+					fitFcn_fnc2->SetParLimits(8, 17.7373, 17.7373);
 
 					// tau_rise
-					fitFcn->SetParameter(3, 10.5194);
-					fitFcn->SetParLimits(3, 10.5194, 10.5194);
+					fitFcn_fnc2->SetParameter(3, 10.5194);
+					fitFcn_fnc2->SetParLimits(3, 10.5194, 10.5194);
 
-					
-					fitFcn->SetParameter(4, base_line);
-					fitFcn->SetParLimits(4, base_line, base_line);
+					fitFcn_fnc2->SetParameter(9, 10.5194);
+					fitFcn_fnc2->SetParLimits(9, 10.5194, 10.5194);
 
+
+					//baseline
+					fitFcn_fnc2->SetParameter(4, 0);
+					fitFcn_fnc2->SetParLimits(4, -0.002, 0.002);
+
+					fitFcn_fnc2->SetParameter(10, 0);
+					fitFcn_fnc2->SetParLimits(10, -0.002, 0.002);
 
 					//sigma
-					fitFcn->SetParameter(5, 1.64932);
-					fitFcn->SetParLimits(5, 1.64932, 1.64932);
-					//fitFcn->FixParameter(1, 0);
+					fitFcn_fnc2->SetParameter(5, 1.64932);
+					fitFcn_fnc2->SetParLimits(5, 1.64932, 1.64932);
+
+					fitFcn_fnc2->SetParameter(11, 1.64932);
+					fitFcn_fnc2->SetParLimits(11, 1.64932, 1.64932);
 					//--------------------------------------------
 
-					gr->Fit("fitFcn", "RQ");
-					//gStyle->SetOptFit();
-					//TPaveStats *st = (TPaveStats*)gr->GetListOfFunctions()->FindObject("stats")
+					gr_2->Fit("fitFcn_fnc2", "RQ");
 
-					gr->SetMarkerColor(4);
-					gr->SetMarkerStyle(kFullCircle);
+					Hlist_chi2_fnc2.Add(gr_2);
 
+					//	amp_chi2_fnc2 << fitFcn_fnc2->GetParameter(0) << "\t" << fitFcn_fnc2->GetChisquare() << endl;
 
-					Hlist_all.Add(gr);//записать все графики
+					//	temp = fitFcn_fnc2->GetChisquare();
 
-					if (fitFcn->GetParameter(0) > 0.01) // записать графики без шумов
+					amp_chi2_fnc2 << fitFcn_fnc2->GetParameter(0) << "\t" << fitFcn_fnc2->GetChisquare() / (time_finish[i] - time_start_index) << endl;
+					amp_chi2_fnc2 << fitFcn_fnc2->GetParameter(6) << "\t" << fitFcn_fnc2->GetChisquare() / (time_finish[i] - time_start_index) << endl;
+
+					if (fitFcn->GetParameter(0) > 0.02 && fitFcn_fnc2->GetChisquare() / (time_finish[i] - time_start_index) < chi2_per_dof)
 					{
-						Hlist_amp_cut.Add(gr);
+						amp_chi2_fnc3 << fitFcn_fnc2->GetParameter(0) << "\t" << fitFcn_fnc2->GetChisquare() / (time_finish[i] - time_start_index) << endl;
+						amp_chi2_fnc3 << fitFcn_fnc2->GetParameter(6) << "\t" << fitFcn_fnc2->GetChisquare() / (time_finish[i] - time_start_index) << endl;
+
+						if (fitFcn_fnc2->GetParameter(1) > fitFcn_fnc2->GetParameter(7))
+						{
+							time_i << fitFcn_fnc2->GetParameter(7) << "\t" << fitFcn_fnc2->GetParameter(6) << endl;
+							time_i << fitFcn_fnc2->GetParameter(1) << "\t" << fitFcn_fnc2->GetParameter(0) << endl;
+							
+						}
+						else
+						{
+							time_i << fitFcn_fnc2->GetParameter(1) << "\t" << fitFcn_fnc2->GetParameter(0) << endl;
+							time_i << fitFcn_fnc2->GetParameter(7) << "\t" << fitFcn_fnc2->GetParameter(6) << endl;
+							
+						}
+
 					}
 
-					if (fitFcn->GetChisquare() > Chi2_threshold && fitFcn->GetParameter(0) > 0.01) // записать графики с большим Chi2
+
+					if (fitFcn_fnc2->GetChisquare() / (time_finish[i] - time_start_index) > chi2_per_dof)
 					{
-						Hlist_chi2_fnc1.Add(gr);
-					}
+						cout << "\t \t triple ... " << endl;
 
-					amp_chi2_fnc1 << fitFcn->GetParameter(0) << "\t" << fitFcn->GetChisquare() << endl; // записать параметры для всех сигналов
-
-
-					
-					// фит суммой 2-х сигналов
-					//-----------------------------------------------------
-					if (fitFcn->GetChisquare() < Chi2_threshold && fitFcn->GetParameter(0) > 0.01)
-					{
-						amp_chi2_fnc2 << fitFcn->GetParameter(0) << "\t" << fitFcn->GetChisquare() << endl;
-					}
-
-					double temp = 0;
-
-					if (fitFcn->GetChisquare() > Chi2_threshold && fitFcn->GetParameter(0) > 0.01)
-					{
-						TGraphErrors * gr_2 = new TGraphErrors(time_pre + time_post, &xv[i - time_pre], &yv[i - time_pre], &xverr[i - time_pre], &yverr[i - time_pre]);
-						TF1 *fitFcn_fnc2 = new TF1("fitFcn_fnc2", fitFunction_2, xv[i - time_pre], xv[i + time_post], num_of_param * 2);
-
-						gr_2->SetMarkerColor(4);
-						gr_2->SetMarkerStyle(kFullCircle);
-
-						//выбор параметров фита
-						//--------------------------------------------
-						// A
-						fitFcn_fnc2->SetParameter(0, A_start);
-						fitFcn_fnc2->SetParLimits(0, 0.001, 1000);
-
-						fitFcn_fnc2->SetParameter(6, A_start);
-						fitFcn_fnc2->SetParLimits(6, 0.001, 1000);
-
-						//t_0
-						fitFcn_fnc2->SetParameter(1, xv_der_position[0]);
-						fitFcn_fnc2->SetParLimits(1, xv[i - time_pre], xv[i + time_post]);
-
-						fitFcn_fnc2->SetParameter(7, xv_der_position[1]);
-						fitFcn_fnc2->SetParLimits(7, xv[i - time_pre], xv[i + time_post]);
-
-						// tau_rec
-						fitFcn_fnc2->SetParameter(2, 17.7373);
-						fitFcn_fnc2->SetParLimits(2, 17.7373, 17.7373);
-
-						fitFcn_fnc2->SetParameter(8, 17.7373);
-						fitFcn_fnc2->SetParLimits(8, 17.7373, 17.7373);
-
-						// tau_rise
-						fitFcn_fnc2->SetParameter(3, 10.5194);
-						fitFcn_fnc2->SetParLimits(3, 10.5194, 10.5194);
-
-						fitFcn_fnc2->SetParameter(9, 10.5194);
-						fitFcn_fnc2->SetParLimits(9, 10.5194, 10.5194);
-
-						
-						fitFcn_fnc2->SetParameter(4, base_line);
-						fitFcn_fnc2->SetParLimits(4, base_line, base_line);
-
-						fitFcn_fnc2->SetParameter(10, base_line);
-						fitFcn_fnc2->SetParLimits(10, base_line, base_line);
-
-						//sigma
-						fitFcn_fnc2->SetParameter(5, 1.64932);
-						fitFcn_fnc2->SetParLimits(5, 1.64932, 1.64932);
-
-						fitFcn_fnc2->SetParameter(11, 1.64932);
-						fitFcn_fnc2->SetParLimits(11, 1.64932, 1.64932);
-						//--------------------------------------------
-
-						gr_2->Fit("fitFcn_fnc2", "RQ");
-
-						Hlist_chi2_fnc2.Add(gr_2);
-
-						amp_chi2_fnc2 << fitFcn_fnc2->GetParameter(0) << "\t" << fitFcn_fnc2->GetChisquare() << endl;
-
-						temp = fitFcn_fnc2->GetChisquare();
-					}
-					//-----------------------------------------------------
-
-					
-					
-					//фит суммой 3-х сигналов
-					//-----------------------------------------------------
-					if (temp > Chi2_threshold && fitFcn->GetParameter(0) > 0.01)
-					{
-						TGraphErrors * gr_3 = new TGraphErrors(time_pre + time_post, &xv[i - time_pre], &yv[i - time_pre], &xverr[i - time_pre], &yverr[i - time_pre]);
-						TF1 *fitFcn_fnc3 = new TF1("fitFcn_fnc3", fitFunction_3, xv[i - time_pre], xv[i + time_post], num_of_param * 3);
+						TGraphErrors * gr_3 = new TGraphErrors(time_finish[i] - time_start_index, &xv[time_start_index], &yv[time_start_index], &xverr[time_start_index], &yverr[time_start_index]);
+						TF1 *fitFcn_fnc3 = new TF1("fitFcn_fnc3", fitFunction_3, xv[time_start_index], xv[time_finish[i]], num_of_param * 3);
 
 						gr_3->SetMarkerColor(4);
 						gr_3->SetMarkerStyle(kFullCircle);
@@ -345,14 +397,33 @@ int main()
 						fitFcn_fnc3->SetParLimits(12, 0.001, 1000);
 
 						//t_0
-						fitFcn_fnc3->SetParameter(1, xv_der_position[0]);
-						fitFcn_fnc3->SetParLimits(1, xv[i - time_pre], xv[i + time_post]);
 
-						fitFcn_fnc3->SetParameter(7, xv_der_position[1]);
-						fitFcn_fnc3->SetParLimits(7, xv[i - time_pre], xv[i + time_post]);
+						if (false)
+						{
+							fitFcn_fnc3->SetParameter(1, xv[time_front[0]]);
 
-						fitFcn_fnc3->SetParameter(13, xv_der_position[2]);
-						fitFcn_fnc3->SetParLimits(13, xv[i - time_pre], xv[i + time_post]);
+
+							if (time_front.size() > 1)
+								fitFcn_fnc3->SetParameter(7, xv[time_front[1]]);
+							else
+								fitFcn_fnc3->SetParameter(7, xv[time_front[0]]);
+
+
+							if (time_front.size() > 2)
+								fitFcn_fnc3->SetParameter(13, xv[time_front[2]]);
+							else
+								fitFcn_fnc3->SetParameter(13, xv[time_front[0]]);
+						}
+						else
+						{
+							fitFcn_fnc3->SetParameter(1, xv[time_start_index]);
+							fitFcn_fnc3->SetParameter(7, xv[time_start_index]);
+							fitFcn_fnc3->SetParameter(13, xv[time_start_index]);
+						}
+
+						fitFcn_fnc3->SetParLimits(1, xv[time_start_index], xv[time_finish[i]]);
+						fitFcn_fnc3->SetParLimits(7, xv[time_start_index], xv[time_finish[i]]);
+						fitFcn_fnc3->SetParLimits(13, xv[time_start_index], xv[time_finish[i]]);
 
 						// tau_rec
 						fitFcn_fnc3->SetParameter(2, 17.7373);
@@ -374,15 +445,15 @@ int main()
 						fitFcn_fnc3->SetParameter(15, 10.5194);
 						fitFcn_fnc3->SetParLimits(15, 10.5194, 10.5194);
 
-						
-						fitFcn_fnc3->SetParameter(4, base_line);
-						fitFcn_fnc3->SetParLimits(4, base_line, base_line);
+						//base_line
+						fitFcn_fnc3->SetParameter(4, 0);
+						fitFcn_fnc3->SetParLimits(4, -0.002, 0.002);
 
-						fitFcn_fnc3->SetParameter(10, base_line);
-						fitFcn_fnc3->SetParLimits(10, base_line, base_line);
+						fitFcn_fnc3->SetParameter(10, 0);
+						fitFcn_fnc3->SetParLimits(10, -0.002, 0.002);
 
-						fitFcn_fnc3->SetParameter(16, base_line);
-						fitFcn_fnc3->SetParLimits(16, base_line, base_line);
+						fitFcn_fnc3->SetParameter(16, 0);
+						fitFcn_fnc3->SetParLimits(16, -0.002, 0.002);
 
 						//sigma
 						fitFcn_fnc3->SetParameter(5, 1.64932);
@@ -399,22 +470,77 @@ int main()
 
 						Hlist_chi2_fnc3.Add(gr_3);
 
-						amp_chi2_fnc3 << fitFcn_fnc3->GetParameter(0) << "\t" << fitFcn_fnc3->GetChisquare() << endl;
+						if (fitFcn->GetParameter(0) > 0.02)
+						{
+							amp_chi2_fnc3 << fitFcn_fnc3->GetParameter(0) << "\t" << fitFcn_fnc3->GetChisquare() / (time_finish[i] - time_start_index) << endl;
+							amp_chi2_fnc3 << fitFcn_fnc3->GetParameter(6) << "\t" << fitFcn_fnc3->GetChisquare() / (time_finish[i] - time_start_index) << endl;
+							amp_chi2_fnc3 << fitFcn_fnc3->GetParameter(12) << "\t" << fitFcn_fnc3->GetChisquare() / (time_finish[i] - time_start_index) << endl;
+
+							if (fitFcn_fnc3->GetParameter(1) < fitFcn_fnc3->GetParameter(7) && fitFcn_fnc3->GetParameter(1) < fitFcn_fnc3->GetParameter(13))
+							{
+								if (fitFcn_fnc3->GetParameter(7) < fitFcn_fnc3->GetParameter(13))
+								{
+									time_i << fitFcn_fnc3->GetParameter(1) << "\t" << fitFcn_fnc3->GetParameter(0) << endl;
+									time_i << fitFcn_fnc3->GetParameter(7) << "\t" << fitFcn_fnc3->GetParameter(6) << endl;
+									time_i << fitFcn_fnc3->GetParameter(13) << "\t" << fitFcn_fnc3->GetParameter(12) << endl;
+								}
+								else
+								{
+									time_i << fitFcn_fnc3->GetParameter(1) << "\t" << fitFcn_fnc3->GetParameter(0) << endl;
+									time_i << fitFcn_fnc3->GetParameter(13) << "\t" << fitFcn_fnc3->GetParameter(12) << endl;
+									time_i << fitFcn_fnc3->GetParameter(7) << "\t" << fitFcn_fnc3->GetParameter(6) << endl;
+								}
+							}
+							
+							if (fitFcn_fnc3->GetParameter(1) > fitFcn_fnc3->GetParameter(7) && fitFcn_fnc3->GetParameter(1) < fitFcn_fnc3->GetParameter(13))
+							{
+								time_i << fitFcn_fnc3->GetParameter(7) << "\t" << fitFcn_fnc3->GetParameter(6) << endl;
+								time_i << fitFcn_fnc3->GetParameter(1) << "\t" << fitFcn_fnc3->GetParameter(0) << endl;
+								time_i << fitFcn_fnc3->GetParameter(13) << "\t" << fitFcn_fnc3->GetParameter(12) << endl;
+							}
+
+							if (fitFcn_fnc3->GetParameter(1) > fitFcn_fnc3->GetParameter(13) && fitFcn_fnc3->GetParameter(1) < fitFcn_fnc3->GetParameter(7))
+							{
+
+								time_i << fitFcn_fnc3->GetParameter(13) << "\t" << fitFcn_fnc3->GetParameter(12) << endl;
+								time_i << fitFcn_fnc3->GetParameter(1) << "\t" << fitFcn_fnc3->GetParameter(0) << endl;
+								time_i << fitFcn_fnc3->GetParameter(7) << "\t" << fitFcn_fnc3->GetParameter(6) << endl;
+							}
+
+
+							if (fitFcn_fnc3->GetParameter(1) > fitFcn_fnc3->GetParameter(7) && fitFcn_fnc3->GetParameter(1) > fitFcn_fnc3->GetParameter(13))
+							{
+								if (fitFcn_fnc3->GetParameter(7) < fitFcn_fnc3->GetParameter(13))
+								{
+									time_i << fitFcn_fnc3->GetParameter(7) << "\t" << fitFcn_fnc3->GetParameter(6) << endl;
+									time_i << fitFcn_fnc3->GetParameter(13) << "\t" << fitFcn_fnc3->GetParameter(12) << endl;
+									time_i << fitFcn_fnc3->GetParameter(1) << "\t" << fitFcn_fnc3->GetParameter(0) << endl;
+								}
+								else
+								{
+									time_i << fitFcn_fnc3->GetParameter(13) << "\t" << fitFcn_fnc3->GetParameter(12) << endl;
+									time_i << fitFcn_fnc3->GetParameter(7) << "\t" << fitFcn_fnc3->GetParameter(6) << endl;
+									time_i << fitFcn_fnc3->GetParameter(1) << "\t" << fitFcn_fnc3->GetParameter(0) << endl;
+								}
+
+							}
+
+							time_test << fitFcn_fnc3->GetParameter(1) << "\t" << fitFcn_fnc3->GetParameter(7) << "\t" << fitFcn_fnc3->GetParameter(13) << endl;
+
+						}
+
+						if (fitFcn_fnc3->GetChisquare() / (time_finish[i] - time_start_index) > chi2_per_dof)
+						{
+							cout << "\t \t \t quadruple ... " << endl;
+							Hlist_chi2_fnc4.Add(gr_3);
+						}
+
 					}
-					//-----------------------------------------------------
 
 
-					
-					xv_der_position.clear();
-					x_time = xv[i];
-					flag = 0;
 				}
 
-				//разрешить искать сигнал вновь через время time_post*0.2
-				if (yv_der[i] > threshold_der && flag == 0 && ((xv[i] - x_time) > time_post*0.2))
-				{
-					flag = 1;
-				}
+
 			}
 
 			xv.clear();
@@ -435,6 +561,26 @@ int main()
 
 	}
 
+	string string_time_i = dir_name + "time_i.dat";
+	FILE *f2 = fopen(string_time_i.c_str(), "r");
+
+	double x_old;
+	bool flag = 0;
+	while (!feof(f2))
+	{
+		fscanf(f2, "%lf %lf\n", &x, &y);
+				
+		if (flag)
+			time_delta << x - x_old << "\t" << y << endl;
+
+		x_old = x;
+
+		flag = 1;
+	}
+
+
+
+
 	//записать графики в файлы
 	//----------------------------------------------------------
 	string ofile_0_s = dir_name + "Hlist_all.root";
@@ -442,6 +588,7 @@ int main()
 	string ofile_1_s = dir_name + "Hlist_chi2_fnc1.root";
 	string ofile_2_s = dir_name + "Hlist_chi2_fnc2.root";
 	string ofile_3_s = dir_name + "Hlist_chi2_fnc3.root";
+	string ofile_4_s = dir_name + "Hlist_chi2_fnc4.root";
 
 	// Open a file, save the ntuple and close the file
 	TFile ofile_0(ofile_0_s.c_str(), "RECREATE");
@@ -452,9 +599,9 @@ int main()
 	Hlist_amp_cut.Write();
 	ofile_01.Close();
 
-	TFile ofile_1(ofile_1_s.c_str(), "RECREATE");
-	Hlist_chi2_fnc1.Write();
-	ofile_1.Close();
+	//TFile ofile_1(ofile_1_s.c_str(), "RECREATE");
+	//Hlist_chi2_fnc1.Write();
+	//ofile_1.Close();
 
 	TFile ofile_2(ofile_2_s.c_str(), "RECREATE");
 	Hlist_chi2_fnc2.Write();
@@ -463,6 +610,10 @@ int main()
 	TFile ofile_3(ofile_3_s.c_str(), "RECREATE");
 	Hlist_chi2_fnc3.Write();
 	ofile_3.Close();
+
+	TFile ofile_4(ofile_4_s.c_str(), "RECREATE");
+	Hlist_chi2_fnc4.Write();
+	ofile_4.Close();
 	//----------------------------------------------------------
 
 	system("pause");
