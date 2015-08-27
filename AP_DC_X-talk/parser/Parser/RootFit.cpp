@@ -4,11 +4,16 @@
 #include "TMath.h"
 #include "Monostate.h"
 
-RootFit::RootFit(int time_start_index, int time_finish_index, vector<double>& xv, vector<double>& yv, vector<double>& xverr, vector<double>& yverr, short int number_of_functions)
+RootFit::RootFit(short int number_of_functions)
 {
+	time_start_index = time_start[current_signal] - time_shit;
+	time_finish_index = time_finish[current_signal];
+	
 	gr = new TGraphErrors(time_finish_index - time_start_index, &xv[time_start_index], &yv[time_start_index], &xverr[time_start_index], &yverr[time_start_index]);
 	gr->SetMarkerColor(4);
 	gr->SetMarkerStyle(kFullCircle);
+
+	gr_der = new TGraph(time_finish_index - time_start_index, &xv[time_start_index], &yv_der[time_start_index]);
 
 	this->number_of_functions = number_of_functions;
 
@@ -23,25 +28,11 @@ RootFit::RootFit(int time_start_index, int time_finish_index, vector<double>& xv
 
 RootFit::~RootFit()
 {
-}
 
-void RootFit::DoFit()
-{
-	gr->Fit("fitFcn", "RQ");
-}
-
-double RootFit::GetChi2PerDof()
-{
-	return fitFcn->GetChisquare() / fitFcn->GetNDF();
-}
-
-double RootFit::GetAmplitude()
-{
-	return fitFcn->GetParameter(0);
 }
 
 
-void RootFit::SetParameters(double time_start_ns, double time_finish_ns, vector<double>& time_front_ns)
+void RootFit::SetParameters(double time_first, double time_second, double time_third)
 {
 	const double A_start = 0.05;
 
@@ -50,8 +41,8 @@ void RootFit::SetParameters(double time_start_ns, double time_finish_ns, vector<
 	fitFcn->SetParLimits(0, 0.001, 1000);
 
 	//t_0
-	fitFcn->SetParameter(1, time_front_ns[0]);
-	fitFcn->SetParLimits(1, time_start_ns, time_finish_ns);
+	fitFcn->SetParameter(1, time_first);
+	fitFcn->SetParLimits(1, xv[time_start_index], xv[time_finish_index]);
 
 	// tau_rec
 	fitFcn->SetParameter(2, 17.7373);
@@ -78,16 +69,8 @@ void RootFit::SetParameters(double time_start_ns, double time_finish_ns, vector<
 		fitFcn->SetParLimits(6, 0.001, 1000);
 
 		//t_0
-		if (time_front.size() == 1)
-		{
-			fitFcn->SetParameter(7, time_front_ns[0]);
-		}
-		else
-		{
-			fitFcn->SetParameter(7, time_start_ns);
-		}
-
-		fitFcn->SetParLimits(7, time_start_ns, time_finish_ns);
+		fitFcn->SetParameter(7, time_second);
+		fitFcn->SetParLimits(7, xv[time_start_index], xv[time_finish_index]);
 
 		// tau_rec
 		fitFcn->SetParameter(8, 17.7373);
@@ -113,22 +96,8 @@ void RootFit::SetParameters(double time_start_ns, double time_finish_ns, vector<
 			fitFcn->SetParLimits(12, 0.001, 1000);
 
 			//t_0
-			fitFcn->SetParameter(7, time_start_ns);
-			fitFcn->SetParameter(13, time_start_ns);
-
-			/*if (time_front.size() > 1)
-				fitFcn->SetParameter(7, time_front_ns[1]);
-			else
-				fitFcn->SetParameter(7, time_front_ns[0]);
-
-
-			if (time_front.size() > 2)
-				fitFcn->SetParameter(13, time_front_ns[2]);
-			else
-				fitFcn->SetParameter(13, time_front_ns[0]);*/
-
-
-			fitFcn->SetParLimits(13, time_start_ns, time_finish_ns);
+			fitFcn->SetParameter(13, time_third);
+			fitFcn->SetParLimits(13, xv[time_start_index], xv[time_finish_index]);
 
 			// tau_rec
 			fitFcn->SetParameter(14, 17.7373);
@@ -148,6 +117,10 @@ void RootFit::SetParameters(double time_start_ns, double time_finish_ns, vector<
 		}
 
 	}
+
+	//fitFcn->Modify();
+	//fitFcn->ReleaseParameter();
+	fitFcn->Update();
 
 }
 
@@ -260,44 +233,6 @@ void RootFit::Print_dt_amp()
 }
 
 
-void RootFit::SaveGraphs(TObjArray &Hlist)
-{
-	Hlist.Add(gr);
-}
 
 
-//вспомогательная функция
-double RootFit::F(double t, double sigma, double tau)
-{
-	return TMath::Exp((sigma*sigma - 2 * t*tau) / (2 * tau*tau)) * (1 + TMath::Erf((t - sigma*sigma / tau) / (sigma * sqrt(2))));
-}
 
-//функция, которой буду фитировать
-Double_t RootFit::fitFunction(Double_t *x, Double_t *par)
-{
-	double A = par[0];
-	double t_0 = par[1];
-	double tau_rec_fast = par[2];
-	double tau_rise = par[3];
-	double V_0 = par[4];
-
-	double sigma = par[5];
-
-	double t = x[0] - t_0;
-	double tau_total_fast = (tau_rec_fast * tau_rise) / (tau_rec_fast + tau_rise);
-
-
-	return -(A / 2) * (F(t, sigma, tau_rec_fast) - F(t, sigma, tau_total_fast)) + V_0;
-}
-
-//сумма двух сигналов
-double RootFit::fitFunction_2(Double_t *x, Double_t *par)
-{
-	return fitFunction(x, par) + fitFunction(x, &par[6]);
-}
-
-//сумма трех сигналов
-double RootFit::fitFunction_3(Double_t *x, Double_t *par)
-{
-	return fitFunction(x, par) + fitFunction(x, &par[6]) + fitFunction(x, &par[12]);
-}

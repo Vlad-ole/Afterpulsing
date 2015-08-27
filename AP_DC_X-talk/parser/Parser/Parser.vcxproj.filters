@@ -24,6 +24,12 @@
     <ClCompile Include="Monostate.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="RootFit_part2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RootFit_part3.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="RootFit.h">

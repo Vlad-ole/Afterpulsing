@@ -12,32 +12,47 @@
 //#include  "gStyle.h"
 #include "RootFit.h"
 #include "Monostate.h"
-
+#include "Math.h"
 
 using namespace std;
 
+vector<double> xv;
+vector<double> yv;
+
+//vector<double> yv_der_local;
+
+//vector<double> yv_der;
+
+int RootFit::time_start_index;
+int RootFit::time_finish_index;
+
+int RootFit::time_shit;
+
+vector<double> RootFit::xv;
+vector<double> RootFit::yv;
+vector<double> RootFit::xverr;
+vector<double> RootFit::yverr;
+
+vector<double> RootFit::yv_der;
+
+vector<int> RootFit::time_start;
+vector<int> RootFit::time_finish;
+vector<int> RootFit::time_front;
+
+int RootFit::current_signal;
 
 int main()
 {
 	//RootFit::fitFunction();
-	vector<double> xv;
-	vector<double> yv;
-
-	vector<double> xverr;
-	vector<double> yverr;
-
-	vector<double> xv_der_position;
-	vector<double> yv_der_local;
-
-	vector<double> yv_der;
-
+	ofstream file_test(Monostate::dir_name + "test.dat");
+	
 	Double_t x, y;
 	FILE *f = fopen(Monostate::raw_name.c_str(), "r");
 
 	int counter = 0;
 	int counter_rec_length = 0;
 
-	double x_time;
+	
 
 	//читать файл
 	while (!feof(f))
@@ -58,112 +73,40 @@ int main()
 		if (xv.size() % Monostate::rec_lenght == 0)
 		{
 
-			//--------------------------------------------------------------------
-			//caclulate derivative
-			for (unsigned int i = 0; i < xv.size(); i++)
-			{
-				if (i < Monostate::step)
-				{
-					yv_der.push_back(0);
-				}
-				else
-				{
-					yv_der.push_back(yv[i] - yv[i - Monostate::step]);
-				}
+			RootFit::xv = xv; // передать вектора длины rec_lenght в класс RootFit
+			RootFit::yv = yv;
+			
+			RootFit::CalculateDer(1, 50); // посчитать производную по данным
+			RootFit::FindStartStop(-2E-4, -0.001); // найти начало и конец суммы сигналов
+			RootFit::SetDispXY(0, 0.00113151);// записать вектора длины rec_lenght xverr и yverr значениеми ошибок
 
-			}
-			//--------------------------------------------------------------------
+			RootFit::time_shit = 50; // задать смещение по времени для учета базовой линии (в точках)
 
-
-			bool flag = 1;
-
-			vector<int> time_start;
-			vector<int> time_finish;
-
-			//поиск начала и конца 
-			for (unsigned int i = 0; i < xv.size(); i++)
-			{
-				if ((yv_der[i] < Monostate::threshold_der) && flag)
-				{
-					xv_der_position.clear();
-					x_time = xv[i];
-					flag = 0;
-					time_start.push_back(i);
-				}
-
-				//разрешить искать сигнал, когда сигнал дойдет до шумов
-				if (yv[i] > Monostate::threshold && flag == 0 && (xv[i] - x_time) > 5)
-				{
-					time_finish.push_back(i);
-					flag = 1;
-				}
-			}			
-
-			//вектора с ошибками
-			for (unsigned int j = 0; j < xv.size(); j++)
-			{
-				xverr.push_back(0);
-				yverr.push_back(Monostate::disp);
-			}
-
-
-
-			//задать параметры отбора и фита
-			//---------------------------------------------
-			//double A_start = 0.05;
-			double chi2_per_dof = 3;
-
-			/*int avg_points = 50;
-			for (int j = i - time_pre; j < (i - time_pre + avg_points); j++)
-			{
-			base_line += yv[j];
-			}
-
-			base_line /= double(avg_points);*/
-			//---------------------------------------------
-
-			flag = 1;
-			vector<double> time_front_ns;
-			for (unsigned int i = 0; i < time_finish.size(); i++)
+			for (unsigned int i = 0; i < RootFit::time_finish.size(); i++)
 			{
 				cout << "calculate fit ... " << i << endl;
-
-				time_front_ns.clear();
-
-				int baseline_shit = 50; // 10 ns
-				int time_start_index = time_start[i] - baseline_shit;
-
-				//найти стартовые параметры для начала сигнала
-				for (int j = time_start_index; j < time_finish[i]; j++)
-				{
-					if (yv_der[j] < Monostate::threshold_der && flag)
-					{
-						time_front_ns.push_back(xv[j]);
-						flag = 0;
-						x_time = xv[j];
-					}
-
-					if (yv_der[j] > Monostate::threshold_der && (xv[j] - x_time) > 5)
-					{
-						flag = 1;
-					}
-
-				}				
+								
+				RootFit::current_signal = i;	
+				RootFit::CalculateStartParameters(10, -2E-4);				
 				
-				RootFit *Fit_single = new RootFit(time_start_index, time_finish[i], xv, yv, xverr, yverr, 1);
-				Fit_single->SetParameters(xv[time_start_index], xv[time_finish[i]], time_front_ns);
+				RootFit *Fit_single = new RootFit(1);
+				Fit_single->SetParameters(xv[RootFit::time_front[0]]);
 				Fit_single->DoFit();
 	
 				//записать все графики
 				Fit_single->SaveGraphs(Monostate::Hlist_f1);
 
 				//записать графики с плохим Chi2 после фита одной функцией
-				if (Fit_single->GetChi2PerDof() > chi2_per_dof)
+				if (Fit_single->GetChi2PerDof() > Monostate::chi2_per_dof_th)
 				{
 					Fit_single->SaveGraphs(Monostate::Hlist_f1_bad);
 				}
 				
-				
+				//записать графики с хорошим Chi2 после фита одной функцией
+				if (Fit_single->GetChi2PerDof() < Monostate::chi2_per_dof_th)
+				{
+					Fit_single->SaveGraphs(Monostate::Hlist_f1_good);
+				}
 
 	/*
 				if (fitFcn->GetParameter(0) > 0.02 && fitFcn->GetChisquare() / (time_finish[i] - time_start_index) < chi2_per_dof)
@@ -174,38 +117,103 @@ int main()
 					Hlist_amp_cut.Add(gr);
 				}*/
 
-				if (Fit_single->GetChi2PerDof() > chi2_per_dof)
+				if (Fit_single->GetChi2PerDof() > Monostate::chi2_per_dof_th)
 				{
 					cout << "\t double ... " << endl;
 
-					RootFit *Fit_double = new RootFit(time_start_index, time_finish[i], xv, yv, xverr, yverr, 2);
-					Fit_double->SetParameters(xv[time_start_index], xv[time_finish[i]], time_front_ns);
+					RootFit *Fit_double = new RootFit(2);
+					if (RootFit::time_front.size() > 1)
+						Fit_double->SetParameters(xv[RootFit::time_front[0]], xv[RootFit::time_front[1]]);
+					else
+						Fit_double->SetParameters(xv[RootFit::time_front[0]], xv[RootFit::time_front[0]]);
+
 					Fit_double->DoFit();
 
 					//записать графики, после фита двумя функциями
 					Fit_double->SaveGraphs(Monostate::Hlist_f2);
 
 					//записать графики с плохим Chi2 после фита двумя функциями
-					if (Fit_double->GetChi2PerDof() > chi2_per_dof)
+					if (Fit_double->GetChi2PerDof() > Monostate::chi2_per_dof_th)
 					{
 						Fit_double->SaveGraphs(Monostate::Hlist_f2_bad);
 					}
 
-					if (Fit_double->GetChi2PerDof() > chi2_per_dof)
+					//записать графики с хорошим Chi2 после фита двумя функциями
+					if (Fit_double->GetChi2PerDof() < Monostate::chi2_per_dof_th)
+					{
+						Fit_double->SaveGraphs(Monostate::Hlist_f2_good);
+					}
+
+
+									
+					//сделать повторный фит с новыми начальными параметрами и записать графики
+					if (Fit_double->GetChi2PerDof() > Monostate::chi2_per_dof_th && RootFit::time_front.size() > 2)
+					{
+						cout << "\t double new time " << endl;
+
+						Fit_double->SaveGraphs(Monostate::Hlist_f2_bad_old_time);
+
+						Fit_double->SetParameters(xv[RootFit::time_front[0]], xv[RootFit::time_front[2]]);
+						Fit_double->DoFit();
+												
+						Fit_double->SaveGraphs(Monostate::Hlist_f2_bad_new_time);
+					}
+
+
+					if (Fit_double->GetChi2PerDof() > Monostate::chi2_per_dof_th)
 					{
 						cout << "\t \t triple ... " << endl;
 				
-						RootFit *Fit_triple = new RootFit(time_start_index, time_finish[i], xv, yv, xverr, yverr, 3);
-						Fit_triple->SetParameters(xv[time_start_index], xv[time_finish[i]], time_front_ns);
+						RootFit *Fit_triple = new RootFit(3);
+						if (RootFit::time_front.size() > 2)
+						{
+							Fit_triple->SetParameters(xv[RootFit::time_front[0]], xv[RootFit::time_front[1]], xv[RootFit::time_front[2]]);
+						}
+
+						if (RootFit::time_front.size() == 2)
+						{
+							Fit_triple->SetParameters(xv[RootFit::time_front[0]], xv[RootFit::time_front[0]], xv[RootFit::time_front[0]]);
+						}
+						
+						if (RootFit::time_front.size() == 1)
+						{
+							Fit_triple->SetParameters(xv[RootFit::time_front[0]], xv[RootFit::time_front[0]], xv[RootFit::time_front[0]]);
+						}
+
 						Fit_triple->DoFit();
+
+						//сделать повторный фит с новыми начальными параметрами
+						if (Fit_triple->GetChi2PerDof() > Monostate::chi2_per_dof_th)
+						{
+							if (RootFit::time_front.size() == 1)
+							{
+								/*RootFit *Fit_triple_new_param = new RootFit(time_start_index, time_finish[i], xv, yv, xverr, yverr, 3, time_front_ns);
+								Fit_triple_new_param->SetParameters(time_front_ns[0], time_front_ns[2], time_front_ns[3]);
+								Fit_triple_new_param->DoFit();
+								Fit_triple_new_param->SaveGraphs(Monostate::Hlist_f3_bad_new_time);*/
+
+								
+								Fit_triple->SetParameters(xv[RootFit::time_front[0]], xv[RootFit::time_front[0]], xv[RootFit::time_front[0]]);
+								Fit_triple->DoFit();
+								Fit_triple->SaveGraphs(Monostate::Hlist_f3_bad_new_time);
+
+							}
+						}
+
 
 						//записать графики, после фита тремя функциями
 						Fit_triple->SaveGraphs(Monostate::Hlist_f3);
 
 						//записать графики с плохим Chi2 после фита тремя функциями
-						if (Fit_double->GetChi2PerDof() > chi2_per_dof)
+						if (Fit_triple->GetChi2PerDof() > Monostate::chi2_per_dof_th)
 						{
-							Fit_double->SaveGraphs(Monostate::Hlist_f3_bad);
+							Fit_triple->SaveGraphs(Monostate::Hlist_f3_bad);
+						}
+
+						//записать графики с хорошим Chi2 после фита тремя функциями
+						if (Fit_triple->GetChi2PerDof() < Monostate::chi2_per_dof_th)
+						{
+							Fit_triple->SaveGraphs(Monostate::Hlist_f3_good);
 						}
 
 						//if (fitFcn->GetParameter(0) > 0.02)
@@ -234,10 +242,7 @@ int main()
 			xv.clear();
 			yv.clear();
 
-			xverr.clear();
-			yverr.clear();
-
-			yv_der.clear();
+			//yv_der.clear();
 
 
 			counter_rec_length++;
