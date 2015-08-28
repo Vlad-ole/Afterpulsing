@@ -19,21 +19,20 @@ using namespace std;
 vector<double> xv;
 vector<double> yv;
 
-//vector<double> yv_der_local;
 
-//vector<double> yv_der;
 
 int RootFit::time_start_index;
 int RootFit::time_finish_index;
 
 int RootFit::time_shit;
 
+double RootFit::threshold_der;
+double RootFit::threshold_amp;
+
 vector<double> RootFit::xv;
 vector<double> RootFit::yv;
-vector<double> RootFit::xverr;
-vector<double> RootFit::yverr;
 
-vector<double> RootFit::yv_der;
+
 
 vector<int> RootFit::time_start;
 vector<int> RootFit::time_finish;
@@ -77,7 +76,13 @@ int main()
 			RootFit::yv = yv;
 			
 			RootFit::CalculateDer(1, 50); // посчитать производную по данным
-			RootFit::FindStartStop(-2E-4, -0.001); // найти начало и конец суммы сигналов
+			
+			
+			RootFit::threshold_der = -2E-4;
+			RootFit::threshold_amp = -0.001;
+			RootFit::FindStartStop(); // найти начало и конец суммы сигналов
+			
+			
 			RootFit::SetDispXY(0, 0.00113151);// записать вектора длины rec_lenght xverr и yverr значениеми ошибок
 
 			RootFit::time_shit = 50; // задать смещение по времени для учета базовой линии (в точках)
@@ -87,8 +92,9 @@ int main()
 				cout << "calculate fit ... " << i << endl;
 								
 				RootFit::current_signal = i;	
-				RootFit::CalculateStartParameters(10, -2E-4);				
-				
+				RootFit::CalculateStartParameters(10);//вычислить стартовые параметры. Параметр - мертвое время производной в нс				
+				RootFit::CreateFrontGraph();
+
 				RootFit *Fit_single = new RootFit(1);
 				Fit_single->SetParameters(xv[RootFit::time_front[0]]);
 				Fit_single->DoFit();

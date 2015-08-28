@@ -22,14 +22,14 @@ public:
 
 	static vector<double> xv;
 	static vector<double> yv;
-	static vector<double> xverr;
-	static vector<double> yverr;
+	
+	
 
 	static vector<double> yv_der;
 
 	static void CalculateDer(int type, int points);
-	static void FindStartStop(double threshold_der, double threshold_amp);
-	static void CalculateStartParameters(double time_dead, double threshold_der); //вычислить стартовые времена t_i. Необходимо задать мертвое время в нс.
+	static void FindStartStop();
+	static void CalculateStartParameters(double time_dead); //вычислить стартовые времена t_i. Необходимо задать мертвое время в нс.
 
 	static vector<int> time_start;
 	static vector<int> time_finish;
@@ -38,15 +38,20 @@ public:
 	
 	static void SetDispXY(double x = 0, double y = 0);
 	
-	static int time_shit;
+	static int time_shit;	
+	static double threshold_der;
+	static double threshold_amp;
 
 	static int current_signal;
+	static void CreateFrontGraph();
 
 private:
 	
 	static int time_start_index;
 	static int time_finish_index;
 
+	static vector<double> yv_front;
+	static vector<double> xv_front;
 
 	vector<double> time_i;
 	vector<double> amp_i;
@@ -54,11 +59,13 @@ private:
 	TF1 *fitFcn;
 	TGraphErrors *gr;
 	TGraph *gr_der;
+	TGraph *gr_front;
 	TMultiGraph *mg;
 
 	short int number_of_functions;
 
-	
+	static vector<double> xverr;
+	static vector<double> yverr;
 	
 	static Double_t fitFunction(Double_t *x, Double_t *par);
 	static double F(double t, double sigma, double tau);

@@ -6,14 +6,24 @@
 
 RootFit::RootFit(short int number_of_functions)
 {
-	time_start_index = time_start[current_signal] - time_shit;
-	time_finish_index = time_finish[current_signal];
-	
+		
 	gr = new TGraphErrors(time_finish_index - time_start_index, &xv[time_start_index], &yv[time_start_index], &xverr[time_start_index], &yverr[time_start_index]);
 	gr->SetMarkerColor(4);
 	gr->SetMarkerStyle(kFullCircle);
 
 	gr_der = new TGraph(time_finish_index - time_start_index, &xv[time_start_index], &yv_der[time_start_index]);
+
+	//cout << xv_front.size() << "\t" << yv_front.size() << endl;
+
+	
+	//for (int i = 0; i < xv_front.size(); i++)
+	//{
+	//	cout << xv_front[i] << "\t" << yv_front[i] << "\t" << xv_front.size() << endl;
+	//}
+
+	//system("pause");
+
+	gr_front = new TGraph(time_finish_index - time_start_index, &xv_front[0], &yv_front[0]);// problem
 
 	this->number_of_functions = number_of_functions;
 

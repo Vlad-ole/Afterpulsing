@@ -4,7 +4,9 @@
 #include "TMath.h"
 #include "Monostate.h"
 
-void RootFit::FindStartStop(double threshold_der, double threshold_amp)
+vector<double> RootFit::yv_der;
+
+void RootFit::FindStartStop()
 {
 	bool flag = 1;
 
@@ -29,28 +31,61 @@ void RootFit::FindStartStop(double threshold_der, double threshold_amp)
 	}
 }
 
-void RootFit::CalculateStartParameters(double time_dead, double threshold_der)
+void RootFit::CalculateStartParameters(double time_dead)
 {
-	
+	time_start_index = time_start[current_signal] - time_shit;
+	time_finish_index = time_finish[current_signal];
+
 	bool flag = 1;
 	int x_time = 0;
 	
-	int i = current_signal;
-	int time_start_index = time_start[i];
+	//int time_start_index = time_start[current_signal];
 
 	time_front.clear();
 
+	int time_dead_index = time_dead / 0.2;
+
 	//найти стартовые параметры для начала сигнала
-	for (int j = time_start_index; j < time_finish[i]; j++)
+	for (int j = time_start_index; j < time_finish[current_signal]; j++)
 	{
+		
 		if (yv_der[j] < threshold_der && flag)
 		{
-			time_front.push_back(j);
+			//int der_min = j;
+			//for (int k = j; k < j + time_dead_index; k++)
+			//{
+			//	if (yv_der[k] < yv_der[j])
+			//	{
+			//		der_min = k;
+			//	}
+
+			//	//cout << k << "\t" << der_min << endl;
+			//	cout << yv_der[k] << "\t" << yv_der[der_min] << endl;
+			//	cout << xv[k] << "\t" << xv[der_min] << endl;
+			//	cout << endl;
+			//}
+
+			//it2 = max_element(myVector.begin(), myVector.end());
+			//cout << " the max is " << *it2 << endl;
+			
+			//cout << *min_element(yv_der.begin(), yv_der.end()) << endl;
+
+			int min_index = min_element(yv_der.begin() + j, yv_der.begin() + j + time_dead_index) - yv_der.begin();
+
+			//cout << xv[j] << "\t" << xv[min_index] << "\t" << xv[j + time_dead_index] << "\t" << current_signal << endl;
+			//cout << xv[der_min] << endl;
+
+			//cout << "min value is " << *min_element(yv_der.begin() + j, yv_der.begin() + j + time_dead_index) << endl;
+			//cout << "min value at " << min_element(yv_der.begin() + j, yv_der.begin() + j + time_dead_index) - yv_der.begin() << endl;
+			
+			//system("pause");
+
+			time_front.push_back(min_index);
 			flag = 0;
 			x_time = j;
 		}
 
-		if (yv_der[j] > threshold_der && (j - x_time) >(time_dead / 0.2))
+		if (yv_der[j] > threshold_der && (j - x_time) > (time_dead_index) )
 		{
 			flag = 1;
 		}
