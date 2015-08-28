@@ -25,6 +25,7 @@ public:
 	
 	
 
+	static vector<double> yv_der2;
 	static vector<double> yv_der;
 
 	static void CalculateDer(int type, int points);
@@ -59,6 +60,7 @@ private:
 	TF1 *fitFcn;
 	TGraphErrors *gr;
 	TGraph *gr_der;
+	TGraph *gr_der2;
 	TGraph *gr_front;
 	TMultiGraph *mg;
 

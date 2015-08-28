@@ -5,6 +5,7 @@
 #include "Monostate.h"
 
 vector<double> RootFit::yv_der;
+vector<double> RootFit::yv_der2;
 
 void RootFit::FindStartStop()
 {
@@ -33,7 +34,15 @@ void RootFit::FindStartStop()
 
 void RootFit::CalculateStartParameters(double time_dead)
 {
-	time_start_index = time_start[current_signal] - time_shit;
+	if (time_start[current_signal] - time_shit >= 0)
+	{
+		time_start_index = time_start[current_signal] - time_shit;
+	}
+	else
+	{
+		time_start_index = 0;
+	}
+	
 	time_finish_index = time_finish[current_signal];
 
 	bool flag = 1;
@@ -117,21 +126,39 @@ void RootFit::CalculateDer(int type, int points)
 		//SavitzkyЦGolay filter
 		//order = 3
 
-		vector<double> C_i;
+		vector<double> C_i_s;
+		vector<double> C_i_der;
+		vector<double> C_i_der2;
 
 		int m = points;// from 8 to 
 
+		//посчитать коэффициенты  C_i
 		for (int i = (1 - m) / 2.0; i <= (m - 1) / 2.0; i++)
 		{
 			double numerator = 5 * (3 * pow(m, 4.0) - 18 * pow(m, 2.0) + 31)*i - 28 * (3 * pow(m, 2.0) - 7)*pow(i, 3.0);
 			double denominator = m * (pow(m, 2.0) - 1) * (3 * pow(m, 4.0) - 39 * pow(m, 2.0) + 108) / 15;
-			C_i.push_back(numerator / denominator);
+			C_i_der.push_back(numerator / denominator);
+
+			//numerator = -(3*pow(m, 2.0) - 7)*i + 20 * pow(i, 3.0);
+			//denominator = m * (pow(m, 2.0) - 1)*(3 * pow(m, 4.0) - 39 * pow(m, 2.0) + 108) / 2520;
+
+			numerator = 12 * m * pow(i, 2.0) - m * (pow(m, 2.0) - 1);
+			denominator = pow(m, 2.0) * (pow(m, 2.0) - 1)*(pow(m, 2.0) - 4) / 30;
+
+			C_i_der2.push_back(numerator / denominator);
+
+			numerator = 0;
+			denominator = 0;
+			C_i_s.push_back(numerator / denominator);
+
 		}
 
-		/*for (int i = 0; i < C_i.size(); i++)
+		/*for (int i = 0; i < C_i_der2.size(); i++)
 		{
-			cout << C_i[i] << endl;
-		}*/
+			cout << C_i_der2[i] << endl;
+		}
+
+		system("pause");*/
 
 
 		int point_half = (m - 1) / 2.0;
@@ -145,16 +172,36 @@ void RootFit::CalculateDer(int type, int points)
 			else
 			{
 				value = 0;
-				for (int j = 0; j < C_i.size(); j++)
+				for (int j = 0; j < C_i_der.size(); j++)
 				{
-					value += C_i[j] * yv[i - point_half + j];
+					value += C_i_der[j] * yv[i - point_half + j];
 				}
 				yv_der.push_back(value);
+
+				value = 0;
+				for (int j = 0; j < C_i_der2.size(); j++)
+				{
+					value += 2 * C_i_der2[j] * yv[i - point_half + j];
+				}
+				yv_der2.push_back(value);
+
 			}
 
 
 		}
 	}
 
+	ofstream file_raw("D:\\Data_work\\tektronix_signal\\295K\\295K_73.90\\raw\\test_data_raw.txt");
+	ofstream file_s("D:\\Data_work\\tektronix_signal\\295K\\295K_73.90\\raw\\test_data_s.txt");
+	ofstream file_d("D:\\Data_work\\tektronix_signal\\295K\\295K_73.90\\raw\\test_data_der.txt");
+	ofstream file_d2("D:\\Data_work\\tektronix_signal\\295K\\295K_73.90\\raw\\test_data_der2.txt");
 
+	for (int i = 0; i < xv.size(); i++)
+	{
+		file_s << xv[i] << "\t" << yv[i] << endl;
+		file_d << xv[i] << "\t" << yv_der[i] * 10 << endl;
+		file_d2 << xv[i] << "\t" << yv_der2[i] * 50 << endl;
+	}
+
+	exit(0);
 }

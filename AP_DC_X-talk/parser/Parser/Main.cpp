@@ -51,7 +51,11 @@ int main()
 	int counter = 0;
 	int counter_rec_length = 0;
 
-	
+	if (f == NULL)
+	{
+		cout << "Can't open this file: " << Monostate::raw_name << endl;
+		system("pause");
+	}
 
 	//читать файл
 	while (!feof(f))
@@ -78,21 +82,21 @@ int main()
 			RootFit::CalculateDer(1, 50); // посчитать производную по данным
 			
 			
-			RootFit::threshold_der = -2E-4;
+			RootFit::threshold_der = (-2E-4);
 			RootFit::threshold_amp = -0.001;
 			RootFit::FindStartStop(); // найти начало и конец суммы сигналов
 			
 			
 			RootFit::SetDispXY(0, 0.00113151);// записать вектора длины rec_lenght xverr и yverr значениеми ошибок
 
-			RootFit::time_shit = 50; // задать смещение по времени для учета базовой линии (в точках)
+			RootFit::time_shit = 100; // задать смещение по времени для учета базовой линии (в точках)
 
 			for (unsigned int i = 0; i < RootFit::time_finish.size(); i++)
 			{
 				cout << "calculate fit ... " << i << endl;
 								
 				RootFit::current_signal = i;	
-				RootFit::CalculateStartParameters(10);//вычислить стартовые параметры. Параметр - мертвое время производной в нс				
+				RootFit::CalculateStartParameters(5);//вычислить стартовые параметры. Параметр - мертвое время производной в нс				
 				RootFit::CreateFrontGraph();
 
 				RootFit *Fit_single = new RootFit(1);

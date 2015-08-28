@@ -12,6 +12,7 @@ RootFit::RootFit(short int number_of_functions)
 	gr->SetMarkerStyle(kFullCircle);
 
 	gr_der = new TGraph(time_finish_index - time_start_index, &xv[time_start_index], &yv_der[time_start_index]);
+	gr_der2 = new TGraph(time_finish_index - time_start_index, &xv[time_start_index], &yv_der2[time_start_index]);
 
 	//cout << xv_front.size() << "\t" << yv_front.size() << endl;
 

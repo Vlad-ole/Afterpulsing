@@ -15,7 +15,7 @@ const double Monostate::chi2_per_dof_th = 5;
 const int Monostate::num_of_param = 6;
 const int Monostate::step = 20;
 
-const int Monostate::rec_lenght = 100000;
+const int Monostate::rec_lenght = 5000;
 
 
 
@@ -23,7 +23,7 @@ const int Monostate::time_pre = (20 / 0.2);
 const int Monostate::time_post = (100 / 0.2);
 
 string Monostate::dir_name = "D:\\Data_work\\tektronix_signal\\295K\\295K_73.90\\";
-string Monostate::raw_name = dir_name + "raw\\20M.txt";
+string Monostate::raw_name = dir_name + "raw\\test_data.txt";
 
 
 TObjArray Monostate::Hlist_f1(0);

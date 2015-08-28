@@ -27,17 +27,22 @@ double RootFit::GetAmplitude()
 void RootFit::SaveGraphs(TObjArray &Hlist)
 {
 	for (int i = 0; i<gr_der->GetN(); i++) gr_der->GetY()[i] *= 5;
+	for (int i = 0; i<gr_der2->GetN(); i++) gr_der2->GetY()[i] *= 10;
 	
+	gr_der2->SetLineColor(7);
+
 	gr_front->SetMarkerColor(6);
 	gr_front->SetMarkerStyle(kFullCircle);
 	gr_front->SetMarkerSize(1);
 	
+
 	TMultiGraph *mg = new TMultiGraph();
 	mg->Add(gr);
 
 	mg->Add(gr_front);
 
 	mg->Add(gr_der);
+	mg->Add(gr_der2);
 	Hlist.Add(mg);
 
 }
