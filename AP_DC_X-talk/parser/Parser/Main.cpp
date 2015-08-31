@@ -77,7 +77,7 @@ int main()
 			RootFit::xv = xv; // передать вектора длины rec_lenght в класс RootFit
 			RootFit::yv = yv;
 			
-			RootFit::CalculateDer(1, 9); // посчитать производную по данным
+			RootFit::CalculateDer(1, 51); // посчитать производную по данным (число точек должно быть нечетным)
 			
 			
 			RootFit::threshold_der = (-2E-4);
@@ -94,7 +94,7 @@ int main()
 				cout << "calculate fit ... " << i << endl;
 								
 				RootFit::current_signal = i;	
-				RootFit::CalculateStartParameters(5);//вычислить стартовые параметры. Параметр - мертвое время производной в нс				
+				RootFit::CalculateStartParameters(6);//вычислить стартовые параметры. Параметр - мертвое время производной в нс				
 				RootFit::CreateFrontGraph();
 
 				RootFit *Fit_single = new RootFit(1);

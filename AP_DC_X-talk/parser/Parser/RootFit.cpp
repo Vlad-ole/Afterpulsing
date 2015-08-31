@@ -351,6 +351,13 @@ void RootFit::CalculateStartParameters(double time_dead)
 		}
 
 	}
+
+	/*for (int i = 0; i < time_front.size(); i++)
+	{
+		cout << time_front[i] << "\t" << xv[time_front[i]] << endl;
+	}
+
+	system("pause");*/
 }
 
 
@@ -425,10 +432,10 @@ void RootFit::CalculateDer(int type, int points)
 		}
 	}
 
-	ofstream file_raw("F:\\Data_work\\tektronix_signal\\295K\\295K_73.90\\raw\\test_data_raw.txt");
-	ofstream file_s("F:\\Data_work\\tektronix_signal\\295K\\295K_73.90\\raw\\test_data_s.txt");
-	ofstream file_d("F:\\Data_work\\tektronix_signal\\295K\\295K_73.90\\raw\\test_data_der.txt");
-	ofstream file_d2("F:\\Data_work\\tektronix_signal\\295K\\295K_73.90\\raw\\test_data_der2.txt");
+	/*ofstream file_raw("D:\\Data_work\\tektronix_signal\\295K\\295K_73.90\\raw\\test_data_raw.txt");
+	ofstream file_s("D:\\Data_work\\tektronix_signal\\295K\\295K_73.90\\raw\\test_data_s.txt");
+	ofstream file_d("D:\\Data_work\\tektronix_signal\\295K\\295K_73.90\\raw\\test_data_der.txt");
+	ofstream file_d2("D:\\Data_work\\tektronix_signal\\295K\\295K_73.90\\raw\\test_data_der2.txt");
 
 	for (int i = 0; i < xv.size(); i++)
 	{
@@ -438,7 +445,7 @@ void RootFit::CalculateDer(int type, int points)
 		file_d2 << xv[i] << "\t" << yv_der2[i] * 50 << endl;
 	}
 
-	exit(0);
+	exit(0);*/
 }
 
 void RootFit::CalculateFilterCoeff(int points)
@@ -563,40 +570,37 @@ double RootFit::fitFunction_3(Double_t *x, Double_t *par)
 	return fitFunction(x, par) + fitFunction(x, &par[6]) + fitFunction(x, &par[12]);
 }
 
+//создает вектора: везде 0, а в точках time_front[i] - значение функции yv[i]
 void  RootFit::CreateFrontGraph()
 {
 
-	//cout << xv[time_start_index] << "\t" << xv[time_finish_index] << "\t" << xv.size() << endl;
-
 	xv_front.clear();
 	yv_front.clear();
-
-	for (int i = time_start_index; i < time_finish_index; i++)
+	
+	
+	for (int i = time_start_index; i <= time_finish_index; i++)
 	{
+		bool flag = false;
 		for (int j = 0; j < time_front.size(); j++)
 		{
 			if (i == time_front[j])
 			{
-				yv_front.push_back(yv[i]);
-			}
-			else
-			{
-				yv_front.push_back(0);
+				flag = true;
 			}
 		}
+		
+		if (flag)
+		{
+			yv_front.push_back(yv[i]);
+		}
+		else
+		{
+			yv_front.push_back(0);
+		}
+		
 
 		xv_front.push_back(xv[i]);
 
-		//cout << xv[i] << "\t" << endl;
 	}
 
-
-	/*for (int i = 0; i < xv_front.size(); i++)
-	{
-	cout << xv_front[i] << "\t" << yv_front[i] << endl;
-	}
-
-	system("pause");*/
-
-	//cout << xv_front.size() << "\t" << yv_front.size() << endl;
 }
