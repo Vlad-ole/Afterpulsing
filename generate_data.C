@@ -9,7 +9,7 @@ using namespace TMath;
 
 void generate_data()
 {
-	ofstream file("D:\\Data_work\\tektronix_signal\\295K\\295K_73.90\\raw\\test_data.txt");
+	ofstream file("F:\\Data_work\\tektronix_signal\\295K\\295K_73.90\\raw\\test_data.txt");
 	
 	int period = 1000;
 	int numder = 10;

@@ -20,33 +20,39 @@ public:
 	void Print_dt_amp();
 	void SaveGraphs(TObjArray &Hlist);	
 
-	static vector<double> xv;
-	static vector<double> yv;
-	
-	
-
-	static vector<double> yv_der2;
-	static vector<double> yv_der;
-
 	static void CalculateDer(int type, int points);
 	static void FindStartStop();
 	static void CalculateStartParameters(double time_dead); //вычислить стартовые времена t_i. Необходимо задать мертвое время в нс.
+	static void CreateFrontGraph();
+	static void SetDispXY(double x = 0, double y = 0);
+
+	static vector<double> xv;
+	static vector<double> yv;	
+
+	static vector<double> yv_der2;
+	static vector<double> yv_der;
+	static vector<double> yv_s;	
 
 	static vector<int> time_start;
 	static vector<int> time_finish;
-	static vector<int> time_front;
-
-	
-	static void SetDispXY(double x = 0, double y = 0);
+	static vector<int> time_front;	
 	
 	static int time_shit;	
 	static double threshold_der;
 	static double threshold_amp;
 
 	static int current_signal;
-	static void CreateFrontGraph();
+	
 
-private:
+//private:
+	
+	static Double_t fitFunction(Double_t *x, Double_t *par);
+	static double F(double t, double sigma, double tau);	
+	static double fitFunction_2(Double_t *x, Double_t *par);
+	static double fitFunction_3(Double_t *x, Double_t *par);
+
+	static void CalculateFilterCoeff(int points);
+
 	
 	static int time_start_index;
 	static int time_finish_index;
@@ -69,11 +75,10 @@ private:
 	static vector<double> xverr;
 	static vector<double> yverr;
 	
-	static Double_t fitFunction(Double_t *x, Double_t *par);
-	static double F(double t, double sigma, double tau);
 	
-	static double fitFunction_2(Double_t *x, Double_t *par);
-	static double fitFunction_3(Double_t *x, Double_t *par);
+	static vector<double> C_i_s;
+	static vector<double> C_i_der;
+	static vector<double> C_i_der2;
 	
 };
 

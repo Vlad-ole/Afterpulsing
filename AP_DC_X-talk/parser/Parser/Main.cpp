@@ -12,7 +12,7 @@
 //#include  "gStyle.h"
 #include "RootFit.h"
 #include "Monostate.h"
-#include "Math.h"
+//#include "Math.h"
 
 using namespace std;
 
@@ -31,8 +31,6 @@ double RootFit::threshold_amp;
 
 vector<double> RootFit::xv;
 vector<double> RootFit::yv;
-
-
 
 vector<int> RootFit::time_start;
 vector<int> RootFit::time_finish;
@@ -79,7 +77,7 @@ int main()
 			RootFit::xv = xv; // передать вектора длины rec_lenght в класс RootFit
 			RootFit::yv = yv;
 			
-			RootFit::CalculateDer(1, 50); // посчитать производную по данным
+			RootFit::CalculateDer(1, 9); // посчитать производную по данным
 			
 			
 			RootFit::threshold_der = (-2E-4);

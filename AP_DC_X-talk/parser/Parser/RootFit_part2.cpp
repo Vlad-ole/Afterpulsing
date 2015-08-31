@@ -168,6 +168,7 @@ void RootFit::CalculateDer(int type, int points)
 			if (i < point_half || i >(xv.size() - point_half - 1))
 			{
 				yv_der.push_back(0);
+				yv_der2.push_back(0);
 			}
 			else
 			{
@@ -191,10 +192,10 @@ void RootFit::CalculateDer(int type, int points)
 		}
 	}
 
-	ofstream file_raw("D:\\Data_work\\tektronix_signal\\295K\\295K_73.90\\raw\\test_data_raw.txt");
-	ofstream file_s("D:\\Data_work\\tektronix_signal\\295K\\295K_73.90\\raw\\test_data_s.txt");
-	ofstream file_d("D:\\Data_work\\tektronix_signal\\295K\\295K_73.90\\raw\\test_data_der.txt");
-	ofstream file_d2("D:\\Data_work\\tektronix_signal\\295K\\295K_73.90\\raw\\test_data_der2.txt");
+	ofstream file_raw("F:\\Data_work\\tektronix_signal\\295K\\295K_73.90\\raw\\test_data_raw.txt");
+	ofstream file_s("F:\\Data_work\\tektronix_signal\\295K\\295K_73.90\\raw\\test_data_s.txt");
+	ofstream file_d("F:\\Data_work\\tektronix_signal\\295K\\295K_73.90\\raw\\test_data_der.txt");
+	ofstream file_d2("F:\\Data_work\\tektronix_signal\\295K\\295K_73.90\\raw\\test_data_der2.txt");
 
 	for (int i = 0; i < xv.size(); i++)
 	{
