@@ -19,7 +19,8 @@ vector<double> RootFit::C_i_der2;
 
 RootFit::RootFit(short int number_of_functions)
 {
-		
+	this->number_of_functions = number_of_functions;
+	
 	gr = new TGraphErrors(time_finish_index - time_start_index, &xv[time_start_index], &yv[time_start_index], &xverr[time_start_index], &yverr[time_start_index]);
 	gr->SetMarkerColor(4);
 	gr->SetMarkerStyle(kFullCircle);
@@ -27,6 +28,13 @@ RootFit::RootFit(short int number_of_functions)
 	gr_der = new TGraph(time_finish_index - time_start_index, &xv[time_start_index], &yv_der[time_start_index]);
 	gr_der2 = new TGraph(time_finish_index - time_start_index, &xv[time_start_index], &yv_der2[time_start_index]);
 
+	for (int i = 0; i<gr_der->GetN(); i++) gr_der->GetY()[i] *= 50;
+	for (int i = 0; i<gr_der2->GetN(); i++) gr_der2->GetY()[i] *= 500;
+
+	gr_der2->SetLineColor(7);
+
+	
+	
 	//cout << xv_front.size() << "\t" << yv_front.size() << endl;
 
 	
@@ -38,15 +46,16 @@ RootFit::RootFit(short int number_of_functions)
 	//system("pause");
 
 	gr_front = new TGraph(time_finish_index - time_start_index, &xv_front[0], &yv_front[0]);// problem
-
-	this->number_of_functions = number_of_functions;
+	gr_front->SetMarkerColor(6);
+	gr_front->SetMarkerStyle(kFullCircle);
+	gr_front->SetMarkerSize(1);
 
 	if (number_of_functions == 1)
-		fitFcn = new TF1("fitFcn", fitFunction, xv[time_start_index], xv[time_finish_index], number_of_functions * 6);
+		fitFcn = new TF1("fitFcn", fitFunction, xv[time_start_index], xv[time_finish_index], 6);
 	if (number_of_functions == 2)
-		fitFcn = new TF1("fitFcn", fitFunction_2, xv[time_start_index], xv[time_finish_index], number_of_functions * 6);
+		fitFcn = new TF1("fitFcn", fitFunction_2, xv[time_start_index], xv[time_finish_index], 6 + 5);
 	if (number_of_functions == 3)
-		fitFcn = new TF1("fitFcn", fitFunction_3, xv[time_start_index], xv[time_finish_index], number_of_functions * 6);
+		fitFcn = new TF1("fitFcn", fitFunction_3, xv[time_start_index], xv[time_finish_index], 6 + 5 + 5);
 }
 
 
@@ -58,11 +67,17 @@ RootFit::~RootFit()
 
 void RootFit::SetParameters(double time_first, double time_second, double time_third)
 {
-	const double A_start = 0.05;
+	const double A_start = 0.04;
+	const double A_limit_l = 0.001;
+	const double A_limit_h = 1;
 
+	const double baseline_limit = 0.003;
+	const double sigma = 1.64932;
+	//fitFcn->SetParErrors
+	
 	// A
 	fitFcn->SetParameter(0, A_start);
-	fitFcn->SetParLimits(0, 0.001, 1000);
+	fitFcn->SetParLimits(0, A_limit_l, A_limit_h);
 
 	//t_0
 	fitFcn->SetParameter(1, time_first);
@@ -76,13 +91,15 @@ void RootFit::SetParameters(double time_first, double time_second, double time_t
 	fitFcn->SetParameter(3, 10.5194);
 	fitFcn->SetParLimits(3, 10.5194, 10.5194);
 
-	//baseline
-	fitFcn->SetParameter(4, 0);
-	fitFcn->SetParLimits(4, -0.002, 0.002);
-
 	//sigma
-	fitFcn->SetParameter(5, 1.64932);
-	fitFcn->SetParLimits(5, 1.64932, 1.64932);
+	fitFcn->SetParameter(4, sigma);
+	fitFcn->SetParLimits(4, sigma, sigma);
+	
+	//baseline
+	fitFcn->SetParameter(5, 0);
+	fitFcn->SetParLimits(5, -baseline_limit, baseline_limit);
+
+	
 
 
 	if (number_of_functions > 1)
@@ -90,7 +107,7 @@ void RootFit::SetParameters(double time_first, double time_second, double time_t
 
 		// A
 		fitFcn->SetParameter(6, A_start);
-		fitFcn->SetParLimits(6, 0.001, 1000);
+		fitFcn->SetParLimits(6, A_limit_l, A_limit_h);
 
 		//t_0
 		fitFcn->SetParameter(7, time_second);
@@ -104,53 +121,52 @@ void RootFit::SetParameters(double time_first, double time_second, double time_t
 		fitFcn->SetParameter(9, 10.5194);
 		fitFcn->SetParLimits(9, 10.5194, 10.5194);
 
-
-		//baseline
-		fitFcn->SetParameter(10, 0);
-		fitFcn->SetParLimits(10, -0.002, 0.002);
-
 		//sigma
-		fitFcn->SetParameter(11, 1.64932);
-		fitFcn->SetParLimits(11, 1.64932, 1.64932);
+		fitFcn->SetParameter(10, sigma);
+		fitFcn->SetParLimits(10, sigma, sigma);
 
 		if (number_of_functions > 2)
 		{
 			// A
-			fitFcn->SetParameter(12, A_start);
-			fitFcn->SetParLimits(12, 0.001, 1000);
+			fitFcn->SetParameter(11, A_start);
+			fitFcn->SetParLimits(11, A_limit_l, A_limit_h);
 
 			//t_0
-			fitFcn->SetParameter(13, time_third);
-			fitFcn->SetParLimits(13, xv[time_start_index], xv[time_finish_index]);
+			fitFcn->SetParameter(12, time_third);
+			fitFcn->SetParLimits(12, xv[time_start_index], xv[time_finish_index]);
 
 			// tau_rec
-			fitFcn->SetParameter(14, 17.7373);
-			fitFcn->SetParLimits(14, 17.7373, 17.7373);
+			fitFcn->SetParameter(13, 17.7373);
+			fitFcn->SetParLimits(13, 17.7373, 17.7373);
 
 			// tau_rise
-			fitFcn->SetParameter(15, 10.5194);
-			fitFcn->SetParLimits(15, 10.5194, 10.5194);
-
-			//base_line
-			fitFcn->SetParameter(16, 0);
-			fitFcn->SetParLimits(16, -0.002, 0.002);
+			fitFcn->SetParameter(14, 10.5194);
+			fitFcn->SetParLimits(14, 10.5194, 10.5194);
 
 			//sigma
-			fitFcn->SetParameter(18, 1.64932);
-			fitFcn->SetParLimits(18, 1.64932, 1.64932);
+			fitFcn->SetParameter(15, sigma);
+			fitFcn->SetParLimits(15, sigma, sigma);
 		}
 
 	}
 
 	//fitFcn->Modify();
 	//fitFcn->ReleaseParameter();
-	fitFcn->Update();
+	//fitFcn->Update();
 
 }
 
 void RootFit::Print_dt_amp()
 {
-	//amp_chi2_fnc2 << fitFcn_fnc2->GetParameter(0) << "\t" << fitFcn_fnc2->GetChisquare() / (time_finish[i] - time_start_index) << endl;
+	
+	if (fitFcn->GetChisquare() / fitFcn->GetNDF() < Monostate::chi2_per_dof_th)
+	{
+		Monostate::amp_chi2_fnc1 << fitFcn->GetParameter(0) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF()<< endl;
+	}
+
+	
+	
+	//Monostate::amp_chi2_fnc1 << ->GetParameter(0) << "\t" << fitFcn_fnc2->GetChisquare() / (time_finish[i] - time_start_index) << endl;
 	//amp_chi2_fnc2 << fitFcn_fnc2->GetParameter(6) << "\t" << fitFcn_fnc2->GetChisquare() / (time_finish[i] - time_start_index) << endl;
 
 	//if (fitFcn->GetParameter(0) > 0.02 && fitFcn_fnc2->GetChisquare() / (time_finish[i] - time_start_index) < chi2_per_dof)
@@ -499,14 +515,7 @@ double RootFit::GetAmplitude()
 
 void RootFit::SaveGraphs(TObjArray &Hlist)
 {
-	for (int i = 0; i<gr_der->GetN(); i++) gr_der->GetY()[i] *= 5;
-	for (int i = 0; i<gr_der2->GetN(); i++) gr_der2->GetY()[i] *= 10;
-
-	gr_der2->SetLineColor(7);
-
-	gr_front->SetMarkerColor(6);
-	gr_front->SetMarkerStyle(kFullCircle);
-	gr_front->SetMarkerSize(1);
+	
 
 
 	TMultiGraph *mg = new TMultiGraph();
@@ -540,34 +549,42 @@ double RootFit::F(double t, double sigma, double tau)
 	return TMath::Exp((sigma*sigma - 2 * t*tau) / (2 * tau*tau)) * (1 + TMath::Erf((t - sigma*sigma / tau) / (sigma * sqrt(2))));
 }
 
+//функция сигнала, без учета базавой линии
+double RootFit::fitFunction_nobaseline(double *x, double *par)
+{
+	//основные параметры
+	const double A = par[0];
+	const double t_0 = par[1];
+	const double tau_rec_fast = par[2];
+	const double tau_rise = par[3];
+	const double sigma = par[4];
+	
+	//вспомагательные переменные
+	const double t = x[0] - par[1];
+	const double tau_total_fast = (tau_rec_fast * tau_rise) / (tau_rec_fast + tau_rise);
+	
+	return -(A / 2) * (F(t, sigma, tau_rec_fast) - F(t, sigma, tau_total_fast));
+}
+
 //функция, которой буду фитировать
 Double_t RootFit::fitFunction(Double_t *x, Double_t *par)
 {
-	double A = par[0];
-	double t_0 = par[1];
-	double tau_rec_fast = par[2];
-	double tau_rise = par[3];
-	double V_0 = par[4];
-
-	double sigma = par[5];
-
-	double t = x[0] - t_0;
-	double tau_total_fast = (tau_rec_fast * tau_rise) / (tau_rec_fast + tau_rise);
-
-
-	return -(A / 2) * (F(t, sigma, tau_rec_fast) - F(t, sigma, tau_total_fast)) + V_0;
+	const double V_0 = par[5];
+	return fitFunction_nobaseline(x, par) + V_0;
 }
 
 //сумма двух сигналов
 double RootFit::fitFunction_2(Double_t *x, Double_t *par)
 {
-	return fitFunction(x, par) + fitFunction(x, &par[6]);
+	const double V_0 = par[5];
+	return fitFunction_nobaseline(x, par) + V_0 + fitFunction_nobaseline(x, &par[6]);
 }
 
 //сумма трех сигналов
 double RootFit::fitFunction_3(Double_t *x, Double_t *par)
 {
-	return fitFunction(x, par) + fitFunction(x, &par[6]) + fitFunction(x, &par[12]);
+	const double V_0 = par[5];
+	return fitFunction_nobaseline(x, par) + V_0 + fitFunction_nobaseline(x, &par[6]) + fitFunction_nobaseline(x, &par[11]);
 }
 
 //создает вектора: везде 0, а в точках time_front[i] - значение функции yv[i]

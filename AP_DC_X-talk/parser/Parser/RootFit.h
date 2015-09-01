@@ -25,7 +25,10 @@ public:
 	static void CalculateStartParameters(double time_dead); //вычислить стартовые времена t_i. Необходимо задать мертвое время в нс.
 	static void CreateFrontGraph();
 	static void SetDispXY(double x = 0, double y = 0);
+	
 
+	short int number_of_functions;
+	
 	static vector<double> xv;
 	static vector<double> yv;	
 
@@ -46,11 +49,12 @@ public:
 
 //private:
 	
+	static double fitFunction_nobaseline(double *x, double *par);
 	static Double_t fitFunction(Double_t *x, Double_t *par);
 	static double F(double t, double sigma, double tau);	
 	static double fitFunction_2(Double_t *x, Double_t *par);
 	static double fitFunction_3(Double_t *x, Double_t *par);
-
+	
 	static void CalculateFilterCoeff(int points);
 
 	
@@ -70,7 +74,7 @@ public:
 	TGraph *gr_front;
 	TMultiGraph *mg;
 
-	short int number_of_functions;
+//	short int number_of_functions;
 
 	static vector<double> xverr;
 	static vector<double> yverr;
