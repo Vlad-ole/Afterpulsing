@@ -158,13 +158,38 @@ void RootFit::SetParameters(double time_first, double time_second, double time_t
 
 void RootFit::Print_dt_amp()
 {
-	
-	if (fitFcn->GetChisquare() / fitFcn->GetNDF() < Monostate::chi2_per_dof_th)
+	if (this->number_of_functions == 1)
 	{
-		Monostate::amp_chi2_fnc1 << fitFcn->GetParameter(0) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF()<< endl;
+		Monostate::amp_chi2_fnc1 << fitFcn->GetParameter(0) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
+		Monostate::time_i << fitFcn->GetParameter(1) << "\t" << fitFcn->GetParameter(0) << endl;
 	}
 
-	
+	if (this->number_of_functions == 2)
+	{
+		Monostate::amp_chi2_fnc1 << fitFcn->GetParameter(0) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
+		Monostate::amp_chi2_fnc1 << fitFcn->GetParameter(6) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
+
+		if (fitFcn->GetParameter(1) < fitFcn->GetParameter(7))
+		{
+			Monostate::time_i << fitFcn->GetParameter(1) << "\t" << fitFcn->GetParameter(0) << endl;
+			Monostate::time_i << fitFcn->GetParameter(7) << "\t" << fitFcn->GetParameter(6) << endl;
+		}
+		else
+		{
+			Monostate::time_i << fitFcn->GetParameter(7) << "\t" << fitFcn->GetParameter(6) << endl;
+			Monostate::time_i << fitFcn->GetParameter(1) << "\t" << fitFcn->GetParameter(0) << endl;
+		}
+
+	}
+
+	if (this->number_of_functions == 3)
+	{
+		Monostate::amp_chi2_fnc1 << fitFcn->GetParameter(0) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
+		Monostate::amp_chi2_fnc1 << fitFcn->GetParameter(6) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
+		Monostate::amp_chi2_fnc1 << fitFcn->GetParameter(11) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
+				
+
+	}
 	
 	//Monostate::amp_chi2_fnc1 << ->GetParameter(0) << "\t" << fitFcn_fnc2->GetChisquare() / (time_finish[i] - time_start_index) << endl;
 	//amp_chi2_fnc2 << fitFcn_fnc2->GetParameter(6) << "\t" << fitFcn_fnc2->GetChisquare() / (time_finish[i] - time_start_index) << endl;
@@ -251,24 +276,7 @@ void RootFit::Print_dt_amp()
 
 	//}
 
-	//ofstream time_delta(dir_name + "time_delta.dat");
-	//
-	//string string_time_i = dir_name + "time_i.dat";
-	//FILE *f2 = fopen(string_time_i.c_str(), "r");
-
-	//double x_old;
-	//bool flag = 0;
-	//while (!feof(f2))
-	//{
-	//	fscanf(f2, "%lf %lf\n", &x, &y);
-
-	//	if (flag)
-	//		time_delta << x - x_old << "\t" << y << endl;
-
-	//	x_old = x;
-
-	//	flag = 1;
-	//}
+	
 
 }
 
@@ -276,6 +284,8 @@ void RootFit::Print_dt_amp()
 
 void RootFit::FindStartStop()
 {
+	cout << endl << "Find start and stop" << endl;
+	
 	bool flag = 1;
 
 
@@ -379,6 +389,8 @@ void RootFit::CalculateStartParameters(double time_dead)
 
 void RootFit::CalculateDer(int type, int points)
 {
+	cout << endl << "Calculate derivative" << endl;
+	
 	if (type == 0)
 	{
 		//simple method
@@ -411,6 +423,11 @@ void RootFit::CalculateDer(int type, int points)
 		double value;
 		for (unsigned int i = 0; i < xv.size(); i++)
 		{
+			if (i % 100000 == 0)
+			{
+				cout << "calculate derivative ... " << double(i) / xv.size() * 100 << " %" << endl;
+			}
+			
 			if (i < point_half || i >(xv.size() - point_half - 1))
 			{
 				yv_s.push_back(0);
@@ -446,6 +463,7 @@ void RootFit::CalculateDer(int type, int points)
 
 
 		}
+		
 	}
 
 	/*ofstream file_raw("D:\\Data_work\\tektronix_signal\\295K\\295K_73.90\\raw\\test_data_raw.txt");
@@ -466,6 +484,8 @@ void RootFit::CalculateDer(int type, int points)
 
 void RootFit::CalculateFilterCoeff(int points)
 {
+	//cout << endl << "start Calculate filter coefficients" << endl;
+	
 	//Savitzky–Golay filter
 	//order = 3
 	C_i_s.clear();
@@ -494,6 +514,7 @@ void RootFit::CalculateFilterCoeff(int points)
 		C_i_s.push_back(numerator / denominator);
 
 	}
+	//cout << endl << "stop Calculate filter coefficients" << endl;
 }
 
 

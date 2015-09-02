@@ -123,7 +123,8 @@ int main()
 					Fit_single->SaveGraphs(Monostate::Hlist_f2);
 				}
 
-				Fit_single->Print_dt_amp();
+				if (Fit_single->GetChi2PerDof() < Monostate::chi2_per_dof_th)
+					Fit_single->Print_dt_amp();
 				
 
 				if (Fit_single->GetChi2PerDof() > Monostate::chi2_per_dof_th)
@@ -167,8 +168,8 @@ int main()
 					//							
 					//	Fit_double->SaveGraphs(Monostate::Hlist_f2_bad_new_time);
 					//}
-					
-					Fit_double->Print_dt_amp();
+					if (Fit_double->GetChi2PerDof() < Monostate::chi2_per_dof_th)
+						Fit_double->Print_dt_amp();
 
 
 					if (Fit_double->GetChi2PerDof() > Monostate::chi2_per_dof_th)
@@ -272,7 +273,27 @@ int main()
 	}
 
 	Monostate::SaveHlists();
+
+
 	
+	ofstream time_delta(Monostate::dir_name + "time_delta.dat");
+	string string_time_i = Monostate::dir_name + "time_i.dat";
+	FILE *f2 = fopen(string_time_i.c_str(), "r");
+
+	double x_old;
+	bool flag = 0;
+	while (!feof(f2))
+	{
+		fscanf(f2, "%lf %lf\n", &x, &y);
+
+		if (flag)
+			time_delta << x - x_old << "\t" << y << endl;
+
+		x_old = x;
+
+		flag = 1;
+	}
+		
 
 	system("pause");
 	return 0;
