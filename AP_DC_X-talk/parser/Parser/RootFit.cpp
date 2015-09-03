@@ -3,7 +3,8 @@
 #include  "TF1.h"
 #include "TMath.h"
 #include "Monostate.h"
-//#include "MinimizerOptions.h"
+
+#include "Math/MinimizerOptions.h"
 
 vector<double> RootFit::yv_s;
 vector<double> RootFit::yv_der;
@@ -34,18 +35,6 @@ RootFit::RootFit(short int number_of_functions)
 
 	gr_der2->SetLineColor(7);
 
-	
-	
-	//cout << xv_front.size() << "\t" << yv_front.size() << endl;
-
-	
-	//for (int i = 0; i < xv_front.size(); i++)
-	//{
-	//	cout << xv_front[i] << "\t" << yv_front[i] << "\t" << xv_front.size() << endl;
-	//}
-
-	//system("pause");
-
 	gr_front = new TGraph(time_finish_index - time_start_index, &xv_front[0], &yv_front[0]);// problem
 	gr_front->SetMarkerColor(6);
 	gr_front->SetMarkerStyle(kFullCircle);
@@ -64,9 +53,8 @@ RootFit::RootFit(short int number_of_functions)
 	if (number_of_functions == 6)
 		fitFcn = new TF1("fitFcn", fitFunction_6, xv[time_start_index], xv[time_finish_index], 6 + 25);
 
-	//ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit", "Simplex");
-	//ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit", "Simplex");
-
+	ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit", "Simplex");
+	ROOT::Math::MinimizerOptions::SetDefaultStrategy(2);
 }
 
 
@@ -345,6 +333,30 @@ void RootFit::Print_dt_amp()
 		Monostate::amp_chi2_fnc1 << fitFcn->GetParameter(6) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
 		Monostate::amp_chi2_fnc1 << fitFcn->GetParameter(11) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
 		Monostate::amp_chi2_fnc1 << fitFcn->GetParameter(11 + 5) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
+
+		pr.first = fitFcn->GetParameter(1);
+		pr.second = fitFcn->GetParameter(0);
+		v_pairs.push_back(pr);
+
+		pr.first = fitFcn->GetParameter(7);
+		pr.second = fitFcn->GetParameter(6);
+		v_pairs.push_back(pr);
+
+		pr.first = fitFcn->GetParameter(12);
+		pr.second = fitFcn->GetParameter(11);
+		v_pairs.push_back(pr);
+
+		pr.first = fitFcn->GetParameter(17);
+		pr.second = fitFcn->GetParameter(16);
+		v_pairs.push_back(pr);
+
+		sort(v_pairs.begin(), v_pairs.end(), sort_pred());
+
+		Monostate::time_i << v_pairs[0].first << "\t" << v_pairs[0].second << endl;
+		Monostate::time_i << v_pairs[1].first << "\t" << v_pairs[1].second << endl;
+		Monostate::time_i << v_pairs[2].first << "\t" << v_pairs[2].second << endl;
+		Monostate::time_i << v_pairs[3].first << "\t" << v_pairs[3].second << endl;
+
 	}
 
 	if (this->number_of_functions == 5)
@@ -354,6 +366,35 @@ void RootFit::Print_dt_amp()
 		Monostate::amp_chi2_fnc1 << fitFcn->GetParameter(11) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
 		Monostate::amp_chi2_fnc1 << fitFcn->GetParameter(11 + 5) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
 		Monostate::amp_chi2_fnc1 << fitFcn->GetParameter(11 + 10) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
+
+		pr.first = fitFcn->GetParameter(1);
+		pr.second = fitFcn->GetParameter(0);
+		v_pairs.push_back(pr);
+
+		pr.first = fitFcn->GetParameter(7);
+		pr.second = fitFcn->GetParameter(6);
+		v_pairs.push_back(pr);
+
+		pr.first = fitFcn->GetParameter(12);
+		pr.second = fitFcn->GetParameter(11);
+		v_pairs.push_back(pr);
+
+		pr.first = fitFcn->GetParameter(17);
+		pr.second = fitFcn->GetParameter(16);
+		v_pairs.push_back(pr);
+
+		pr.first = fitFcn->GetParameter(22);
+		pr.second = fitFcn->GetParameter(21);
+		v_pairs.push_back(pr);
+
+		sort(v_pairs.begin(), v_pairs.end(), sort_pred());
+
+		Monostate::time_i << v_pairs[0].first << "\t" << v_pairs[0].second << endl;
+		Monostate::time_i << v_pairs[1].first << "\t" << v_pairs[1].second << endl;
+		Monostate::time_i << v_pairs[2].first << "\t" << v_pairs[2].second << endl;
+		Monostate::time_i << v_pairs[3].first << "\t" << v_pairs[3].second << endl;
+		Monostate::time_i << v_pairs[4].first << "\t" << v_pairs[4].second << endl;
+
 	}
 	
 	//Monostate::amp_chi2_fnc1 << ->GetParameter(0) << "\t" << fitFcn_fnc2->GetChisquare() / (time_finish[i] - time_start_index) << endl;

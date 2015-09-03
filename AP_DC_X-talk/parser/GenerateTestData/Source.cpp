@@ -47,6 +47,7 @@ int main()
 	ofstream file_out("D:\\Data_work\\tektronix_signal\\295K\\295K_73.90\\raw\\test_signal.txt");
 	ofstream file_ti("D:\\Data_work\\tektronix_signal\\295K\\295K_73.90\\raw\\test_signal_ti.txt");
 
+	double noise_amp = 0.001;
 	int cycles = 2000;
 	int signal_length = 1000;
 	Double_t par[5] = { 0.04, 20, 17.7373, 10.5194, 1.64932};
@@ -57,7 +58,7 @@ int main()
 
 	for (int i = 0; i < cycles * signal_length; i++)
 	{
-		yv.push_back(0.003);
+		yv.push_back(0.003 + noise_amp*gRandom->Uniform(-1, 1));
 	}
 
 	
@@ -119,7 +120,7 @@ int main()
 			{
 				if (i > b - a && i < b + a)
 				{
-					yv[i] += yv_signal[j];
+					yv[i] += yv_signal[j]; //+ noise_amp*gRandom->Uniform(-1, 1);
 					j++;
 				}
 			}
@@ -127,7 +128,7 @@ int main()
 			{
 				if (i < a + b)
 				{
-					yv[i] += yv_signal[j + a + abs(b)];
+					yv[i] += yv_signal[j + a + abs(b)];// +noise_amp*gRandom->Uniform(-1, 1);
 					j++;
 				}
 			}

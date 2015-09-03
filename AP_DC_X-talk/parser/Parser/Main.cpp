@@ -20,7 +20,6 @@ vector<double> xv;
 vector<double> yv;
 
 
-
 int RootFit::time_start_index;
 int RootFit::time_finish_index;
 
@@ -233,7 +232,8 @@ int main()
 							Fit_triple->SaveGraphs(Monostate::Hlist_f3_good);
 						}
 
-						Fit_triple->Print_dt_amp();
+						if (Fit_triple->GetChi2PerDof() < Monostate::chi2_per_dof_th)
+							Fit_triple->Print_dt_amp();
 
 						//if (fitFcn->GetParameter(0) > 0.02)
 						//{
@@ -264,12 +264,19 @@ int main()
 								Fit_quadruple->SaveGraphs(Monostate::Hlist_f4_good);
 							}
 
+							if (Fit_quadruple->GetChi2PerDof() < Monostate::chi2_per_dof_th)
+								Fit_quadruple->Print_dt_amp();
+
+
 							if (Fit_quadruple->GetChi2PerDof() > Monostate::chi2_per_dof_th)
 							{
 								cout << "\t \t \t \t quintuple ... " << endl;
 								RootFit *Fit_quintuple = new RootFit(5);
 								Fit_quintuple->SetParameters();
 								Fit_quintuple->DoFit();
+
+								if (Fit_quintuple->GetChi2PerDof() < Monostate::chi2_per_dof_th)
+									Fit_quintuple->Print_dt_amp();
 
 
 								//записать графики с плохим Chi2 после фита 5 функциями

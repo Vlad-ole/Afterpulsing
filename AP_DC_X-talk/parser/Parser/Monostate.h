@@ -48,8 +48,6 @@ public:
 	
 	static ofstream time_i;
 
-	const static int num_of_param;
-	const static int step;
 
 	const static int rec_lenght;
 
