@@ -16,6 +16,8 @@ public:
 	static string dir_name;
 	static string raw_name;
 	
+	static TObjArray Hlist_test;
+
 	static TObjArray Hlist_f1;
 	static TObjArray Hlist_f1_good;
 	static TObjArray Hlist_f1_bad;
@@ -28,6 +30,12 @@ public:
 	static TObjArray Hlist_f3;
 	static TObjArray Hlist_f3_good;
 	static TObjArray Hlist_f3_bad;
+
+	static TObjArray Hlist_f4_good;
+	static TObjArray Hlist_f4_bad;
+
+	static TObjArray Hlist_f5_good;
+	static TObjArray Hlist_f5_bad;
 
 	static TObjArray Hlist_f2_bad_new_time;
 	static TObjArray Hlist_f2_bad_old_time;

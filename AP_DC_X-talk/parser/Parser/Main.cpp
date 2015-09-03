@@ -100,9 +100,17 @@ int main()
 				RootFit::CreateFrontGraph();
 
 				RootFit *Fit_single = new RootFit(1);
-				Fit_single->SetParameters(xv[RootFit::time_front[0]]);
+				Fit_single->SetParameters();
 				Fit_single->DoFit();
 	
+				////записать графики с условием отбора
+				//bool flag_temp = Fit_single->fitFcn->GetParameter(0) < 0.03;
+				//if (flag_temp && Fit_single->GetChi2PerDof() < Monostate::chi2_per_dof_th)
+				//{
+				//	Fit_single->SaveGraphs(Monostate::Hlist_test);
+				//}
+				
+				
 				//записать все графики
 				Fit_single->SaveGraphs(Monostate::Hlist_f1);
 
@@ -132,12 +140,16 @@ int main()
 					cout << "\t double ... " << endl;
 
 					RootFit *Fit_double = new RootFit(2);
-					if (RootFit::time_front.size() > 1)
-						Fit_double->SetParameters(xv[RootFit::time_front[0]], xv[RootFit::time_front[1]]);
-					else
-						Fit_double->SetParameters(xv[RootFit::time_front[0]], xv[RootFit::time_front[0]]);
-
+					Fit_double->SetParameters();
 					Fit_double->DoFit();
+
+
+					////записать графики с условием отбора
+					//bool flag_temp = Fit_double->fitFcn->GetParameter(0) < 0.03 || Fit_double->fitFcn->GetParameter(6) < 0.03;
+					//if (flag_temp && Fit_double->GetChi2PerDof() < Monostate::chi2_per_dof_th)
+					//{
+					//	Fit_double->SaveGraphs(Monostate::Hlist_test);
+					//}
 
 					//записать все графики после фита одной функцией
 						Fit_double->SaveGraphs(Monostate::Hlist_f2);
@@ -177,21 +189,7 @@ int main()
 						cout << "\t \t triple ... " << endl;
 				
 						RootFit *Fit_triple = new RootFit(3);
-						if (RootFit::time_front.size() > 2)
-						{
-							Fit_triple->SetParameters(xv[RootFit::time_front[0]], xv[RootFit::time_front[1]], xv[RootFit::time_front[2]]);
-						}
-
-						if (RootFit::time_front.size() == 2)
-						{
-							Fit_triple->SetParameters(xv[RootFit::time_front[0]], xv[RootFit::time_front[0]], xv[RootFit::time_front[1]]);
-						}
-						
-						if (RootFit::time_front.size() == 1)
-						{
-							Fit_triple->SetParameters(xv[RootFit::time_front[0]], xv[RootFit::time_front[0]], xv[RootFit::time_front[0]]);
-						}
-
+						Fit_triple->SetParameters();
 						Fit_triple->DoFit();
 
 						////сделать повторный фит с новыми начальными параметрами
@@ -213,7 +211,12 @@ int main()
 						//	}
 						//}
 
-
+						//записать графики с условием отбора
+						bool flag_temp = Fit_triple->fitFcn->GetParameter(0) < 0.03 || Fit_triple->fitFcn->GetParameter(6) < 0.03 || Fit_triple->fitFcn->GetParameter(11) < 0.03;
+						if (flag_temp && Fit_triple->GetChi2PerDof() < Monostate::chi2_per_dof_th)
+						{
+							Fit_triple->SaveGraphs(Monostate::Hlist_test);
+						}
 
 						//записать графики, после фита тремя функциями
 						Fit_triple->SaveGraphs(Monostate::Hlist_f3);
@@ -239,13 +242,52 @@ int main()
 
 						//}
 
-						//if (Fit_triple->GetChi2PerDof() > chi2_per_dof)
-						//{
-						//	cout << "\t \t \t quadruple ... " << endl;
+						if (Fit_triple->GetChi2PerDof() > Monostate::chi2_per_dof_th)
+						{
+							cout << "\t \t \t quadruple ... " << endl;
+							RootFit *Fit_quadruple = new RootFit(4);
+							Fit_quadruple->SetParameters();
+							Fit_quadruple->DoFit();
 
-						//	//записать графики, с большИм Chi2/Dof после фита тремя функциями
-						//	Fit_triple->SaveGraphs(Monostate::Hlist_4);
-						//}
+							
+
+
+							//записать графики с плохим Chi2 после фита 4 функциями
+							if (Fit_quadruple->GetChi2PerDof() > Monostate::chi2_per_dof_th)
+							{
+								Fit_quadruple->SaveGraphs(Monostate::Hlist_f4_bad);
+							}
+
+							//записать графики с хорошим Chi2 после фита 4 функциями
+							if (Fit_quadruple->GetChi2PerDof() < Monostate::chi2_per_dof_th)
+							{
+								Fit_quadruple->SaveGraphs(Monostate::Hlist_f4_good);
+							}
+
+							if (Fit_quadruple->GetChi2PerDof() > Monostate::chi2_per_dof_th)
+							{
+								cout << "\t \t \t \t quintuple ... " << endl;
+								RootFit *Fit_quintuple = new RootFit(5);
+								Fit_quintuple->SetParameters();
+								Fit_quintuple->DoFit();
+
+
+								//записать графики с плохим Chi2 после фита 5 функциями
+								if (Fit_quintuple->GetChi2PerDof() > Monostate::chi2_per_dof_th)
+								{
+									Fit_quintuple->SaveGraphs(Monostate::Hlist_f5_bad);
+								}
+
+								//записать графики с хорошим Chi2 после фита 5 функциями
+								if (Fit_quintuple->GetChi2PerDof() < Monostate::chi2_per_dof_th)
+								{
+									Fit_quintuple->SaveGraphs(Monostate::Hlist_f5_good);
+								}
+
+
+							}
+
+						}
 
 					}
 

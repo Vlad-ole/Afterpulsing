@@ -3,6 +3,7 @@
 #include  "TF1.h"
 #include "TMath.h"
 #include "Monostate.h"
+//#include "MinimizerOptions.h"
 
 vector<double> RootFit::yv_s;
 vector<double> RootFit::yv_der;
@@ -55,7 +56,17 @@ RootFit::RootFit(short int number_of_functions)
 	if (number_of_functions == 2)
 		fitFcn = new TF1("fitFcn", fitFunction_2, xv[time_start_index], xv[time_finish_index], 6 + 5);
 	if (number_of_functions == 3)
-		fitFcn = new TF1("fitFcn", fitFunction_3, xv[time_start_index], xv[time_finish_index], 6 + 5 + 5);
+		fitFcn = new TF1("fitFcn", fitFunction_3, xv[time_start_index], xv[time_finish_index], 6 + 10);
+	if (number_of_functions == 4)
+		fitFcn = new TF1("fitFcn", fitFunction_4, xv[time_start_index], xv[time_finish_index], 6 + 15);
+	if (number_of_functions == 5)
+		fitFcn = new TF1("fitFcn", fitFunction_5, xv[time_start_index], xv[time_finish_index], 6 + 20);
+	if (number_of_functions == 6)
+		fitFcn = new TF1("fitFcn", fitFunction_6, xv[time_start_index], xv[time_finish_index], 6 + 25);
+
+	//ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit", "Simplex");
+	//ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit", "Simplex");
+
 }
 
 
@@ -65,7 +76,7 @@ RootFit::~RootFit()
 }
 
 
-void RootFit::SetParameters(double time_first, double time_second, double time_third)
+void RootFit::SetParameters()
 {
 	const double A_start = 0.04;
 	const double A_limit_l = 0.001;
@@ -73,6 +84,9 @@ void RootFit::SetParameters(double time_first, double time_second, double time_t
 
 	const double baseline_limit = 0.003;
 	const double sigma = 1.64932;
+
+	const double time_first = xv[time_front[0]];
+
 	//fitFcn->SetParErrors
 	
 	// A
@@ -105,6 +119,16 @@ void RootFit::SetParameters(double time_first, double time_second, double time_t
 	if (number_of_functions > 1)
 	{
 
+		double time_second;
+		if (time_front.size() > 1)
+		{
+			time_second = xv[time_front[1]];
+		}
+		else
+		{
+			time_second = xv[time_front[0]];
+		}
+
 		// A
 		fitFcn->SetParameter(6, A_start);
 		fitFcn->SetParLimits(6, A_limit_l, A_limit_h);
@@ -127,6 +151,17 @@ void RootFit::SetParameters(double time_first, double time_second, double time_t
 
 		if (number_of_functions > 2)
 		{
+			double time_third;
+			if (time_front.size() > 2)
+			{
+				time_third = xv[time_front[2]];
+			}
+			else
+			{
+				time_third = xv[time_front[0]];
+			}
+			
+			
 			// A
 			fitFcn->SetParameter(11, A_start);
 			fitFcn->SetParLimits(11, A_limit_l, A_limit_h);
@@ -146,6 +181,75 @@ void RootFit::SetParameters(double time_first, double time_second, double time_t
 			//sigma
 			fitFcn->SetParameter(15, sigma);
 			fitFcn->SetParLimits(15, sigma, sigma);
+
+			
+			if (number_of_functions > 3)
+			{
+				double time_fourth;
+				if (time_front.size() > 3)
+				{
+					time_fourth = xv[time_front[3]];
+				}
+				else
+				{
+					time_fourth = xv[time_front[0]];
+				}
+
+				// A
+				fitFcn->SetParameter(11 + 5, A_start);
+				fitFcn->SetParLimits(11 + 5, A_limit_l, A_limit_h);
+
+				//t_0
+				fitFcn->SetParameter(12 + 5, time_fourth);
+				fitFcn->SetParLimits(12 + 5, xv[time_start_index], xv[time_finish_index]);
+
+				// tau_rec
+				fitFcn->SetParameter(13 + 5, 17.7373);
+				fitFcn->SetParLimits(13 + 5, 17.7373, 17.7373);
+
+				// tau_rise
+				fitFcn->SetParameter(14 + 5, 10.5194);
+				fitFcn->SetParLimits(14 + 5, 10.5194, 10.5194);
+
+				//sigma
+				fitFcn->SetParameter(15 + 5, sigma);
+				fitFcn->SetParLimits(15 + 5, sigma, sigma);
+
+				if (number_of_functions > 4)
+				{
+					double time_fiths;
+					if (time_front.size() > 4)
+					{
+						time_fiths = xv[time_front[4]];
+					}
+					else
+					{
+						time_fiths = xv[time_front[0]];
+					}
+
+					// A
+					fitFcn->SetParameter(11 + 10, A_start);
+					fitFcn->SetParLimits(11 + 10, A_limit_l, A_limit_h);
+
+					//t_0
+					fitFcn->SetParameter(12 + 10, time_fiths);
+					fitFcn->SetParLimits(12 + 10, xv[time_start_index], xv[time_finish_index]);
+
+					// tau_rec
+					fitFcn->SetParameter(13 + 10, 17.7373);
+					fitFcn->SetParLimits(13 + 10, 17.7373, 17.7373);
+
+					// tau_rise
+					fitFcn->SetParameter(14 + 10, 10.5194);
+					fitFcn->SetParLimits(14 + 10, 10.5194, 10.5194);
+
+					//sigma
+					fitFcn->SetParameter(15 + 10, sigma);
+					fitFcn->SetParLimits(15 + 10, sigma, sigma);
+				}
+
+			}
+
 		}
 
 	}
@@ -158,6 +262,20 @@ void RootFit::SetParameters(double time_first, double time_second, double time_t
 
 void RootFit::Print_dt_amp()
 {
+	//функтор
+	struct sort_pred
+	{
+		bool operator()(const std::pair<int, int> &left, const std::pair<int, int> &right)
+		{
+			return left.first < right.first;
+		}
+	};
+	
+
+	vector<pair<double, double>> v_pairs;
+	pair<double, double> pr;
+
+
 	if (this->number_of_functions == 1)
 	{
 		Monostate::amp_chi2_fnc1 << fitFcn->GetParameter(0) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
@@ -169,7 +287,20 @@ void RootFit::Print_dt_amp()
 		Monostate::amp_chi2_fnc1 << fitFcn->GetParameter(0) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
 		Monostate::amp_chi2_fnc1 << fitFcn->GetParameter(6) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
 
-		if (fitFcn->GetParameter(1) < fitFcn->GetParameter(7))
+		pr.first = fitFcn->GetParameter(1);
+		pr.second = fitFcn->GetParameter(0);
+		v_pairs.push_back(pr);
+		
+		pr.first = fitFcn->GetParameter(7);
+		pr.second = fitFcn->GetParameter(6);
+		v_pairs.push_back(pr);
+
+		sort(v_pairs.begin(), v_pairs.end(), sort_pred());
+
+		Monostate::time_i << v_pairs[0].first << "\t" << v_pairs[0].second << endl;
+		Monostate::time_i << v_pairs[1].first << "\t" << v_pairs[1].second << endl;
+		
+		/*if (fitFcn->GetParameter(1) < fitFcn->GetParameter(7))
 		{
 			Monostate::time_i << fitFcn->GetParameter(1) << "\t" << fitFcn->GetParameter(0) << endl;
 			Monostate::time_i << fitFcn->GetParameter(7) << "\t" << fitFcn->GetParameter(6) << endl;
@@ -178,7 +309,7 @@ void RootFit::Print_dt_amp()
 		{
 			Monostate::time_i << fitFcn->GetParameter(7) << "\t" << fitFcn->GetParameter(6) << endl;
 			Monostate::time_i << fitFcn->GetParameter(1) << "\t" << fitFcn->GetParameter(0) << endl;
-		}
+		}*/
 
 	}
 
@@ -186,9 +317,43 @@ void RootFit::Print_dt_amp()
 	{
 		Monostate::amp_chi2_fnc1 << fitFcn->GetParameter(0) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
 		Monostate::amp_chi2_fnc1 << fitFcn->GetParameter(6) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
-		Monostate::amp_chi2_fnc1 << fitFcn->GetParameter(11) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
-				
+		Monostate::amp_chi2_fnc1 << fitFcn->GetParameter(11) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;	
 
+		pr.first = fitFcn->GetParameter(1);
+		pr.second = fitFcn->GetParameter(0);
+		v_pairs.push_back(pr);
+
+		pr.first = fitFcn->GetParameter(7);
+		pr.second = fitFcn->GetParameter(6);
+		v_pairs.push_back(pr);
+
+		pr.first = fitFcn->GetParameter(12);
+		pr.second = fitFcn->GetParameter(11);
+		v_pairs.push_back(pr);
+
+		sort(v_pairs.begin(), v_pairs.end(), sort_pred());
+
+		Monostate::time_i << v_pairs[0].first << "\t" << v_pairs[0].second << endl;
+		Monostate::time_i << v_pairs[1].first << "\t" << v_pairs[1].second << endl;
+		Monostate::time_i << v_pairs[2].first << "\t" << v_pairs[2].second << endl;
+
+	}
+
+	if (this->number_of_functions == 4)
+	{
+		Monostate::amp_chi2_fnc1 << fitFcn->GetParameter(0) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
+		Monostate::amp_chi2_fnc1 << fitFcn->GetParameter(6) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
+		Monostate::amp_chi2_fnc1 << fitFcn->GetParameter(11) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
+		Monostate::amp_chi2_fnc1 << fitFcn->GetParameter(11 + 5) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
+	}
+
+	if (this->number_of_functions == 5)
+	{
+		Monostate::amp_chi2_fnc1 << fitFcn->GetParameter(0) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
+		Monostate::amp_chi2_fnc1 << fitFcn->GetParameter(6) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
+		Monostate::amp_chi2_fnc1 << fitFcn->GetParameter(11) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
+		Monostate::amp_chi2_fnc1 << fitFcn->GetParameter(11 + 5) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
+		Monostate::amp_chi2_fnc1 << fitFcn->GetParameter(11 + 10) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
 	}
 	
 	//Monostate::amp_chi2_fnc1 << ->GetParameter(0) << "\t" << fitFcn_fnc2->GetChisquare() / (time_finish[i] - time_start_index) << endl;
@@ -281,13 +446,13 @@ void RootFit::Print_dt_amp()
 }
 
 
-
 void RootFit::FindStartStop()
 {
 	cout << endl << "Find start and stop" << endl;
 	
 	bool flag = 1;
-
+	double time_dead_1 = 5; // ns
+	double time_dead_2 = 50; // ns
 
 	double x_time;
 	//поиск начала и конца 
@@ -300,11 +465,33 @@ void RootFit::FindStartStop()
 			time_start.push_back(i);
 		}
 
-		//разрешить искать сигнал, когда сигнал дойдет до шумов
-		if (yv[i] > threshold_amp && flag == 0 && (xv[i] - x_time) > 5)
+		//разрешить искать сигнал, когда сигнал дойдет до шумов и пройдет 5 нс
+		if (yv[i] > threshold_amp && flag == 0 && (xv[i] - x_time) > time_dead_1)
 		{
-			time_finish.push_back(i);
-			flag = 1;
+			bool flag_2 = true;
+
+			//cout << i << "\t" << yv_der.size() << "\t" << i + 50 * 5 << "\t" << bool(yv_der.size() < i + 50 * 5) << endl;
+
+			//разрешить искать сигнал, только если впереди на time_dead_2 [ns] нет нового импульса
+			for (int j = i; j < i + time_dead_2 * 5; j++)
+			{
+				if (yv_der.size() > i + time_dead_2 * 5)
+				{
+					//cout << yv_der[j] << "\t" << j << "\t" << yv_der.size() << endl;
+					if (yv_der[j] < threshold_der)
+					{
+						flag_2 = false;
+					}
+				}
+				
+			}
+			
+			if (flag_2)
+			{
+				time_finish.push_back(i);
+				flag = 1;
+			}
+			
 		}
 	}
 }
@@ -329,7 +516,8 @@ void RootFit::CalculateStartParameters(double time_dead)
 
 	time_front.clear();
 
-	int time_dead_index = time_dead / 0.2;
+	int time_dead_index = time_dead * 5;
+	//int shift = 20;
 
 	//найти стартовые параметры для начала сигнала
 	for (int j = time_start_index; j < time_finish[current_signal]; j++)
@@ -357,7 +545,9 @@ void RootFit::CalculateStartParameters(double time_dead)
 			//cout << *min_element(yv_der.begin(), yv_der.end()) << endl;
 
 			int min_index = min_element(yv_der.begin() + j, yv_der.begin() + j + time_dead_index) - yv_der.begin();
-
+			//int min_index = min_element(yv_der2.begin() + j - shift, yv_der2.begin() + j + time_dead_index) - yv_der2.begin();
+			
+			
 			//cout << xv[j] << "\t" << xv[min_index] << "\t" << xv[j + time_dead_index] << "\t" << current_signal << endl;
 			//cout << xv[der_min] << endl;
 
@@ -475,8 +665,8 @@ void RootFit::CalculateDer(int type, int points)
 	{
 		file_raw << xv[i] << "\t" << yv[i] << endl;
 		file_s << xv[i] << "\t" << yv_s[i] << endl;
-		file_d << xv[i] << "\t" << yv_der[i] * 10 << endl;
-		file_d2 << xv[i] << "\t" << yv_der2[i] * 50 << endl;
+		file_d << xv[i] << "\t" << yv_der[i] << endl;
+		file_d2 << xv[i] << "\t" << yv_der2[i] << endl;
 	}
 
 	exit(0);*/
@@ -606,6 +796,29 @@ double RootFit::fitFunction_3(Double_t *x, Double_t *par)
 {
 	const double V_0 = par[5];
 	return fitFunction_nobaseline(x, par) + V_0 + fitFunction_nobaseline(x, &par[6]) + fitFunction_nobaseline(x, &par[11]);
+}
+
+//сумма 4-х сигналов
+double RootFit::fitFunction_4(Double_t *x, Double_t *par)
+{
+	const double V_0 = par[5];
+	return fitFunction_nobaseline(x, par) + V_0 + fitFunction_nobaseline(x, &par[6]) + fitFunction_nobaseline(x, &par[11]) + fitFunction_nobaseline(x, &par[16]);
+}
+
+//сумма 5-и сигналов
+double RootFit::fitFunction_5(Double_t *x, Double_t *par)
+{
+	const double V_0 = par[5];
+	return fitFunction_nobaseline(x, par) + V_0 + fitFunction_nobaseline(x, &par[6]) + fitFunction_nobaseline(x, &par[11]) + fitFunction_nobaseline(x, &par[16]) + fitFunction_nobaseline(x, &par[21]);
+}
+
+//сумма 6-и сигналов
+double RootFit::fitFunction_6(Double_t *x, Double_t *par)
+{
+	const double V_0 = par[5];
+	return fitFunction_nobaseline(x, par) + V_0 + fitFunction_nobaseline(x, &par[6]) + 
+		fitFunction_nobaseline(x, &par[11]) + fitFunction_nobaseline(x, &par[16]) + 
+		fitFunction_nobaseline(x, &par[21]) + fitFunction_nobaseline(x, &par[26]);
 }
 
 //создает вектора: везде 0, а в точках time_front[i] - значение функции yv[i]

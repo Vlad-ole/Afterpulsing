@@ -168,5 +168,11 @@ namespace UnitTest2
 
 		}
 
+		TEST_METHOD(FindStartStop)
+		{
+			// TODO: Your test code here
+			Assert::AreEqual(3.0, 3.0);
+		}
+
 	};
 }

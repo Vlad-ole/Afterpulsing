@@ -45,6 +45,7 @@ Double_t fitFunction(Double_t *x, Double_t *par)
 int main()
 {
 	ofstream file_out("D:\\Data_work\\tektronix_signal\\295K\\295K_73.90\\raw\\test_signal.txt");
+	ofstream file_ti("D:\\Data_work\\tektronix_signal\\295K\\295K_73.90\\raw\\test_signal_ti.txt");
 
 	int cycles = 2000;
 	int signal_length = 1000;
@@ -108,7 +109,9 @@ int main()
 	int b = 0;
 	for (int k = 0; k < cycles; k++)
 	{
-		time_i += gRandom->Exp(150);
+		double dt = gRandom->Exp(150);
+		time_i += dt;
+		file_ti << dt << "\t" << time_i << endl;
 		int b = time_i * 5;
 		for (int i = 0, j = 0; i < cycles * signal_length; i++)
 		{
