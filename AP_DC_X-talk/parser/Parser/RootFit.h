@@ -23,7 +23,8 @@ public:
 
 	static void CalculateDer(int type, int points);
 	static void FindStartStop();
-	static void CalculateStartParameters(double time_dead); //вычислить стартовые времена t_i. Ќеобходимо задать мертвое врем€ в нс.
+	static void CalculateStartParameters(double time_dead); 
+	static void CalculateNumOfSignals(double time_dead);//найти число сигналов на участке по 2-й производной. Ќеобходимо задать мертвое врем€ в нс.
 	static void CreateFrontGraph();
 	static void SetDispXY(double x = 0, double y = 0);
 	
@@ -43,6 +44,7 @@ public:
 	
 	static int time_shit;	
 	static double threshold_der;
+	static double threshold_der2;
 	static double threshold_amp;
 
 	static int current_signal;

@@ -25,6 +25,7 @@ int RootFit::time_finish_index;
 
 int RootFit::time_shit;
 
+double RootFit::threshold_der2;
 double RootFit::threshold_der;
 double RootFit::threshold_amp;
 
@@ -80,8 +81,8 @@ int main()
 			
 			RootFit::CalculateDer(1, 51); // посчитать производную по данным (число точек должно быть нечетным)
 			
-			
-			RootFit::threshold_der = (-2E-4);
+			RootFit::threshold_der2 = -1E-5;
+			RootFit::threshold_der = -2E-4;
 			RootFit::threshold_amp = -0.001;
 			RootFit::FindStartStop(); // найти начало и конец суммы сигналов
 			
@@ -95,7 +96,8 @@ int main()
 				cout << endl << "calculate fit ... " << i + 1 << endl;
 								
 				RootFit::current_signal = i;	
-				RootFit::CalculateStartParameters(6);//вычислить стартовые параметры. Параметр - мертвое время производной в нс				
+				RootFit::CalculateStartParameters(6);//вычислить стартовые параметры. Параметр - мертвое время производной в нс	
+				RootFit::CalculateNumOfSignals(3);
 				RootFit::CreateFrontGraph();
 
 				RootFit *Fit_single = new RootFit(1);
@@ -275,7 +277,7 @@ int main()
 								Fit_quintuple->SetParameters();
 								Fit_quintuple->DoFit();
 
-								if (Fit_quintuple->GetChi2PerDof() < Monostate::chi2_per_dof_th)
+								//if (Fit_quintuple->GetChi2PerDof() < Monostate::chi2_per_dof_th)
 									Fit_quintuple->Print_dt_amp();
 
 
@@ -326,6 +328,9 @@ int main()
 
 	
 	ofstream time_delta(Monostate::dir_name + "time_delta.dat");
+	ofstream file_dt(Monostate::dir_name + "dt.dat");
+	ofstream file_amp(Monostate::dir_name + "amp.dat");
+
 	string string_time_i = Monostate::dir_name + "time_i.dat";
 	FILE *f2 = fopen(string_time_i.c_str(), "r");
 
@@ -336,7 +341,11 @@ int main()
 		fscanf(f2, "%lf %lf\n", &x, &y);
 
 		if (flag)
+		{
 			time_delta << x - x_old << "\t" << y << endl;
+			file_dt << x - x_old << endl;
+			file_amp << y << endl;
+		}
 
 		x_old = x;
 

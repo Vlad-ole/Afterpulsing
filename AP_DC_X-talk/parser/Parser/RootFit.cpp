@@ -53,7 +53,7 @@ RootFit::RootFit(short int number_of_functions)
 	if (number_of_functions == 6)
 		fitFcn = new TF1("fitFcn", fitFunction_6, xv[time_start_index], xv[time_finish_index], 6 + 25);
 
-	ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit", "Simplex");
+	//ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit", "Simplex");
 	ROOT::Math::MinimizerOptions::SetDefaultStrategy(2);
 }
 
@@ -247,6 +247,9 @@ void RootFit::SetParameters()
 	//fitFcn->Update();
 
 }
+
+
+
 
 void RootFit::Print_dt_amp()
 {
@@ -537,6 +540,37 @@ void RootFit::FindStartStop()
 	}
 }
 
+//найти число сигналов на участке по 2-й производной. Ќеобходимо задать мертвое врем€ в нс.
+void RootFit::CalculateNumOfSignals(double time_dead)
+{
+	bool flag = 1;
+	double x_time = 0;
+	unsigned int num_of_signals = 0;
+	int time_dead_index = time_dead * 5;
+
+	for (unsigned int i = time_start_index; i < time_finish_index; i++)
+	{
+		
+		if (yv_der[i] < 0)
+		{
+			if ((yv_der2[i] < threshold_der2) && flag)
+			{
+				x_time = xv[i];
+				flag = 0;
+				num_of_signals++;
+			}
+
+			if (yv_der2[i] > threshold_der2 && (i - x_time) > (time_dead_index) && flag == 0)
+			{
+				flag = 1;
+			}
+		}
+	}
+
+	cout << "num_of_signals = " << num_of_signals << endl;
+}
+
+//вычислить стартовые времена t_i. Ќеобходимо задать мертвое врем€ в нс.
 void RootFit::CalculateStartParameters(double time_dead)
 {
 	if (time_start[current_signal] - time_shit >= 0)

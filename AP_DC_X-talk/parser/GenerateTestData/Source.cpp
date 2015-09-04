@@ -44,17 +44,24 @@ Double_t fitFunction(Double_t *x, Double_t *par)
 
 int main()
 {
-	ofstream file_out("D:\\Data_work\\tektronix_signal\\295K\\295K_73.90\\raw\\test_signal.txt");
-	ofstream file_ti("D:\\Data_work\\tektronix_signal\\295K\\295K_73.90\\raw\\test_signal_ti.txt");
+	ofstream file_out("D:\\Data_work\\tektronix_signal\\295K\\295K_73.90\\raw\\test_signal_pure.txt");
+	ofstream file_ti("D:\\Data_work\\tektronix_signal\\295K\\295K_73.90\\raw\\test_signal_ti_pure.txt");
+	ofstream file_ti_hist("D:\\Data_work\\tektronix_signal\\295K\\295K_73.90\\raw\\test_signal_ti_hist_pure.txt");
+	//const double noise_amp = 0.001;
+	
 
-	double noise_amp = 0.001;
-	int cycles = 2000;
-	int signal_length = 1000;
-	Double_t par[5] = { 0.04, 20, 17.7373, 10.5194, 1.64932};
+	const int cycles = 1000;
+	const int signal_length = 1000;
+	
+	const double noise_amp = 0;
+	const double ampl = 0.04;
 
+	
 	vector<double> xv;
 	vector<double> yv;
 	vector<double> yv_signal;
+
+	cout << "Calculate baseline vector ..." << endl;
 
 	for (int i = 0; i < cycles * signal_length; i++)
 	{
@@ -62,11 +69,12 @@ int main()
 	}
 
 	
+	
 
 	for (int i = 0; i < signal_length; i++)
 	{
 		double x = (i - signal_length/2.0) * 0.2;
-		Double_t par[5] = { 0.04, 0, 17.7373, 10.5194, 1.64932 };
+		Double_t par[5] = { ampl, 0, 17.7373, 10.5194, 1.64932 };
 		yv_signal.push_back( fitFunction_nobaseline(&x, par) );
 	}
 
@@ -107,20 +115,34 @@ int main()
 	
 	int a = signal_length / 2.0;
 	double time_i = 0;
+	double amp_fraction;
+
 	int b = 0;
 	for (int k = 0; k < cycles; k++)
 	{
+		
+		if (k % 1000 == 0)
+		{
+			cout << "calculate ... " << double(k) / cycles * 100 << " %" << endl;
+		}
+		
 		double dt = gRandom->Exp(150);
 		time_i += dt;
-		file_ti << dt << "\t" << time_i << endl;
+		
 		int b = time_i * 5;
+		amp_fraction = 1 - exp(-dt / 17.7373);
+		//amp_fraction = 1;
+
+		file_ti << dt << "\t" << amp_fraction * ampl << endl;
+		file_ti_hist << dt << endl;
+
 		for (int i = 0, j = 0; i < cycles * signal_length; i++)
 		{
 			if (b > 0)
 			{
 				if (i > b - a && i < b + a)
 				{
-					yv[i] += yv_signal[j]; //+ noise_amp*gRandom->Uniform(-1, 1);
+					yv[i] += amp_fraction * yv_signal[j]; //+ noise_amp*gRandom->Uniform(-1, 1);
 					j++;
 				}
 			}
@@ -128,7 +150,7 @@ int main()
 			{
 				if (i < a + b)
 				{
-					yv[i] += yv_signal[j + a + abs(b)];// +noise_amp*gRandom->Uniform(-1, 1);
+					yv[i] += amp_fraction * yv_signal[j + a + abs(b)];// +noise_amp*gRandom->Uniform(-1, 1);
 					j++;
 				}
 			}

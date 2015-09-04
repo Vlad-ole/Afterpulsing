@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "CppUnitTest.h"
 #include "RootFit.h"
+#include "Math/MinimizerOptions.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
