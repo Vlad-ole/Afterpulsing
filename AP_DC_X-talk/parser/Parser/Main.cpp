@@ -40,8 +40,22 @@ int RootFit::current_signal;
 
 //> "D:\\Data_work\\tektronix_signal\\295K\\295K_73.90\\fit_log.txt"
 
+//vector<double> *v_test = new vector<double>();
+//void test()
+//{
+//	for (int i = 0; i < 1E8; i++)
+//	{
+//		v_test->push_back(i);
+//	}	
+//}
+
+
 int main()
 {
+	//cout << "test..." << endl;
+	//test();
+	//cout << "test over" << endl;
+	
 	ofstream file_test(Monostate::dir_name + "test.dat");
 	
 	Double_t x, y;
@@ -49,6 +63,11 @@ int main()
 
 	int counter = 0;
 	int counter_rec_length = 0;
+	int num_of_fit_tot = 0;
+
+	RootFit::threshold_der2 = -1E-5;
+	RootFit::threshold_der = -2E-4;
+	RootFit::threshold_amp = -0.001;
 
 	if (f == NULL)
 	{
@@ -69,8 +88,10 @@ int main()
 		if (counter % 10000 == 0)
 		{
 			cout << "read file " << counter / double(2E7) * 100 << endl;
+			//cout << xv.size() << "\t" << yv.size() << "\t" << endl;
 		}
 
+	//}
 		// обработать записанную информацию. Нужно из-за большого размера файла
 		if (xv.size() % Monostate::rec_lenght == 0)
 		{
@@ -78,21 +99,14 @@ int main()
 			RootFit::xv = xv; // передать вектора длины rec_lenght в класс RootFit
 			RootFit::yv = yv;
 			
-			RootFit::CalculateDer(1, 51); // посчитать производную по данным (число точек должно быть нечетным)
-			
-			RootFit::threshold_der2 = -1E-5;
-			RootFit::threshold_der = -2E-4;
-			RootFit::threshold_amp = -0.001;
-			RootFit::FindStartStop(); // найти начало и конец суммы сигналов
-			
-			
+			RootFit::CalculateDer(1, 51); // посчитать производную по данным (число точек должно быть нечетным)			
+			RootFit::FindStartStop(); // найти начало и конец суммы сигналов			
 			RootFit::SetDispXY(0, 0.00113151);// записать вектора длины rec_lenght xverr и yverr значениеми ошибок
-
 			RootFit::time_shit = 100; // задать смещение по времени для учета базовой линии (в точках)
 
-			for (unsigned int i = 0; i < RootFit::time_finish.size(); i++)
+			for (unsigned int i = 0; i < RootFit::time_finish.size(); i++, num_of_fit_tot++)
 			{
-				cout << endl << "calculate fit ... " << i + 1 << endl;
+				cout << endl << "calculate fit ... " << i + 1 << "\t /" << num_of_fit_tot + 1 << endl;
 								
 				RootFit::current_signal = i;	
 				RootFit::CalculateStartParameters(15/*5*/);//вычислить стартовые параметры. Параметр - мертвое время производной в нс	
@@ -305,52 +319,47 @@ int main()
 
 			}
 
-			//RootFit::Print_dt_amp();
-
 			xv.clear();
 			yv.clear();
-
-			//yv_der.clear();
-
 
 			counter_rec_length++;
 			cout << "counter_rec_length = " << counter_rec_length << endl;
 		}
 
-		if (counter_rec_length == 1)
+		if (counter_rec_length == 2)
 			break;
 
-	}
-
-	Monostate::SaveHlists();
-
+	}//while
 
 	
-	ofstream time_delta(Monostate::dir_name + "time_delta.dat");
-	ofstream file_dt(Monostate::dir_name + "dt.dat");
-	ofstream file_amp(Monostate::dir_name + "amp.dat");
+	
+		Monostate::SaveHlists();
 
-	string string_time_i = Monostate::dir_name + "time_i.dat";
-	FILE *f2 = fopen(string_time_i.c_str(), "r");
+		ofstream time_delta(Monostate::dir_name + "time_delta.dat");
+		ofstream file_dt(Monostate::dir_name + "dt.dat");
+		ofstream file_amp(Monostate::dir_name + "amp.dat");
 
-	double x_old;
-	bool flag = 0;
-	while (!feof(f2))
-	{
-		fscanf(f2, "%lf %lf\n", &x, &y);
+		string string_time_i = Monostate::dir_name + "time_i.dat";
+		FILE *f2 = fopen(string_time_i.c_str(), "r");
 
-		if (flag)
+		double x_old;
+		bool flag = 0;
+		while (!feof(f2))
 		{
-			time_delta << x - x_old << "\t" << y << endl;
-			file_dt << x - x_old << endl;
-			file_amp << y << endl;
+			fscanf(f2, "%lf %lf\n", &x, &y);
+
+			if (flag)
+			{
+				time_delta << x - x_old << "\t" << y << endl;
+				file_dt << x - x_old << endl;
+				file_amp << y << endl;
+			}
+
+			x_old = x;
+
+			flag = 1;
 		}
-
-		x_old = x;
-
-		flag = 1;
-	}
-		
+	
 
 	system("pause");
 	return 0;

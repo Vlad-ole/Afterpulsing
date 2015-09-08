@@ -494,6 +494,10 @@ void RootFit::FindStartStop()
 {
 	cout << endl << "Find start and stop" << endl;
 	
+	time_start.clear();
+	time_finish.clear();
+	time_front.clear();
+	
 	bool flag = 1;
 	double time_dead_1 = 5; // ns
 	double time_dead_2 = 50; // ns
@@ -655,7 +659,12 @@ void RootFit::CalculateStartParameters(double time_dead)
 void RootFit::CalculateDer(int type, int points)
 {
 	cout << endl << "Calculate derivative" << endl;
-	
+	yv_der.clear();
+	yv_der2.clear();
+	yv_front.clear();
+	yv_s.clear();
+
+
 	if (type == 0)
 	{
 		//simple method

@@ -18,6 +18,12 @@ namespace UnitTest2
 			Assert::AreEqual(3.0, 3.0);
 		}
 
+		TEST_METHOD(CalculateDer)
+		{
+			// TODO: Your test code here
+			Assert::AreEqual(3.0, 3.0);
+		}
+
 		// 2/3 (quadratic/cubic)
 		TEST_METHOD(C_i_s)
 		{
