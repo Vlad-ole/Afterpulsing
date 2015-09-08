@@ -3,7 +3,7 @@
 #include  "TF1.h"
 #include "TMath.h"
 #include "Monostate.h"
-
+#include <omp.h> 
 #include "Math/MinimizerOptions.h"
 
 vector<double> RootFit::yv_s;
@@ -12,14 +12,20 @@ vector<double> RootFit::yv_der2;
 
 vector<double> RootFit::xverr;
 vector<double> RootFit::yverr;
-vector<double> RootFit::yv_front;
-vector<double> RootFit::xv_front;
+//vector<double> RootFit::yv_front;
+//vector<double> RootFit::xv_front;
 
 vector<double> RootFit::C_i_s;
 vector<double> RootFit::C_i_der;
 vector<double> RootFit::C_i_der2;
 
-RootFit::RootFit(short int number_of_functions)
+
+RootFit::RootFit()
+{
+	
+}
+
+void RootFit::Initialize(short int number_of_functions)
 {
 	this->number_of_functions = number_of_functions;
 	
@@ -35,7 +41,7 @@ RootFit::RootFit(short int number_of_functions)
 
 	gr_der2->SetLineColor(7);
 
-	gr_front = new TGraph(time_finish_index - time_start_index, &xv_front[0], &yv_front[0]);// problem
+	gr_front = new TGraph(time_finish_index - time_start_index, &xv_front[0], &yv_front[0]);
 	gr_front->SetMarkerColor(6);
 	gr_front->SetMarkerStyle(kFullCircle);
 	gr_front->SetMarkerSize(1);
@@ -73,7 +79,7 @@ void RootFit::SetParameters()
 	const double baseline_limit = 0.003;
 	const double sigma = 1.64932;
 
-	const double time_first = xv[time_front[0]];
+	double time_first = xv[time_front[0]];
 
 	//fitFcn->SetParErrors
 	
@@ -496,7 +502,6 @@ void RootFit::FindStartStop()
 	
 	time_start.clear();
 	time_finish.clear();
-	time_front.clear();
 	
 	bool flag = 1;
 	double time_dead_1 = 5; // ns
@@ -577,6 +582,8 @@ void RootFit::CalculateNumOfSignals(double time_dead)
 //вычислить стартовые времена t_i. Необходимо задать мертвое время в нс.
 void RootFit::CalculateStartParameters(double time_dead)
 {
+	
+	
 	if (time_start[current_signal] - time_shit >= 0)
 	{
 		time_start_index = time_start[current_signal] - time_shit;
@@ -585,18 +592,20 @@ void RootFit::CalculateStartParameters(double time_dead)
 	{
 		time_start_index = 0;
 	}
+	
+	//printf("thread %d \n \n", omp_get_thread_num());
 
 	time_finish_index = time_finish[current_signal];
 
 	bool flag = 1;
 	int x_time = 0;
 
-	//int time_start_index = time_start[current_signal];
+	//printf("thread %d iterration %d flag %d \n \n", omp_get_thread_num(), current_signal, flag);
 
 	time_front.clear();
 
 	int time_dead_index = time_dead * 5;
-	//int shift = 20;
+
 
 	//найти стартовые параметры для начала сигнала
 	for (int j = time_start_index; j < time_finish[current_signal]; j++)
@@ -604,36 +613,7 @@ void RootFit::CalculateStartParameters(double time_dead)
 
 		if (yv_der[j] < threshold_der && flag)
 		{
-			//int der_min = j;
-			//for (int k = j; k < j + time_dead_index; k++)
-			//{
-			//	if (yv_der[k] < yv_der[j])
-			//	{
-			//		der_min = k;
-			//	}
-
-			//	//cout << k << "\t" << der_min << endl;
-			//	cout << yv_der[k] << "\t" << yv_der[der_min] << endl;
-			//	cout << xv[k] << "\t" << xv[der_min] << endl;
-			//	cout << endl;
-			//}
-
-			//it2 = max_element(myVector.begin(), myVector.end());
-			//cout << " the max is " << *it2 << endl;
-
-			//cout << *min_element(yv_der.begin(), yv_der.end()) << endl;
-
 			int min_index = min_element(yv_der.begin() + j, yv_der.begin() + j + time_dead_index) - yv_der.begin();
-			//int min_index = min_element(yv_der2.begin() + j - shift, yv_der2.begin() + j + time_dead_index) - yv_der2.begin();
-			
-			
-			//cout << xv[j] << "\t" << xv[min_index] << "\t" << xv[j + time_dead_index] << "\t" << current_signal << endl;
-			//cout << xv[der_min] << endl;
-
-			//cout << "min value is " << *min_element(yv_der.begin() + j, yv_der.begin() + j + time_dead_index) << endl;
-			//cout << "min value at " << min_element(yv_der.begin() + j, yv_der.begin() + j + time_dead_index) - yv_der.begin() << endl;
-
-			//system("pause");
 
 			time_front.push_back(min_index);
 			flag = 0;
@@ -646,13 +626,6 @@ void RootFit::CalculateStartParameters(double time_dead)
 		}
 
 	}
-
-	/*for (int i = 0; i < time_front.size(); i++)
-	{
-		cout << time_front[i] << "\t" << xv[time_front[i]] << endl;
-	}
-
-	system("pause");*/
 }
 
 
@@ -661,7 +634,6 @@ void RootFit::CalculateDer(int type, int points)
 	cout << endl << "Calculate derivative" << endl;
 	yv_der.clear();
 	yv_der2.clear();
-	yv_front.clear();
 	yv_s.clear();
 
 

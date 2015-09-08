@@ -11,8 +11,11 @@ class RootFit
 {
 public:
 	RootFit(short int number_of_function);
+	RootFit();
 	~RootFit();	
 
+
+	void Initialize(short int number_of_functions);
 	void SetParameters();
 	void DoFit();
 	double GetChi2PerDof();
@@ -23,13 +26,10 @@ public:
 
 	static void CalculateDer(int type, int points);
 	static void FindStartStop();
-	static void CalculateStartParameters(double time_dead); 
-	static void CalculateNumOfSignals(double time_dead);//найти число сигналов на участке по 2-й производной. Ќеобходимо задать мертвое врем€ в нс.
-	static void CreateFrontGraph();
+	void CalculateStartParameters(double time_dead); 
+	void CalculateNumOfSignals(double time_dead);//найти число сигналов на участке по 2-й производной. Ќеобходимо задать мертвое врем€ в нс.
+	void CreateFrontGraph();
 	static void SetDispXY(double x = 0, double y = 0);
-	
-
-	short int number_of_functions;
 	
 	static vector<double> xv;
 	static vector<double> yv;	
@@ -40,14 +40,14 @@ public:
 
 	static vector<int> time_start;
 	static vector<int> time_finish;
-	static vector<int> time_front;	
+	vector<int> time_front;	
 	
 	static int time_shit;	
 	static double threshold_der;
 	static double threshold_der2;
 	static double threshold_amp;
 
-	static int current_signal;
+	
 	
 
 //private:
@@ -64,11 +64,13 @@ public:
 	static void CalculateFilterCoeff(int points);
 
 	
-	static int time_start_index;
-	static int time_finish_index;
+	int time_start_index;
+	int time_finish_index;
 
-	static vector<double> yv_front;
-	static vector<double> xv_front;
+	int current_signal;
+
+	vector<double> yv_front;
+	vector<double> xv_front;
 
 	vector<double> time_i;
 	vector<double> amp_i;
@@ -80,7 +82,7 @@ public:
 	TGraph *gr_front;
 	TMultiGraph *mg;
 
-//	short int number_of_functions;
+	short int number_of_functions;
 
 	static vector<double> xverr;
 	static vector<double> yverr;
