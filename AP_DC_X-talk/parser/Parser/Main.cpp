@@ -42,7 +42,6 @@ int RootFit::current_signal;
 
 int main()
 {
-	//RootFit::fitFunction();
 	ofstream file_test(Monostate::dir_name + "test.dat");
 	
 	Double_t x, y;
@@ -96,7 +95,7 @@ int main()
 				cout << endl << "calculate fit ... " << i + 1 << endl;
 								
 				RootFit::current_signal = i;	
-				RootFit::CalculateStartParameters(6);//вычислить стартовые параметры. Параметр - мертвое время производной в нс	
+				RootFit::CalculateStartParameters(15/*5*/);//вычислить стартовые параметры. Параметр - мертвое время производной в нс	
 				RootFit::CalculateNumOfSignals(3);
 				RootFit::CreateFrontGraph();
 

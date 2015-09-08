@@ -10,10 +10,10 @@ Monostate::~Monostate()
 {
 }
 
-const double Monostate::chi2_per_dof_th = 1;
+const double Monostate::chi2_per_dof_th = 5;
 
 
-const int Monostate::rec_lenght = 1000000;
+const int Monostate::rec_lenght = 10000;
 
 
 const int Monostate::time_pre = (20 / 0.2);
