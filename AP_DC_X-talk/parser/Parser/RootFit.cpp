@@ -767,6 +767,7 @@ void RootFit::CalculateFilterCoeff(int points)
 
 void RootFit::DoFit()
 {
+	printf("thread %d ; %d\n \n", omp_get_thread_num(), &gr);
 	gr->Fit("fitFcn", "RQ");
 }
 
@@ -782,8 +783,7 @@ double RootFit::GetAmplitude()
 
 void RootFit::SaveGraphs(TObjArray &Hlist)
 {
-	
-
+	//printf("thread %d SaveGraphs itteration \n \n", omp_get_thread_num());
 
 	TMultiGraph *mg = new TMultiGraph();
 	mg->Add(gr);

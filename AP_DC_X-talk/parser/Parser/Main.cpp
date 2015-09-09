@@ -112,15 +112,23 @@ int main()
 				#pragma omp for schedule (static) 
 				for (i = 0; i < RootFit::time_finish.size(); i++)
 				{
-					printf("thread %d have done itteration %d\n", omp_get_thread_num(), i);
+					
+					//if (omp_get_thread_num() == 1)
+					{
+						printf("thread %d have done itteration %d\n", omp_get_thread_num(), i);
 
-					RootFit *Fit_single = new RootFit();
-					Fit_single->current_signal = i;
-					Fit_single->CalculateStartParameters(5);
-					Fit_single->CreateFrontGraph();
-					Fit_single->Initialize(1);
-					Fit_single->SetParameters();
-					Fit_single->DoFit();
+						RootFit *Fit_single = new RootFit();
+						Fit_single->current_signal = i;
+						Fit_single->CalculateStartParameters(5);
+						Fit_single->CreateFrontGraph();
+						Fit_single->Initialize(1);
+						Fit_single->SetParameters();
+						Fit_single->DoFit();
+
+						//записать все графики
+						
+						Fit_single->SaveGraphs(Monostate::Hlist_f1);
+					}
 
 				}
 			}
