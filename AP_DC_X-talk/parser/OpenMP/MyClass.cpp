@@ -25,6 +25,8 @@ MyClass::MyClass()
 
 MyClass::~MyClass()
 {
+	delete gr;
+	delete fitFcn;
 }
 
 Double_t MyClass::fitFunction(Double_t *x, Double_t *par)

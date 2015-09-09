@@ -59,7 +59,11 @@ int main()
 
 			MyClass *obj = new MyClass();
 			obj->SetParameters();
-			obj->DoFit();
+
+			#pragma omp critical
+			{
+				obj->DoFit();
+			}
 		}
 	}
 
