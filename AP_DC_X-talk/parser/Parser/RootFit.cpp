@@ -3,8 +3,12 @@
 #include  "TF1.h"
 #include "TMath.h"
 #include "Monostate.h"
+#include <chrono>
+#include <Windows.h>
 
 #include "Math/MinimizerOptions.h"
+
+using namespace std;
 
 vector<double> RootFit::yv_s;
 vector<double> RootFit::yv_der;
@@ -60,7 +64,11 @@ RootFit::RootFit(short int number_of_functions)
 
 RootFit::~RootFit()
 {
-
+	delete fitFcn;
+	delete gr_front;
+	delete gr_der2;
+	delete gr_der;
+	delete gr;	
 }
 
 
@@ -495,7 +503,7 @@ void RootFit::FindStartStop()
 	cout << endl << "Find start and stop" << endl;
 	
 	bool flag = 1;
-	double time_dead_1 = 5; // ns
+	double time_dead_1 = 10 /*5*/; // ns
 	double time_dead_2 = 50; // ns
 
 	double x_time;
@@ -690,6 +698,7 @@ void RootFit::CalculateDer(int type, int points)
 		{
 			if (i % 100000 == 0)
 			{
+				//long int temp_2 = GetTickCount();
 				cout << "calculate derivative ... " << double(i) / xv.size() * 100 << " %" << endl;
 			}
 			

@@ -20,7 +20,7 @@ void fit_dt(char name[])
 	
 	FILE *f = fopen(name,"r");
 	
-	TH1F *h1 = new TH1F("h1f","hist", 495, 0, 2000);
+	TH1F *h1 = new TH1F("h1f","hist", 200000, 0, 2000);
 	h1->SetFillColor(kRed);
 	h1->SetFillStyle(3002);
 	
@@ -30,7 +30,7 @@ void fit_dt(char name[])
 		h1->Fill(x);
 	}	
 			
-			TF1 *fitFcn = new TF1("fitFcn", fitFunction, 20, 1600, 4);
+			TF1 *fitFcn = new TF1("fitFcn", fitFunction, 50, 1700, 4);
 							
 			Double_t norm = 0.1;
 			Double_t scale = norm / (h1->Integral());

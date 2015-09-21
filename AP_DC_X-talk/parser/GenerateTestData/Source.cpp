@@ -50,7 +50,7 @@ int main()
 	//const double noise_amp = 0.001;
 	
 
-	const int cycles = 1000;
+	const int cycles = 10;
 	const int signal_length = 1000;
 	
 	const double noise_amp = 0;
@@ -130,8 +130,8 @@ int main()
 		time_i += dt;
 		
 		int b = time_i * 5;
-		amp_fraction = 1 - exp(-dt / 17.7373);
-		//amp_fraction = 1;
+		//amp_fraction = 1 - exp(-dt / 17.7373);
+		amp_fraction = 1;
 
 		file_ti << dt << "\t" << amp_fraction * ampl << endl;
 		file_ti_hist << dt << endl;

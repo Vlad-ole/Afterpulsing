@@ -2,6 +2,8 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <chrono>
+#include <Windows.h>
 
 #include "TRandom.h"
 #include "TMath.h"
@@ -12,6 +14,7 @@
 //#include  "gStyle.h"
 #include "RootFit.h"
 #include "Monostate.h"
+
 //#include "Math.h"
 
 using namespace std;
@@ -42,6 +45,8 @@ int RootFit::current_signal;
 
 int main()
 {
+	long int before = GetTickCount();
+	
 	ofstream file_test(Monostate::dir_name + "test.dat");
 	
 	Double_t x, y;
@@ -92,10 +97,11 @@ int main()
 
 			for (unsigned int i = 0; i < RootFit::time_finish.size(); i++)
 			{
-				cout << endl << "calculate fit ... " << i + 1 << endl;
+				long int temp = GetTickCount();
+				cout << endl << "calculate fit ... " << i + 1 << " run time is (in s) \t" << (temp - before) / 1000.0 << endl;
 								
 				RootFit::current_signal = i;	
-				RootFit::CalculateStartParameters(15/*5*/);//вычислить стартовые параметры. Параметр - мертвое время производной в нс	
+				RootFit::CalculateStartParameters(5/*5*/);//вычислить стартовые параметры. Параметр - мертвое время производной в нс	
 				RootFit::CalculateNumOfSignals(3);
 				RootFit::CreateFrontGraph();
 
@@ -351,6 +357,10 @@ int main()
 		flag = 1;
 	}
 		
+	long int after = GetTickCount();
+	cout << endl << "run time (in ms) \t " <<after - before << endl;
+	cout << endl << "run time (in s) \t " << (after - before) / 1000.0 << endl;
+	cout << endl << "run time (in m) \t " << (after - before) / (1000.0 * 60) << endl;
 
 	system("pause");
 	return 0;
