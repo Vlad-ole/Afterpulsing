@@ -50,12 +50,13 @@ int main()
 	//const double noise_amp = 0.001;
 	
 
-	const int cycles = 10;
-	const int signal_length = 1000;
+	const int cycles = 10000;
+	const int signal_length = 2001;
 	
 	const double noise_amp = 0;
 	const double ampl = 0.04;
 
+	const int a = (signal_length - 1) / 2.0;
 	
 	vector<double> xv;
 	vector<double> yv;
@@ -73,7 +74,7 @@ int main()
 
 	for (int i = 0; i < signal_length; i++)
 	{
-		double x = (i - signal_length/2.0) * 0.2;
+		double x = (i - a) * 0.2;
 		Double_t par[5] = { ampl, 0, 17.7373, 10.5194, 1.64932 };
 		yv_signal.push_back( fitFunction_nobaseline(&x, par) );
 	}
@@ -113,19 +114,23 @@ int main()
 
 	//}
 	
-	int a = signal_length / 2.0;
+	
 	double time_i = 0;
 	double amp_fraction;
 
 	int b = 0;
 	for (int k = 0; k < cycles; k++)
 	{
-		
+		bool temp_1 = 1;
+		bool temp_2 = 1;
+		bool temp_3 = 1;
+		bool temp_4 = 1;
 		if (k % 1000 == 0)
 		{
 			cout << "calculate ... " << double(k) / cycles * 100 << " %" << endl;
 		}
 		
+		//double dt = 20;
 		double dt = gRandom->Exp(150);
 		time_i += dt;
 		
@@ -138,27 +143,84 @@ int main()
 
 		for (int i = 0, j = 0; i < cycles * signal_length; i++)
 		{
-			if (b > 0)
+			
+			
+			if (b <= a && j < ( signal_length - (a - b) ) )
 			{
-				if (i > b - a && i < b + a)
+				if (b + a <= cycles * signal_length) //work
 				{
-					yv[i] += amp_fraction * yv_signal[j]; //+ noise_amp*gRandom->Uniform(-1, 1);
+					yv[i] += amp_fraction * yv_signal[i + a - b];
 					j++;
+
+					if (temp_1)
+					{
+						//cout << "case 1" << endl;
+						temp_1 = 0;
+					}
+					
 				}
-			}
-			else
-			{
-				if (i < a + b)
+
+				if ( b + a > cycles * signal_length && j < (cycles * signal_length - b) )
 				{
-					yv[i] += amp_fraction * yv_signal[j + a + abs(b)];// +noise_amp*gRandom->Uniform(-1, 1);
+					yv[i] += amp_fraction * yv_signal[i + a - b];
 					j++;
+					//cout << "case 2" << endl;
+					if (temp_2)
+					{
+						//cout << "case 2" << endl;
+						temp_2 = 0;
+					}
 				}
+				
 			}
 
+			if (b > a && j < signal_length && i >= (b - a) )
+			{
+				if (b + a <= cycles * signal_length)
+				{
+					yv[i] += amp_fraction * yv_signal[j];
+					j++;
+					//cout << "case 3" << endl;
+					if (temp_3)
+					{
+						//cout << "case 3" << endl;
+						temp_3 = 0;
+					}
+				}
+
+				if (b + a > cycles * signal_length && j < (cycles * signal_length - (b - a) ) ) //work
+				{
+					yv[i] += amp_fraction * yv_signal[j];
+					j++;
+					//cout << "case 4" << endl;
+					if (temp_4)
+					{
+						//cout << "case 4" << endl;
+						temp_4 = 0;
+					}
+				}
+
+			}
+
+			
+
+			///////
+			//if (i > b - a && i < b + a)
+			//	{
+			//		yv[i] += amp_fraction * yv_signal[j]; //+ noise_amp*gRandom->Uniform(-1, 1);
+			//		j++;
+			//	}		
+			//
+			//	if (i < a + b)
+			//	{
+			//		yv[i] += amp_fraction * yv_signal[j + a + abs(b)];// +noise_amp*gRandom->Uniform(-1, 1);
+			//		j++;
+			//	}
+			
 		}
 	}
 
-
+	cout << "write in file..." << endl;
 	for (int i = 0; i < cycles * signal_length; i++)
 	{
 

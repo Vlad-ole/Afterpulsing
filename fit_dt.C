@@ -7,7 +7,8 @@ using namespace std;
 Double_t fitFunction(Double_t *x,Double_t *par) 
 { 
 	//return (par[0] / par[1] * TMath::Exp(- par[1] * x[0] ) + par[2] * par[3] * TMath::Exp(- par[3] * x[0] )) / (par[0] + par[2]); 
-	return par[0] * TMath::Exp( - x[0] / par[1]) + par[2] * TMath::Exp( - x[0] / par[3]);
+	//return par[0] * TMath::Exp( - x[0] / par[1]) + par[2] * TMath::Exp( - x[0] / par[3]);
+	return 1.0 / par[0] * TMath::Exp( - x[0] / par[0]);
 }
 
 
@@ -20,7 +21,11 @@ void fit_dt(char name[])
 	
 	FILE *f = fopen(name,"r");
 	
-	TH1F *h1 = new TH1F("h1f","hist", 200000, 0, 2000);
+	const int n_bins = 20000;
+	const double fit_range_min = 0;
+	const double fit_range_max = 2000;
+	
+	TH1F *h1 = new TH1F("h1f","hist", n_bins, fit_range_min, fit_range_max);
 	h1->SetFillColor(kRed);
 	h1->SetFillStyle(3002);
 	
@@ -30,23 +35,23 @@ void fit_dt(char name[])
 		h1->Fill(x);
 	}	
 			
-			TF1 *fitFcn = new TF1("fitFcn", fitFunction, 50, 1700, 4);
+			TF1 *fitFcn = new TF1("fitFcn", fitFunction, 0, 1700, 1);
 							
-			Double_t norm = 0.1;
+			Double_t norm = n_bins / (fit_range_max - fit_range_min);
 			Double_t scale = norm / (h1->Integral());
 			h1->Scale(scale);
 			
-			//fitFcn->SetParameter(0, 50); 
-			//fitFcn->SetParLimits(0, 5, 500);
+			fitFcn->SetParameter(0, 50); 
+			fitFcn->SetParLimits(0, 5, 500);
 			
-			fitFcn->SetParameter(1, 200); 			
-			fitFcn->SetParLimits(1, 100, 500);
+			//fitFcn->SetParameter(1, 200); 			
+			//fitFcn->SetParLimits(1, 100, 500);
 			
 			//fitFcn->SetParameter(2, 0.5); 			
 			//fitFcn->SetParLimits(2, 0, 1);
 			
-			fitFcn->SetParameter(3, 50); 			
-			fitFcn->SetParLimits(3, 5, 100);
+			//fitFcn->SetParameter(3, 50); 			
+			//fitFcn->SetParLimits(3, 5, 100);
 	
 			h1->Fit("fitFcn", "R");	
 			h1->Draw();	
