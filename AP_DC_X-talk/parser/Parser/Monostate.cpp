@@ -10,10 +10,10 @@ Monostate::~Monostate()
 {
 }
 
-const double Monostate::chi2_per_dof_th = 0.01;
+const double Monostate::chi2_per_dof_th = 5;
 
 
-const int Monostate::rec_lenght = 1000*10;
+const int Monostate::rec_lenght = 1000*5000;
 
 
 const int Monostate::time_pre = (20 / 0.2);
@@ -159,4 +159,31 @@ void Monostate::SaveHlists()
 	TFile oHlist_Hlist_f2_bad_old_time(s_Hlist_f2_bad_old_time.c_str(), "RECREATE");
 	Hlist_f2_bad_old_time.Write();
 	oHlist_Hlist_f2_bad_old_time.Close();
+
+
+	ofstream time_delta(Monostate::dir_name + "time_delta.dat");
+	ofstream file_dt(Monostate::dir_name + "dt.dat");
+	ofstream file_amp(Monostate::dir_name + "amp.dat");
+
+	string string_time_i = Monostate::dir_name + "time_i.dat";
+	FILE *f2 = fopen(string_time_i.c_str(), "r");
+
+	double x_old, x, y;
+	bool flag = 0;
+	while (!feof(f2))
+	{
+		fscanf(f2, "%lf %lf\n", &x, &y);
+
+		if (flag)
+		{
+			time_delta << x - x_old << "\t" << y << endl;
+			file_dt << x - x_old << endl;
+			file_amp << y << endl;
+		}
+
+		x_old = x;
+
+		flag = 1;
+	}
+
 }

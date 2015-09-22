@@ -20,9 +20,10 @@ public:
 
 	void Print_dt_amp();
 	void SaveGraphs(TObjArray &Hlist);	
+	void SaveAllGraphs();
 
 	static void CalculateDer(int type, int points);
-	static void FindStartStop();
+	static void FindStartStop(double time_dead_signal_noise, double time_dead_forward);
 	static void CalculateStartParameters(double time_dead); 
 	static void CalculateNumOfSignals(double time_dead);//найти число сигналов на участке по 2-й производной. Ќеобходимо задать мертвое врем€ в нс.
 	static void CreateFrontGraph();

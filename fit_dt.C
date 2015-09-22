@@ -8,7 +8,7 @@ Double_t fitFunction(Double_t *x,Double_t *par)
 { 
 	//return (par[0] / par[1] * TMath::Exp(- par[1] * x[0] ) + par[2] * par[3] * TMath::Exp(- par[3] * x[0] )) / (par[0] + par[2]); 
 	//return par[0] * TMath::Exp( - x[0] / par[1]) + par[2] * TMath::Exp( - x[0] / par[3]);
-	return 1.0 / par[0] * TMath::Exp( - x[0] / par[0]);
+	return par[1] * TMath::Exp( - x[0] / par[0]);
 }
 
 
@@ -21,7 +21,7 @@ void fit_dt(char name[])
 	
 	FILE *f = fopen(name,"r");
 	
-	const int n_bins = 20000;
+	const int n_bins = 500;
 	const double fit_range_min = 0;
 	const double fit_range_max = 2000;
 	
@@ -35,12 +35,12 @@ void fit_dt(char name[])
 		h1->Fill(x);
 	}	
 			
-			TF1 *fitFcn = new TF1("fitFcn", fitFunction, 0, 1700, 1);
+			TF1 *fitFcn = new TF1("fitFcn", fitFunction, 50, 1700, 2);
 							
 			Double_t norm = n_bins / (fit_range_max - fit_range_min);
 			Double_t scale = norm / (h1->Integral());
-			h1->Scale(scale);
-			
+			//h1->Scale(scale);
+						
 			fitFcn->SetParameter(0, 50); 
 			fitFcn->SetParLimits(0, 5, 500);
 			
@@ -54,7 +54,7 @@ void fit_dt(char name[])
 			//fitFcn->SetParLimits(3, 5, 100);
 	
 			h1->Fit("fitFcn", "R");	
-			h1->Draw();	
+			h1->Draw("EF");	
 			
 			//cout <<  fitFcn->GetChisquare() << endl;
 

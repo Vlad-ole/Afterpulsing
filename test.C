@@ -18,7 +18,7 @@ Double_t fitFunction(Double_t *x, Double_t *par)
 
 int main()
 {
-	double noise_amp = 300;
+	double noise_amp = 0;
 
 	vector<double> xv;
 	vector<double> yv;
@@ -26,21 +26,26 @@ int main()
 	vector<double> xverr;
 	vector<double> yverr;
 
+	double a = 5;
 	double y_0 = 3;
-	double x_0 = 3.5;
+	double x_0 = 100000.3; //error!
+	//double x_0 = 99999.3; // work well
 
 	//fill vectors ...
-	for (int i = -10; i < 20; i++)
+	for (int i = -20 + x_0; i < x_0 + 20; i++)
 	{
 		xv.push_back(i);
-		yv.push_back((pow((i - x_0) * 5, 2.0) + y_0) + noise_amp*gRandom->Uniform(-1, 1));
+		yv.push_back((pow((i - x_0) * a, 2.0) + y_0) + noise_amp*gRandom->Uniform(-1, 1));
 
 		xverr.push_back(0);
 		yverr.push_back(noise_amp);
 	}
 
+	TCanvas *c1 = new TCanvas("c1","A Simple Graph Example",200,10,700,500);
+	c1->SetGrid();
+	
 	TGraphErrors * gr = new TGraphErrors(xv.size(), &xv[0], &yv[0], &xverr[0], &yverr[0]);
-	TF1 *fitFcn = new TF1("fitFcn", fitFunction, -10, 20, 3);
+	TF1 *fitFcn = new TF1("fitFcn", fitFunction, -20 + x_0, x_0 + 20, 3);
 
 	gr->SetMarkerColor(4);
 	gr->SetMarkerStyle(kFullCircle);
@@ -51,13 +56,15 @@ int main()
 	fitFcn->SetParameter(1, 1);
 	fitFcn->SetParLimits(1, -100, 100);
 
-	fitFcn->SetParameter(2, 1);
-	fitFcn->SetParLimits(2, -10, 10);
+	fitFcn->SetParameter(2, x_0);
+	fitFcn->SetParLimits(2, -20 + x_0, 20 + x_0);
 
 	
-	ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit", "Simplex"); // change minimizer method
+	ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit", "Migrad"); // change minimizer method
 	gr->Fit("fitFcn", "R");
+	gr->Draw("AP");
+	
+	cout << setprecision(17) <<"Parameter(2) is " << fitFcn->GetParameter(2) << endl;
 
-	system("pause");
 	return 0;
 }

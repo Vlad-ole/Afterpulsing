@@ -4,6 +4,8 @@
 #include "TMath.h"
 #include "Monostate.h"
 #include <chrono>
+#include <iomanip>
+
 #include <Windows.h>
 
 #include "Math/MinimizerOptions.h"
@@ -39,7 +41,7 @@ RootFit::RootFit(short int number_of_functions)
 
 	gr_der2->SetLineColor(7);
 
-	gr_front = new TGraph(time_finish_index - time_start_index, &xv_front[0], &yv_front[0]);// problem
+	gr_front = new TGraph(time_finish_index - time_start_index, &xv_front[0], &yv_front[0]);
 	gr_front->SetMarkerColor(6);
 	gr_front->SetMarkerStyle(kFullCircle);
 	gr_front->SetMarkerSize(1);
@@ -58,6 +60,7 @@ RootFit::RootFit(short int number_of_functions)
 		fitFcn = new TF1("fitFcn", fitFunction_6, xv[time_start_index], xv[time_finish_index], 6 + 25);
 
 	//ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit", "Simplex");
+	//ROOT::Math::MinimizerOptions::SetDefaultPrecision(17);
 	ROOT::Math::MinimizerOptions::SetDefaultStrategy(2);
 }
 
@@ -256,7 +259,144 @@ void RootFit::SetParameters()
 
 }
 
+void RootFit::SaveAllGraphs()
+{
+	
+	if (this->number_of_functions == 1)
+	{
+		////записать графики с условием отбора
+		//bool flag_temp = Fit_single->fitFcn->GetParameter(0) < 0.03;
+		//if (flag_temp && Fit_single->GetChi2PerDof() < Monostate::chi2_per_dof_th)
+		//{
+		//	Fit_single->SaveGraphs(Monostate::Hlist_test);
+		//}		
+		
+		//записать все графики
+		this->SaveGraphs(Monostate::Hlist_f1);
 
+		//записать графики с плохим Chi2 после фита одной функцией
+		if (this->GetChi2PerDof() > Monostate::chi2_per_dof_th)
+		{
+			this->SaveGraphs(Monostate::Hlist_f1_bad);
+		}
+
+
+		if (this->GetChi2PerDof() < Monostate::chi2_per_dof_th)
+		{
+			//записать графики с хорошим Chi2 после фита одной функцией
+			this->SaveGraphs(Monostate::Hlist_f1_good);
+
+			//записать все графики после фита одной функцией
+			this->SaveGraphs(Monostate::Hlist_f2);
+		}
+
+		if (this->GetChi2PerDof() < Monostate::chi2_per_dof_th)
+			this->Print_dt_amp();
+	}
+
+	if (this->number_of_functions == 2)
+	{
+		////записать графики с условием отбора
+		//bool flag_temp = Fit_double->fitFcn->GetParameter(0) < 0.03 || Fit_double->fitFcn->GetParameter(6) < 0.03;
+		//if (flag_temp && Fit_double->GetChi2PerDof() < Monostate::chi2_per_dof_th)
+		//{
+		//	Fit_double->SaveGraphs(Monostate::Hlist_test);
+		//}
+
+		//записать все графики после фита одной функцией
+		this->SaveGraphs(Monostate::Hlist_f2);
+
+		//записать графики с плохим Chi2 после фита двумя функциями
+		if (this->GetChi2PerDof() > Monostate::chi2_per_dof_th)
+		{
+			this->SaveGraphs(Monostate::Hlist_f2_bad);
+		}
+
+
+		if (this->GetChi2PerDof() < Monostate::chi2_per_dof_th)
+		{
+			//записать графики с хорошим Chi2 после фита двумя функциями
+			this->SaveGraphs(Monostate::Hlist_f2_good);
+		}
+
+		if (this->GetChi2PerDof() < Monostate::chi2_per_dof_th)
+			this->Print_dt_amp();
+	}
+
+	if (this->number_of_functions == 3)
+	{
+		//записать графики с условием отбора
+		bool flag_temp = this->fitFcn->GetParameter(0) < 0.03 || this->fitFcn->GetParameter(6) < 0.03 || this->fitFcn->GetParameter(11) < 0.03;
+		if (flag_temp && this->GetChi2PerDof() < Monostate::chi2_per_dof_th)
+		{
+			this->SaveGraphs(Monostate::Hlist_test);
+		}
+
+		//записать графики, после фита тремя функциями
+		this->SaveGraphs(Monostate::Hlist_f3);
+
+		//записать графики с плохим Chi2 после фита тремя функциями
+		if (this->GetChi2PerDof() > Monostate::chi2_per_dof_th)
+		{
+			this->SaveGraphs(Monostate::Hlist_f3_bad);
+		}
+
+		//записать графики с хорошим Chi2 после фита тремя функциями
+		if (this->GetChi2PerDof() < Monostate::chi2_per_dof_th)
+		{
+			this->SaveGraphs(Monostate::Hlist_f3_good);
+		}
+
+		if (this->GetChi2PerDof() < Monostate::chi2_per_dof_th)
+			this->Print_dt_amp();
+
+		//if (fitFcn->GetParameter(0) > 0.02)
+		//{
+		//	
+		//	time_test << fitFcn_fnc3->GetParameter(1) << "\t" << fitFcn_fnc3->GetParameter(7) << "\t" << fitFcn_fnc3->GetParameter(13) << endl;
+
+		//} 
+	}
+
+
+	if (this->number_of_functions == 4)
+	{
+		//записать графики с плохим Chi2 после фита 4 функциями
+		if (this->GetChi2PerDof() > Monostate::chi2_per_dof_th)
+		{
+			this->SaveGraphs(Monostate::Hlist_f4_bad);
+		}
+
+		//записать графики с хорошим Chi2 после фита 4 функциями
+		if (this->GetChi2PerDof() < Monostate::chi2_per_dof_th)
+		{
+			this->SaveGraphs(Monostate::Hlist_f4_good);
+		}
+
+		if (this->GetChi2PerDof() < Monostate::chi2_per_dof_th)
+			this->Print_dt_amp();
+	}
+
+	if (this->number_of_functions == 5)
+	{
+		//if (Fit_quintuple->GetChi2PerDof() < Monostate::chi2_per_dof_th)
+		this->Print_dt_amp();
+
+		//записать графики с плохим Chi2 после фита 5 функциями
+		if (this->GetChi2PerDof() > Monostate::chi2_per_dof_th)
+		{
+			this->SaveGraphs(Monostate::Hlist_f5_bad);
+		}
+
+		//записать графики с хорошим Chi2 после фита 5 функциями
+		if (this->GetChi2PerDof() < Monostate::chi2_per_dof_th)
+		{
+			this->SaveGraphs(Monostate::Hlist_f5_good);
+		}
+	}
+
+
+}
 
 
 void RootFit::Print_dt_amp()
@@ -277,14 +417,14 @@ void RootFit::Print_dt_amp()
 
 	if (this->number_of_functions == 1)
 	{
-		Monostate::amp_chi2_fnc1 << fitFcn->GetParameter(0) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
-		Monostate::time_i << fitFcn->GetParameter(1) << "\t" << fitFcn->GetParameter(0) << endl;
+		Monostate::amp_chi2_fnc1 << setprecision(17) << fitFcn->GetParameter(0) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
+		Monostate::time_i << setprecision(17) << fitFcn->GetParameter(1) << "\t" << fitFcn->GetParameter(0) << endl;
 	}
 
 	if (this->number_of_functions == 2)
 	{
-		Monostate::amp_chi2_fnc1 << fitFcn->GetParameter(0) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
-		Monostate::amp_chi2_fnc1 << fitFcn->GetParameter(6) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
+		Monostate::amp_chi2_fnc1 << setprecision(17) << fitFcn->GetParameter(0) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
+		Monostate::amp_chi2_fnc1 << setprecision(17) << fitFcn->GetParameter(6) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
 
 		pr.first = fitFcn->GetParameter(1);
 		pr.second = fitFcn->GetParameter(0);
@@ -314,9 +454,9 @@ void RootFit::Print_dt_amp()
 
 	if (this->number_of_functions == 3)
 	{
-		Monostate::amp_chi2_fnc1 << fitFcn->GetParameter(0) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
-		Monostate::amp_chi2_fnc1 << fitFcn->GetParameter(6) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
-		Monostate::amp_chi2_fnc1 << fitFcn->GetParameter(11) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;	
+		Monostate::amp_chi2_fnc1 << setprecision(17) << fitFcn->GetParameter(0) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
+		Monostate::amp_chi2_fnc1 << setprecision(17) << fitFcn->GetParameter(6) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
+		Monostate::amp_chi2_fnc1 << setprecision(17) << fitFcn->GetParameter(11) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
 
 		pr.first = fitFcn->GetParameter(1);
 		pr.second = fitFcn->GetParameter(0);
@@ -332,18 +472,18 @@ void RootFit::Print_dt_amp()
 
 		sort(v_pairs.begin(), v_pairs.end(), sort_pred());
 
-		Monostate::time_i << v_pairs[0].first << "\t" << v_pairs[0].second << endl;
-		Monostate::time_i << v_pairs[1].first << "\t" << v_pairs[1].second << endl;
-		Monostate::time_i << v_pairs[2].first << "\t" << v_pairs[2].second << endl;
+		Monostate::time_i << setprecision(17) << v_pairs[0].first << "\t" << v_pairs[0].second << endl;
+		Monostate::time_i << setprecision(17) << v_pairs[1].first << "\t" << v_pairs[1].second << endl;
+		Monostate::time_i << setprecision(17) << v_pairs[2].first << "\t" << v_pairs[2].second << endl;
 
 	}
 
 	if (this->number_of_functions == 4)
 	{
-		Monostate::amp_chi2_fnc1 << fitFcn->GetParameter(0) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
-		Monostate::amp_chi2_fnc1 << fitFcn->GetParameter(6) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
-		Monostate::amp_chi2_fnc1 << fitFcn->GetParameter(11) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
-		Monostate::amp_chi2_fnc1 << fitFcn->GetParameter(11 + 5) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
+		Monostate::amp_chi2_fnc1 << setprecision(17) << fitFcn->GetParameter(0) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
+		Monostate::amp_chi2_fnc1 << setprecision(17) << fitFcn->GetParameter(6) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
+		Monostate::amp_chi2_fnc1 << setprecision(17) << fitFcn->GetParameter(11) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
+		Monostate::amp_chi2_fnc1 << setprecision(17) << fitFcn->GetParameter(11 + 5) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
 
 		pr.first = fitFcn->GetParameter(1);
 		pr.second = fitFcn->GetParameter(0);
@@ -363,20 +503,20 @@ void RootFit::Print_dt_amp()
 
 		sort(v_pairs.begin(), v_pairs.end(), sort_pred());
 
-		Monostate::time_i << v_pairs[0].first << "\t" << v_pairs[0].second << endl;
-		Monostate::time_i << v_pairs[1].first << "\t" << v_pairs[1].second << endl;
-		Monostate::time_i << v_pairs[2].first << "\t" << v_pairs[2].second << endl;
-		Monostate::time_i << v_pairs[3].first << "\t" << v_pairs[3].second << endl;
+		Monostate::time_i << setprecision(17) << v_pairs[0].first << "\t" << v_pairs[0].second << endl;
+		Monostate::time_i << setprecision(17) << v_pairs[1].first << "\t" << v_pairs[1].second << endl;
+		Monostate::time_i << setprecision(17) << v_pairs[2].first << "\t" << v_pairs[2].second << endl;
+		Monostate::time_i << setprecision(17) << v_pairs[3].first << "\t" << v_pairs[3].second << endl;
 
 	}
 
 	if (this->number_of_functions == 5)
 	{
-		Monostate::amp_chi2_fnc1 << fitFcn->GetParameter(0) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
-		Monostate::amp_chi2_fnc1 << fitFcn->GetParameter(6) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
-		Monostate::amp_chi2_fnc1 << fitFcn->GetParameter(11) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
-		Monostate::amp_chi2_fnc1 << fitFcn->GetParameter(11 + 5) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
-		Monostate::amp_chi2_fnc1 << fitFcn->GetParameter(11 + 10) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
+		Monostate::amp_chi2_fnc1 << setprecision(17) << fitFcn->GetParameter(0) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
+		Monostate::amp_chi2_fnc1 << setprecision(17) << fitFcn->GetParameter(6) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
+		Monostate::amp_chi2_fnc1 << setprecision(17) << fitFcn->GetParameter(11) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
+		Monostate::amp_chi2_fnc1 << setprecision(17) << fitFcn->GetParameter(11 + 5) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
+		Monostate::amp_chi2_fnc1 << setprecision(17) << fitFcn->GetParameter(11 + 10) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
 
 		pr.first = fitFcn->GetParameter(1);
 		pr.second = fitFcn->GetParameter(0);
@@ -400,11 +540,11 @@ void RootFit::Print_dt_amp()
 
 		sort(v_pairs.begin(), v_pairs.end(), sort_pred());
 
-		Monostate::time_i << v_pairs[0].first << "\t" << v_pairs[0].second << endl;
-		Monostate::time_i << v_pairs[1].first << "\t" << v_pairs[1].second << endl;
-		Monostate::time_i << v_pairs[2].first << "\t" << v_pairs[2].second << endl;
-		Monostate::time_i << v_pairs[3].first << "\t" << v_pairs[3].second << endl;
-		Monostate::time_i << v_pairs[4].first << "\t" << v_pairs[4].second << endl;
+		Monostate::time_i << setprecision(17) << v_pairs[0].first << "\t" << v_pairs[0].second << endl;
+		Monostate::time_i << setprecision(17) << v_pairs[1].first << "\t" << v_pairs[1].second << endl;
+		Monostate::time_i << setprecision(17) << v_pairs[2].first << "\t" << v_pairs[2].second << endl;
+		Monostate::time_i << setprecision(17) << v_pairs[3].first << "\t" << v_pairs[3].second << endl;
+		Monostate::time_i << setprecision(17) << v_pairs[4].first << "\t" << v_pairs[4].second << endl;
 
 	}
 	
@@ -498,13 +638,13 @@ void RootFit::Print_dt_amp()
 }
 
 
-void RootFit::FindStartStop()
+void RootFit::FindStartStop(double time_dead_signal_noise, double time_dead_forward)
 {
 	cout << endl << "Find start and stop" << endl;
 	
 	bool flag = 1;
-	double time_dead_1 = 10 /*5*/; // ns
-	double time_dead_2 = 50; // ns
+	//double time_dead_signal_noise = 10 /*5*/; // ns
+	//double time_dead_forward = 50; // ns
 
 	double x_time;
 	//поиск начала и конца 
@@ -546,6 +686,11 @@ void RootFit::FindStartStop()
 			
 		}
 	}
+
+
+
+
+
 }
 
 //найти число сигналов на участке по 2-й производной. Необходимо задать мертвое время в нс.
