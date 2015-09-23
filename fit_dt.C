@@ -35,7 +35,7 @@ void fit_dt(char name[])
 		h1->Fill(x);
 	}	
 			
-			TF1 *fitFcn = new TF1("fitFcn", fitFunction, 50, 1700, 2);
+			TF1 *fitFcn = new TF1("fitFcn", fitFunction, 180, 1700, 2);
 							
 			Double_t norm = n_bins / (fit_range_max - fit_range_min);
 			Double_t scale = norm / (h1->Integral());

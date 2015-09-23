@@ -82,6 +82,7 @@ int main()
 
 			RootFit::xv = xv; // передать вектора длины rec_lenght в класс RootFit
 			RootFit::yv = yv;
+			RootFit::temp_time_i = 0;
 
 			RootFit::CalculateDer(1, 51); // посчитать производную по данным (число точек должно быть нечетным)
 
@@ -93,6 +94,8 @@ int main()
 			RootFit::SetDispXY(0, 0.00113151);// записать вектора длины rec_lenght xverr и yverr значениеми ошибок
 
 			RootFit::time_shit = 100; // задать смещение по времени для учета базовой линии (в точках)
+
+			RootFit::PreviousIsSingle = false;
 
 			for (unsigned int i = 0; i < RootFit::time_finish.size(); i++)
 			{
@@ -152,6 +155,8 @@ int main()
 
 
 				}
+
+				//Monostate::file_dt <<  << endl;
 
 
 			}

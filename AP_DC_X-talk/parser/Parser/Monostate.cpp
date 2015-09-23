@@ -53,6 +53,9 @@ ofstream Monostate::amp_chi2_fnc1(dir_name + "amp_chi2_fnc1.dat");
 ofstream Monostate::amp_chi2_fnc2(dir_name + "amp_chi2_fnc2.dat");
 ofstream Monostate::amp_chi2_fnc3(dir_name + "amp_chi2_fnc3.dat");
 
+ofstream Monostate::time_delta(dir_name + "time_delta.dat");
+ofstream Monostate::file_dt(dir_name + "dt.dat");
+ofstream Monostate::file_amp(dir_name + "amp.dat");
 ofstream Monostate::time_i(dir_name + "time_i.dat");
 
 void Monostate::SaveHlists()
@@ -161,29 +164,27 @@ void Monostate::SaveHlists()
 	oHlist_Hlist_f2_bad_old_time.Close();
 
 
-	ofstream time_delta(Monostate::dir_name + "time_delta.dat");
-	ofstream file_dt(Monostate::dir_name + "dt.dat");
-	ofstream file_amp(Monostate::dir_name + "amp.dat");
+	
 
-	string string_time_i = Monostate::dir_name + "time_i.dat";
-	FILE *f2 = fopen(string_time_i.c_str(), "r");
+	//string string_time_i = Monostate::dir_name + "time_i.dat";
+	//FILE *f2 = fopen(string_time_i.c_str(), "r");
 
-	double x_old, x, y;
-	bool flag = 0;
-	while (!feof(f2))
-	{
-		fscanf(f2, "%lf %lf\n", &x, &y);
+	//double x_old, x, y;
+	//bool flag = 0;
+	//while (!feof(f2))
+	//{
+	//	fscanf(f2, "%lf %lf\n", &x, &y);
 
-		if (flag)
-		{
-			time_delta << x - x_old << "\t" << y << endl;
-			file_dt << x - x_old << endl;
-			file_amp << y << endl;
-		}
+	//	if (flag)
+	//	{
+	//		time_delta << x - x_old << "\t" << y << endl;
+	//		file_dt << x - x_old << endl;
+	//		file_amp << y << endl;
+	//	}
 
-		x_old = x;
+	//	x_old = x;
 
-		flag = 1;
-	}
+	//	flag = 1;
+	//}
 
 }

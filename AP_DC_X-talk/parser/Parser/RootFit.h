@@ -50,6 +50,8 @@ public:
 
 	static int current_signal;
 	
+	static bool PreviousIsSingle;
+	static double temp_time_i;
 
 //private:
 	

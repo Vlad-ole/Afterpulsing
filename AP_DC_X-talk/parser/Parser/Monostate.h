@@ -47,6 +47,9 @@ public:
 	static ofstream amp_chi2_fnc3;
 	
 	static ofstream time_i;
+	static ofstream time_delta;
+	static ofstream file_dt;
+	static ofstream file_amp;
 
 
 	const static int rec_lenght;

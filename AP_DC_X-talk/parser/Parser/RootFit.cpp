@@ -25,6 +25,9 @@ vector<double> RootFit::C_i_s;
 vector<double> RootFit::C_i_der;
 vector<double> RootFit::C_i_der2;
 
+bool RootFit::PreviousIsSingle;
+double RootFit::temp_time_i;
+
 RootFit::RootFit(short int number_of_functions)
 {
 	this->number_of_functions = number_of_functions;
@@ -290,6 +293,7 @@ void RootFit::SaveAllGraphs()
 			this->SaveGraphs(Monostate::Hlist_f2);
 		}
 
+		//печатать в файл амплитуду и время успешно фитированных импульсов
 		if (this->GetChi2PerDof() < Monostate::chi2_per_dof_th)
 			this->Print_dt_amp();
 	}
@@ -319,6 +323,7 @@ void RootFit::SaveAllGraphs()
 			this->SaveGraphs(Monostate::Hlist_f2_good);
 		}
 
+		//печатать в файл амплитуду и время успешно фитированных импульсов
 		if (this->GetChi2PerDof() < Monostate::chi2_per_dof_th)
 			this->Print_dt_amp();
 	}
@@ -347,6 +352,7 @@ void RootFit::SaveAllGraphs()
 			this->SaveGraphs(Monostate::Hlist_f3_good);
 		}
 
+		//печатать в файл амплитуду и время успешно фитированных импульсов
 		if (this->GetChi2PerDof() < Monostate::chi2_per_dof_th)
 			this->Print_dt_amp();
 
@@ -373,12 +379,14 @@ void RootFit::SaveAllGraphs()
 			this->SaveGraphs(Monostate::Hlist_f4_good);
 		}
 
+		//печатать в файл амплитуду и время успешно фитированных импульсов
 		if (this->GetChi2PerDof() < Monostate::chi2_per_dof_th)
 			this->Print_dt_amp();
 	}
 
 	if (this->number_of_functions == 5)
 	{
+		//печатать в файл амплитуду и время успешно фитированных импульсов
 		//if (Fit_quintuple->GetChi2PerDof() < Monostate::chi2_per_dof_th)
 		this->Print_dt_amp();
 
@@ -419,6 +427,20 @@ void RootFit::Print_dt_amp()
 	{
 		Monostate::amp_chi2_fnc1 << setprecision(17) << fitFcn->GetParameter(0) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
 		Monostate::time_i << setprecision(17) << fitFcn->GetParameter(1) << "\t" << fitFcn->GetParameter(0) << endl;
+
+		Monostate::file_amp << setprecision(17) << fitFcn->GetParameter(0) << endl;
+
+		if (!PreviousIsSingle)
+		{
+			temp_time_i = fitFcn->GetParameter(1);
+		}
+		else
+		{
+			Monostate::file_dt << fitFcn->GetParameter(1) - temp_time_i << endl;
+			temp_time_i = fitFcn->GetParameter(1);
+		}
+
+		PreviousIsSingle = true;
 	}
 
 	if (this->number_of_functions == 2)
@@ -438,18 +460,16 @@ void RootFit::Print_dt_amp()
 
 		Monostate::time_i << v_pairs[0].first << "\t" << v_pairs[0].second << endl;
 		Monostate::time_i << v_pairs[1].first << "\t" << v_pairs[1].second << endl;
-		
-		/*if (fitFcn->GetParameter(1) < fitFcn->GetParameter(7))
-		{
-			Monostate::time_i << fitFcn->GetParameter(1) << "\t" << fitFcn->GetParameter(0) << endl;
-			Monostate::time_i << fitFcn->GetParameter(7) << "\t" << fitFcn->GetParameter(6) << endl;
-		}
-		else
-		{
-			Monostate::time_i << fitFcn->GetParameter(7) << "\t" << fitFcn->GetParameter(6) << endl;
-			Monostate::time_i << fitFcn->GetParameter(1) << "\t" << fitFcn->GetParameter(0) << endl;
-		}*/
 
+		Monostate::file_amp << v_pairs[0].second << endl;
+		Monostate::file_amp << v_pairs[1].second << endl;
+
+		if (!PreviousIsSingle)
+			Monostate::file_dt << v_pairs[1].first - v_pairs[0].first << endl;
+		else
+			Monostate::file_dt << v_pairs[0].first - temp_time_i << endl;
+
+		PreviousIsSingle = false;
 	}
 
 	if (this->number_of_functions == 3)
@@ -476,6 +496,16 @@ void RootFit::Print_dt_amp()
 		Monostate::time_i << setprecision(17) << v_pairs[1].first << "\t" << v_pairs[1].second << endl;
 		Monostate::time_i << setprecision(17) << v_pairs[2].first << "\t" << v_pairs[2].second << endl;
 
+		Monostate::file_amp << v_pairs[0].second << endl;
+		Monostate::file_amp << v_pairs[1].second << endl;
+		Monostate::file_amp << v_pairs[2].second << endl;
+
+		if (!PreviousIsSingle)
+			Monostate::file_dt << v_pairs[1].first - v_pairs[0].first << endl;
+		else
+			Monostate::file_dt << v_pairs[0].first - temp_time_i << endl;
+
+		PreviousIsSingle = false;
 	}
 
 	if (this->number_of_functions == 4)
@@ -508,6 +538,17 @@ void RootFit::Print_dt_amp()
 		Monostate::time_i << setprecision(17) << v_pairs[2].first << "\t" << v_pairs[2].second << endl;
 		Monostate::time_i << setprecision(17) << v_pairs[3].first << "\t" << v_pairs[3].second << endl;
 
+		Monostate::file_amp << v_pairs[0].second << endl;
+		Monostate::file_amp << v_pairs[1].second << endl;
+		Monostate::file_amp << v_pairs[2].second << endl;
+		Monostate::file_amp << v_pairs[3].second << endl;
+
+		if (!PreviousIsSingle)
+			Monostate::file_dt << v_pairs[1].first - v_pairs[0].first << endl;
+		else
+			Monostate::file_dt << v_pairs[0].first - temp_time_i << endl;
+
+		PreviousIsSingle = false;
 	}
 
 	if (this->number_of_functions == 5)
@@ -546,94 +587,20 @@ void RootFit::Print_dt_amp()
 		Monostate::time_i << setprecision(17) << v_pairs[3].first << "\t" << v_pairs[3].second << endl;
 		Monostate::time_i << setprecision(17) << v_pairs[4].first << "\t" << v_pairs[4].second << endl;
 
+		Monostate::file_amp << v_pairs[0].second << endl;
+		Monostate::file_amp << v_pairs[1].second << endl;
+		Monostate::file_amp << v_pairs[2].second << endl;
+		Monostate::file_amp << v_pairs[3].second << endl;
+		Monostate::file_amp << v_pairs[4].second << endl;
+
+		if (!PreviousIsSingle)
+			Monostate::file_dt << v_pairs[1].first - v_pairs[0].first << endl;
+		else
+			Monostate::file_dt << v_pairs[0].first - temp_time_i << endl;
+
+		PreviousIsSingle = false;
+
 	}
-	
-	//Monostate::amp_chi2_fnc1 << ->GetParameter(0) << "\t" << fitFcn_fnc2->GetChisquare() / (time_finish[i] - time_start_index) << endl;
-	//amp_chi2_fnc2 << fitFcn_fnc2->GetParameter(6) << "\t" << fitFcn_fnc2->GetChisquare() / (time_finish[i] - time_start_index) << endl;
-
-	//if (fitFcn->GetParameter(0) > 0.02 && fitFcn_fnc2->GetChisquare() / (time_finish[i] - time_start_index) < chi2_per_dof)
-	//{
-	//	amp_chi2_fnc3 << fitFcn_fnc2->GetParameter(0) << "\t" << fitFcn_fnc2->GetChisquare() / (time_finish[i] - time_start_index) << endl;
-	//	amp_chi2_fnc3 << fitFcn_fnc2->GetParameter(6) << "\t" << fitFcn_fnc2->GetChisquare() / (time_finish[i] - time_start_index) << endl;
-
-	//	if (fitFcn_fnc2->GetParameter(1) > fitFcn_fnc2->GetParameter(7))
-	//	{
-	//		time_i << fitFcn_fnc2->GetParameter(7) << "\t" << fitFcn_fnc2->GetParameter(6) << endl;
-	//		time_i << fitFcn_fnc2->GetParameter(1) << "\t" << fitFcn_fnc2->GetParameter(0) << endl;
-
-	//	}
-	//	else
-	//	{
-	//		time_i << fitFcn_fnc2->GetParameter(1) << "\t" << fitFcn_fnc2->GetParameter(0) << endl;
-	//		time_i << fitFcn_fnc2->GetParameter(7) << "\t" << fitFcn_fnc2->GetParameter(6) << endl;
-
-	//	}
-
-	//}
-	//
-	//
-	//
-	//
-	//
-	//
-	//
-	//
-	//
-	//
-	//amp_chi2_fnc3 << fitFcn_fnc3->GetParameter(0) << "\t" << fitFcn_fnc3->GetChisquare() / (time_finish[i] - time_start_index) << endl;
-	//amp_chi2_fnc3 << fitFcn_fnc3->GetParameter(6) << "\t" << fitFcn_fnc3->GetChisquare() / (time_finish[i] - time_start_index) << endl;
-	//amp_chi2_fnc3 << fitFcn_fnc3->GetParameter(12) << "\t" << fitFcn_fnc3->GetChisquare() / (time_finish[i] - time_start_index) << endl;
-
-	//if (fitFcn_fnc3->GetParameter(1) < fitFcn_fnc3->GetParameter(7) && fitFcn_fnc3->GetParameter(1) < fitFcn_fnc3->GetParameter(13))
-	//{
-	//	if (fitFcn_fnc3->GetParameter(7) < fitFcn_fnc3->GetParameter(13))
-	//	{
-	//		time_i << fitFcn_fnc3->GetParameter(1) << "\t" << fitFcn_fnc3->GetParameter(0) << endl;
-	//		time_i << fitFcn_fnc3->GetParameter(7) << "\t" << fitFcn_fnc3->GetParameter(6) << endl;
-	//		time_i << fitFcn_fnc3->GetParameter(13) << "\t" << fitFcn_fnc3->GetParameter(12) << endl;
-	//	}
-	//	else
-	//	{
-	//		time_i << fitFcn_fnc3->GetParameter(1) << "\t" << fitFcn_fnc3->GetParameter(0) << endl;
-	//		time_i << fitFcn_fnc3->GetParameter(13) << "\t" << fitFcn_fnc3->GetParameter(12) << endl;
-	//		time_i << fitFcn_fnc3->GetParameter(7) << "\t" << fitFcn_fnc3->GetParameter(6) << endl;
-	//	}
-	//}
-
-	//if (fitFcn_fnc3->GetParameter(1) > fitFcn_fnc3->GetParameter(7) && fitFcn_fnc3->GetParameter(1) < fitFcn_fnc3->GetParameter(13))
-	//{
-	//	time_i << fitFcn_fnc3->GetParameter(7) << "\t" << fitFcn_fnc3->GetParameter(6) << endl;
-	//	time_i << fitFcn_fnc3->GetParameter(1) << "\t" << fitFcn_fnc3->GetParameter(0) << endl;
-	//	time_i << fitFcn_fnc3->GetParameter(13) << "\t" << fitFcn_fnc3->GetParameter(12) << endl;
-	//}
-
-	//if (fitFcn_fnc3->GetParameter(1) > fitFcn_fnc3->GetParameter(13) && fitFcn_fnc3->GetParameter(1) < fitFcn_fnc3->GetParameter(7))
-	//{
-
-	//	time_i << fitFcn_fnc3->GetParameter(13) << "\t" << fitFcn_fnc3->GetParameter(12) << endl;
-	//	time_i << fitFcn_fnc3->GetParameter(1) << "\t" << fitFcn_fnc3->GetParameter(0) << endl;
-	//	time_i << fitFcn_fnc3->GetParameter(7) << "\t" << fitFcn_fnc3->GetParameter(6) << endl;
-	//}
-
-
-	//if (fitFcn_fnc3->GetParameter(1) > fitFcn_fnc3->GetParameter(7) && fitFcn_fnc3->GetParameter(1) > fitFcn_fnc3->GetParameter(13))
-	//{
-	//	if (fitFcn_fnc3->GetParameter(7) < fitFcn_fnc3->GetParameter(13))
-	//	{
-	//		time_i << fitFcn_fnc3->GetParameter(7) << "\t" << fitFcn_fnc3->GetParameter(6) << endl;
-	//		time_i << fitFcn_fnc3->GetParameter(13) << "\t" << fitFcn_fnc3->GetParameter(12) << endl;
-	//		time_i << fitFcn_fnc3->GetParameter(1) << "\t" << fitFcn_fnc3->GetParameter(0) << endl;
-	//	}
-	//	else
-	//	{
-	//		time_i << fitFcn_fnc3->GetParameter(13) << "\t" << fitFcn_fnc3->GetParameter(12) << endl;
-	//		time_i << fitFcn_fnc3->GetParameter(7) << "\t" << fitFcn_fnc3->GetParameter(6) << endl;
-	//		time_i << fitFcn_fnc3->GetParameter(1) << "\t" << fitFcn_fnc3->GetParameter(0) << endl;
-	//	}
-
-	//}
-
-	
 
 }
 
@@ -658,16 +625,16 @@ void RootFit::FindStartStop(double time_dead_signal_noise, double time_dead_forw
 		}
 
 		//разрешить искать сигнал, когда сигнал дойдет до шумов и пройдет 5 нс
-		if (yv[i] > threshold_amp && flag == 0 && (xv[i] - x_time) > time_dead_1)
+		if (yv[i] > threshold_amp && flag == 0 && (xv[i] - x_time) > time_dead_signal_noise)
 		{
 			bool flag_2 = true;
 
 			//cout << i << "\t" << yv_der.size() << "\t" << i + 50 * 5 << "\t" << bool(yv_der.size() < i + 50 * 5) << endl;
 
 			//разрешить искать сигнал, только если впереди на time_dead_2 [ns] нет нового импульса
-			for (int j = i; j < i + time_dead_2 * 5; j++)
+			for (int j = i; j < i + time_dead_forward * 5; j++)
 			{
-				if (yv_der.size() > i + time_dead_2 * 5)
+				if (yv_der.size() > i + time_dead_forward * 5)
 				{
 					//cout << yv_der[j] << "\t" << j << "\t" << yv_der.size() << endl;
 					if (yv_der[j] < threshold_der)
