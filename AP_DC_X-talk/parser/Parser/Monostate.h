@@ -50,8 +50,7 @@ public:
 	static ofstream time_delta;
 	static ofstream file_dt;
 	static ofstream file_amp;
-
-
+	
 	const static int rec_lenght;
 
 	const static int time_pre;

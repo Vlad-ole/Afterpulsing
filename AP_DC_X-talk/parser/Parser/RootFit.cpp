@@ -25,8 +25,8 @@ vector<double> RootFit::C_i_s;
 vector<double> RootFit::C_i_der;
 vector<double> RootFit::C_i_der2;
 
-bool RootFit::PreviousIsSingle;
-double RootFit::temp_time_i;
+//bool RootFit::PreviousIsSingle;
+//double RootFit::temp_time_i;
 
 RootFit::RootFit(short int number_of_functions)
 {
@@ -265,7 +265,7 @@ void RootFit::SetParameters()
 void RootFit::SaveAllGraphs()
 {
 	
-	if (this->number_of_functions == 1)
+	if (this->number_of_functions == 1 )
 	{
 		////записать графики с условием отбора
 		//bool flag_temp = Fit_single->fitFcn->GetParameter(0) < 0.03;
@@ -430,7 +430,9 @@ void RootFit::Print_dt_amp()
 
 		Monostate::file_amp << setprecision(17) << fitFcn->GetParameter(0) << endl;
 
-		if (!PreviousIsSingle)
+		//Monostate::file_dt << fitFcn->GetParameter(1) << endl;
+		
+		/*if (!PreviousIsSingle)
 		{
 			temp_time_i = fitFcn->GetParameter(1);
 		}
@@ -440,7 +442,7 @@ void RootFit::Print_dt_amp()
 			temp_time_i = fitFcn->GetParameter(1);
 		}
 
-		PreviousIsSingle = true;
+		PreviousIsSingle = true;*/
 	}
 
 	if (this->number_of_functions == 2)
@@ -464,12 +466,14 @@ void RootFit::Print_dt_amp()
 		Monostate::file_amp << v_pairs[0].second << endl;
 		Monostate::file_amp << v_pairs[1].second << endl;
 
-		if (!PreviousIsSingle)
+		//Monostate::file_dt << v_pairs[1].first - v_pairs[0].first << endl;
+
+		/*if (!PreviousIsSingle)
 			Monostate::file_dt << v_pairs[1].first - v_pairs[0].first << endl;
 		else
 			Monostate::file_dt << v_pairs[0].first - temp_time_i << endl;
 
-		PreviousIsSingle = false;
+		PreviousIsSingle = false;*/
 	}
 
 	if (this->number_of_functions == 3)
@@ -500,12 +504,15 @@ void RootFit::Print_dt_amp()
 		Monostate::file_amp << v_pairs[1].second << endl;
 		Monostate::file_amp << v_pairs[2].second << endl;
 
-		if (!PreviousIsSingle)
+		//Monostate::file_dt << v_pairs[1].first - v_pairs[0].first << endl;
+		//Monostate::file_dt << v_pairs[2].first - v_pairs[1].first << endl;
+
+		/*if (!PreviousIsSingle)
 			Monostate::file_dt << v_pairs[1].first - v_pairs[0].first << endl;
 		else
 			Monostate::file_dt << v_pairs[0].first - temp_time_i << endl;
 
-		PreviousIsSingle = false;
+		PreviousIsSingle = false;*/
 	}
 
 	if (this->number_of_functions == 4)
@@ -543,12 +550,16 @@ void RootFit::Print_dt_amp()
 		Monostate::file_amp << v_pairs[2].second << endl;
 		Monostate::file_amp << v_pairs[3].second << endl;
 
-		if (!PreviousIsSingle)
+		//Monostate::file_dt << v_pairs[1].first - v_pairs[0].first << endl;
+		//Monostate::file_dt << v_pairs[2].first - v_pairs[1].first << endl;
+		//Monostate::file_dt << v_pairs[3].first - v_pairs[2].first << endl;
+
+		/*if (!PreviousIsSingle)
 			Monostate::file_dt << v_pairs[1].first - v_pairs[0].first << endl;
 		else
 			Monostate::file_dt << v_pairs[0].first - temp_time_i << endl;
 
-		PreviousIsSingle = false;
+		PreviousIsSingle = false;*/
 	}
 
 	if (this->number_of_functions == 5)
@@ -593,15 +604,77 @@ void RootFit::Print_dt_amp()
 		Monostate::file_amp << v_pairs[3].second << endl;
 		Monostate::file_amp << v_pairs[4].second << endl;
 
-		if (!PreviousIsSingle)
+		//Monostate::file_dt << v_pairs[1].first - v_pairs[0].first << endl;
+		///Monostate::file_dt << v_pairs[2].first - v_pairs[1].first << endl;
+		//Monostate::file_dt << v_pairs[3].first - v_pairs[2].first << endl;
+		//Monostate::file_dt << v_pairs[4].first - v_pairs[3].first << endl;
+
+		/*if (!PreviousIsSingle)
 			Monostate::file_dt << v_pairs[1].first - v_pairs[0].first << endl;
 		else
 			Monostate::file_dt << v_pairs[0].first - temp_time_i << endl;
 
-		PreviousIsSingle = false;
+		PreviousIsSingle = false;*/
 
 	}
 
+}
+
+void RootFit::CalculateStaircases_der(double time_dead)
+{
+	ofstream file_staitcase_der(Monostate::dir_name + "staitcase_der.dat");	
+	
+	bool flag = 1;
+	double x_time = 0;
+	int counter = 0;
+
+	for (double th = -0.001; th < 0; th += 0.00001)
+	{
+		for (unsigned int i = 0; i < xv.size(); i++)
+		{
+			if ((yv_der[i] < th) && flag)
+			{
+				x_time = xv[i];
+				flag = 0;
+				counter++;
+			}
+
+			if (yv_der[i] > th && (xv[i] - x_time) > (time_dead) && flag == 0)
+			{
+				flag = 1;
+			}
+		}
+
+		file_staitcase_der << th << "\t" << counter << endl;
+	}
+}
+
+void RootFit::CalculateStaircases_amp(double time_dead)
+{
+	ofstream file_staitcase_amp(Monostate::dir_name + "staitcase_amp.dat");
+	bool flag = 1;
+	double x_time = 0;
+	int counter = 0;
+
+	for (double th = -0.01; th < 0; th += 0.0001)
+	{
+		for (unsigned int i = 0; i < xv.size(); i++)
+		{
+			if ((yv[i] < th) && flag)
+			{
+				x_time = xv[i];
+				flag = 0;
+				counter++;
+			}
+
+			if (yv[i] > th && (xv[i] - x_time) > (time_dead) && flag == 0)
+			{
+				flag = 1;
+			}
+		}
+
+		file_staitcase_amp << th << "\t" << counter << endl;
+	}
 }
 
 
@@ -617,7 +690,7 @@ void RootFit::FindStartStop(double time_dead_signal_noise, double time_dead_forw
 	//поиск начала и конца 
 	for (unsigned int i = 0; i < xv.size(); i++)
 	{
-		if ((yv_der[i] < threshold_der) && flag)
+		if ((yv_der[i] < threshold_der && yv[i] < threshold_amp_start) && flag)
 		{
 			x_time = xv[i];
 			flag = 0;
@@ -680,7 +753,7 @@ void RootFit::CalculateNumOfSignals(double time_dead)
 				num_of_signals++;
 			}
 
-			if (yv_der2[i] > threshold_der2 && (i - x_time) > (time_dead_index) && flag == 0)
+			if (yv_der2[i] > threshold_der2 && (i - x_time) /* (xv[i] - x_time) > time_dead */ > (time_dead_index) && flag == 0)
 			{
 				flag = 1;
 			}
@@ -774,6 +847,8 @@ void RootFit::CalculateStartParameters(double time_dead)
 
 void RootFit::CalculateDer(int type, int points)
 {
+	
+	
 	cout << endl << "Calculate derivative" << endl;
 	
 	if (type == 0)
@@ -822,28 +897,42 @@ void RootFit::CalculateDer(int type, int points)
 			}
 			else
 			{
-				
-				value = 0;
-				for (int j = 0; j < C_i_s.size(); j++)
-				{
-					value += C_i_s[j] * yv[i - point_half + j];
-				}
-				yv_s.push_back(value);
-				
-				
-				value = 0;
-				for (int j = 0; j < C_i_der.size(); j++)
-				{
-					value += C_i_der[j] * yv[i - point_half + j];
-				}
-				yv_der.push_back(value);
 
-				value = 0;
-				for (int j = 0; j < C_i_der2.size(); j++)
+				#pragma omp parallel sections 
 				{
-					value += 2 * C_i_der2[j] * yv[i - point_half + j];
+	
+					/*#pragma omp section 
+					{
+						value = 0;
+						for (int j = 0; j < C_i_s.size(); j++)
+						{
+							value += C_i_s[j] * yv[i - point_half + j];
+						}
+						yv_s.push_back(value);
+					}*/
+
+					#pragma omp section
+					{
+						value = 0;
+						for (int j = 0; j < C_i_der.size(); j++)
+						{
+							value += C_i_der[j] * yv[i - point_half + j];
+						}
+						yv_der.push_back(value);
+					}
+
+					#pragma omp section 
+					{
+						value = 0;
+						for (int j = 0; j < C_i_der2.size(); j++)
+						{
+							value += 2 * C_i_der2[j] * yv[i - point_half + j];
+						}
+						yv_der2.push_back(value);
+					}
+
 				}
-				yv_der2.push_back(value);
+				
 
 			}
 

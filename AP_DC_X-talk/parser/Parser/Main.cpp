@@ -31,6 +31,7 @@ int RootFit::time_shit;
 double RootFit::threshold_der2;
 double RootFit::threshold_der;
 double RootFit::threshold_amp;
+double RootFit::threshold_amp_start;
 
 vector<double> RootFit::xv;
 vector<double> RootFit::yv;
@@ -79,23 +80,37 @@ int main()
 		// обработать записанную информацию. Нужно из-за большого размера файла
 		if (xv.size() % Monostate::rec_lenght == 0)
 		{
+			/*ofstream file_shift(Monostate::dir_name + "file_shift.dat");
+			int time_shift = 10 * 5; 
+			double A = 1;
+			for (int i = time_shift; i < xv.size(); i++)
+			{
+				file_shift << xv[i] << "\t" << yv[i] - A * yv[i - time_shift] << endl;
+			}
 
+			exit(0);*/
+			
 			RootFit::xv = xv; // передать вектора длины rec_lenght в класс RootFit
 			RootFit::yv = yv;
-			RootFit::temp_time_i = 0;
+			//RootFit::temp_time_i = 0;
 
 			RootFit::CalculateDer(1, 51); // посчитать производную по данным (число точек должно быть нечетным)
+			
+			//RootFit::CalculateStaircases_der(5); //time_dead in ns
+			//RootFit::CalculateStaircases_amp(10); //time_dead in ns
+			//exit(0);
 
 			RootFit::threshold_der2 = -1E-5;
-			RootFit::threshold_der = -2E-4;
+			RootFit::threshold_der = -3E-4;
 			RootFit::threshold_amp = -0.001;
-			RootFit::FindStartStop(5, 50); // найти начало и конец суммы сигналов
+			RootFit::threshold_amp_start = -0.005;
+			RootFit::FindStartStop(5, 20); // найти начало и конец суммы сигналов
 
 			RootFit::SetDispXY(0, 0.00113151);// записать вектора длины rec_lenght xverr и yverr значениеми ошибок
 
 			RootFit::time_shit = 100; // задать смещение по времени для учета базовой линии (в точках)
 
-			RootFit::PreviousIsSingle = false;
+			//RootFit::PreviousIsSingle = false;
 
 			for (unsigned int i = 0; i < RootFit::time_finish.size(); i++)
 			{
@@ -110,9 +125,11 @@ int main()
 				RootFit *Fit_single = new RootFit(1);
 				Fit_single->SetParameters();
 				Fit_single->DoFit();
-				Fit_single->SaveAllGraphs();
 
-				if (Fit_single->GetChi2PerDof() > Monostate::chi2_per_dof_th)
+				if (Fit_single->fitFcn->GetParameter(0) < 0.05)
+					Fit_single->SaveAllGraphs();
+
+				if (Fit_single->GetChi2PerDof() > Monostate::chi2_per_dof_th && Fit_single->fitFcn->GetParameter(0) < 0.05)
 				{
 					cout << "\t double ... " << endl;
 

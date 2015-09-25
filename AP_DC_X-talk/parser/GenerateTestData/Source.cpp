@@ -41,6 +41,52 @@ Double_t fitFunction(Double_t *x, Double_t *par)
 	return fitFunction_nobaseline(x, par) + V_0;
 }
 
+//плотность вероятности временных интервалов при учете быстрых послеимпульсов и темновых токов
+double f_dt_dc_fast(double t)
+{
+	double lam_f = 0.1;
+	double nu_f = 1 / 100.0;
+	double nu_dc = 1 * 1E-3;
+
+	double h_f = exp(-t * nu_f);
+
+	//double p_a = (exp(-lam_f) * (lam_f * nu_f * h_f * exp(lam_f * h_f))) / (1 - exp(-lam_f));
+
+	double p_f = exp(-lam_f) / (1 - exp(-lam_f)) * lam_f * nu_f * h_f * exp(lam_f * h_f);
+	double p_f_integral = exp(-lam_f) / (1 - exp(-lam_f)) * (exp(lam_f * h_f) - 1);
+
+	double p_dc = nu_dc * exp(-t* nu_dc);
+	double p_dc_integral = exp(-t* nu_dc);
+
+	return p_f * p_dc_integral + p_f_integral * p_dc;
+}
+
+//получить значение dt, которое имеет плотность вероятности f_dt_dc_fast(dt)
+double Get_dt()
+{
+	double x;
+	double a = 0;
+	double b = 1000;
+	double f_max = f_dt_dc_fast(0);
+
+	while (true)
+	{
+		double k1 = gRandom->Uniform(0, 1);
+		double k2 = gRandom->Uniform(0, 1);
+
+		x = a + k1* (b - a);
+		double y = k2 * f_max;
+
+		if (y <= f_dt_dc_fast(x))
+		{
+			break;
+		}
+
+	}
+
+	return x;
+}
+
 
 int main()
 {
@@ -131,7 +177,8 @@ int main()
 		}
 		
 		//double dt = 20;
-		double dt = gRandom->Exp(150);
+		//double dt = gRandom->Exp(150);
+		double dt = Get_dt();
 		time_i += dt;
 		
 		int b = time_i * 5;

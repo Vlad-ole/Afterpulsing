@@ -23,6 +23,8 @@ public:
 	void SaveAllGraphs();
 
 	static void CalculateDer(int type, int points);
+	static void CalculateStaircases_der(double time_dead);
+	static void CalculateStaircases_amp(double time_dead);
 	static void FindStartStop(double time_dead_signal_noise, double time_dead_forward);
 	static void CalculateStartParameters(double time_dead); 
 	static void CalculateNumOfSignals(double time_dead);//найти число сигналов на участке по 2-й производной. Ќеобходимо задать мертвое врем€ в нс.
@@ -47,11 +49,12 @@ public:
 	static double threshold_der;
 	static double threshold_der2;
 	static double threshold_amp;
+	static double threshold_amp_start;
 
 	static int current_signal;
 	
-	static bool PreviousIsSingle;
-	static double temp_time_i;
+	//static bool PreviousIsSingle;
+	//static double temp_time_i;
 
 //private:
 	
