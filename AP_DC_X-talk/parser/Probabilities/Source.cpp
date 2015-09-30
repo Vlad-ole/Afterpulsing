@@ -10,9 +10,9 @@ using namespace std;
 //плотность вероятности временных интервалов при учете быстрых послеимпульсов и темновых токов
 double f_dt_dc_fast(double t)
 {
-	double lam_f = 0.00000001;
-	double nu_f = 1 / 100.0;
-	double nu_dc = 1 * 1E-3;
+	double lam_f = 0.01;
+	double nu_f = 1 / 1000.0;
+	double nu_dc = 100 * 1E-6;
 
 	double h_f = exp(-t * nu_f);
 
@@ -36,7 +36,7 @@ double p_a(double t)
 
 double f_exp(double t)
 {
-	double tau = 5;
+	double tau = 50;
 	return 1 / tau * exp( - t / tau);
 }
 
@@ -45,7 +45,7 @@ double Get_dt()
 	double x;
 	double a = 0;
 	double b = 1000;
-	double f_max = f_dt_dc_fast(0);
+	double f_max = f_exp(0);
 
 	while (true)
 	{
@@ -55,7 +55,7 @@ double Get_dt()
 		x = a + k1* (b - a);
 		double y = k2 * f_max;
 
-		if (y <= f_dt_dc_fast(x))
+		if (y <= f_exp(x))
 		{
 			break;
 		}
@@ -71,22 +71,23 @@ int main()
 	ofstream file_out("D:\\Data_work\\probabilities.txt");
 	double temp = 0;
 
-	double N = 1000;
+	double N = 5000;
+	double step = 0.01;
 
-	for (double i = 0; i < N; i += 0.01)
+	for (double i = 0; i < N; i += step)
 	{
-		//file_out << Get_dt() << endl;
+		file_out << Get_dt() << endl;
 
 		if (int(i) % 200 == 0)
 		{
 			cout << "progress is " << i / N * 100 << endl;
 		}
 
-		file_out << i << "\t" << f_dt_dc_fast(i) << endl;
-		temp += f_dt_dc_fast(i);
+		//file_out << i << "\t" << f_exp(i) << endl;
+		//temp += f_exp(i);
 	}
 
-	cout << temp * 0.01 << endl;
+	cout << temp * step << endl;
 
 	system("pause");
 	return 0;

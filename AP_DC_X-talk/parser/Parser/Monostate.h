@@ -42,6 +42,9 @@ public:
 
 	static TObjArray Hlist_f3_bad_new_time;
 
+	static TObjArray Hlist_reco_time_good;
+	static TObjArray Hlist_reco_time_bad;
+
 	static ofstream amp_chi2_fnc1;
 	static ofstream amp_chi2_fnc2;
 	static ofstream amp_chi2_fnc3;
@@ -50,6 +53,7 @@ public:
 	static ofstream time_delta;
 	static ofstream file_dt;
 	static ofstream file_amp;
+	static ofstream file_long_dt;
 	
 	const static int rec_lenght;
 

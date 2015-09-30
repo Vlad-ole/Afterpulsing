@@ -13,7 +13,7 @@ Monostate::~Monostate()
 const double Monostate::chi2_per_dof_th = 5;
 
 
-const int Monostate::rec_lenght = 1000*10000;
+const int Monostate::rec_lenght = 1000*5000;
 
 
 const int Monostate::time_pre = (20 / 0.2);
@@ -47,6 +47,11 @@ TObjArray Monostate::Hlist_f5_bad(0);
 TObjArray Monostate::Hlist_f2_bad_new_time(0);
 TObjArray Monostate::Hlist_f2_bad_old_time(0);
 
+
+//average
+TObjArray Monostate::Hlist_reco_time_bad(0);
+TObjArray Monostate::Hlist_reco_time_good(0);
+
 TObjArray Monostate::Hlist_f3_bad_new_time(0);
 
 ofstream Monostate::amp_chi2_fnc1(dir_name + "amp_chi2_fnc1.dat");
@@ -57,11 +62,16 @@ ofstream Monostate::time_delta(dir_name + "time_delta.dat");
 ofstream Monostate::file_dt(dir_name + "dt.dat");
 ofstream Monostate::file_amp(dir_name + "amp.dat");
 ofstream Monostate::time_i(dir_name + "time_i.dat");
+ofstream Monostate::file_long_dt(dir_name + "long_dt.dat");
 
 
 void Monostate::SaveHlists()
 {
 	string s_Hlist_test = dir_name + "Hlist_test.root";
+	
+	//average
+	string s_Hlist_good_time = dir_name + "Hlist_good_time.root";
+	string s_Hlist_bad_time = dir_name + "Hlist_bad_time.root";
 	
 	string s_Hlist_f1 = dir_name + "Hlist_f1.root";
 	string s_Hlist_f1_good = dir_name + "Hlist_f1_good.root";
@@ -92,6 +102,17 @@ void Monostate::SaveHlists()
 	Hlist_test.Write();
 	ofile_Hlist_test.Close();
 	
+
+	//average
+	TFile ofile_Hlist_good_time(s_Hlist_good_time.c_str(), "RECREATE");
+	Hlist_reco_time_good.Write();
+	ofile_Hlist_good_time.Close();
+
+	TFile ofile_Hlist_bad_time(s_Hlist_bad_time.c_str(), "RECREATE");
+	Hlist_reco_time_bad.Write();
+	ofile_Hlist_bad_time.Close();
+
+
 	//f1
 	TFile ofile_Hlist_f1(s_Hlist_f1.c_str(), "RECREATE");
 	Hlist_f1.Write();
@@ -167,28 +188,28 @@ void Monostate::SaveHlists()
 
 	
 
-	string string_time_i = Monostate::dir_name + "time_i.dat";
-	FILE *f2 = fopen(string_time_i.c_str(), "r");
+	//string string_time_i = Monostate::dir_name + "time_i.dat";
+	//FILE *f2 = fopen(string_time_i.c_str(), "r");
 
-	double x_old, x, y;
-	bool flag = 0;
-	while (!feof(f2))
-	{
-		fscanf(f2, "%lf %lf\n", &x, &y);
-		
-		//if (y > 0.02) // отбросить события, вызванные шумами
-		{
-			if (flag)
-			{
-				time_delta << x - x_old << "\t" << y << endl;
-				file_dt << x - x_old << endl;
-				file_amp << y << endl;
-			}
-			x_old = x;
+	//double x_old, x, y;
+	//bool flag = 0;
+	//while (!feof(f2))
+	//{
+	//	fscanf(f2, "%lf %lf\n", &x, &y);
+	//	
+	//	//if (y > 0.02) // отбросить события, вызванные шумами
+	//	{
+	//		if (flag)
+	//		{
+	//			time_delta << x - x_old << "\t" << y << endl;
+	//			file_dt << x - x_old << endl;
+	//			file_amp << y << endl;
+	//		}
+	//		x_old = x;
 
-			flag = 1;
-		}
+	//		flag = 1;
+	//	}
 
-	}
+	//}
 
 }

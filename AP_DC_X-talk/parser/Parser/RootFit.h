@@ -30,7 +30,7 @@ public:
 	static void CalculateNumOfSignals(double time_dead);//найти число сигналов на участке по 2-й производной. Ќеобходимо задать мертвое врем€ в нс.
 	static void CreateFrontGraph();
 	static void SetDispXY(double x = 0, double y = 0);
-	
+	static void CalculateAverageSignal(double time_dead);
 
 	short int number_of_functions;
 	
@@ -54,6 +54,8 @@ public:
 	static int current_signal;
 	
 	//static bool PreviousIsSingle;
+	static bool previousIs1e;
+	static double previous_time;
 	//static double temp_time_i;
 
 //private:

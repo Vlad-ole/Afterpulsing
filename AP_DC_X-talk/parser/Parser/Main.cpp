@@ -104,6 +104,12 @@ int main()
 			RootFit::threshold_der = -3E-4;
 			RootFit::threshold_amp = -0.001;
 			RootFit::threshold_amp_start = -0.005;
+
+			RootFit::CalculateAverageSignal(200); //time_dead in ns
+			
+			//system("pause");
+			//exit(0);
+
 			RootFit::FindStartStop(5, 20); // найти начало и конец суммы сигналов
 
 			RootFit::SetDispXY(0, 0.00113151);// записать вектора длины rec_lenght xverr и yverr значениеми ошибок
@@ -111,72 +117,74 @@ int main()
 			RootFit::time_shit = 100; // задать смещение по времени для учета базовой линии (в точках)
 
 			//RootFit::PreviousIsSingle = false;
+			RootFit::previousIs1e = true;
 
-			for (unsigned int i = 0; i < RootFit::time_finish.size(); i++)
-			{
-				long int temp = GetTickCount();
-				cout << endl << "calculate fit ... " << i + 1 << " run time is (in s) \t" << (temp - before) / 1000.0 << endl;
+			//for (unsigned int i = 0; i < RootFit::time_finish.size(); i++)
+			//{
+			//	long int temp = GetTickCount();
+			//	cout << endl << "calculate fit ... " << i + 1 << " run time is (in s) \t" << (temp - before) / 1000.0 << endl;
 
-				RootFit::current_signal = i;
-				RootFit::CalculateStartParameters(5/*5*/);//вычислить стартовые параметры. Параметр - мертвое время производной в нс	
-				RootFit::CalculateNumOfSignals(3);
-				RootFit::CreateFrontGraph();
+			//	
+			//	
+			//	RootFit::current_signal = i;
+			//	RootFit::CalculateStartParameters(5/*5*/);//вычислить стартовые параметры. Параметр - мертвое время производной в нс	
+			//	RootFit::CalculateNumOfSignals(3);
+			//	RootFit::CreateFrontGraph();
 
-				RootFit *Fit_single = new RootFit(1);
-				Fit_single->SetParameters();
-				Fit_single->DoFit();
-
-				if (Fit_single->fitFcn->GetParameter(0) < 0.05)
-					Fit_single->SaveAllGraphs();
-
-				if (Fit_single->GetChi2PerDof() > Monostate::chi2_per_dof_th && Fit_single->fitFcn->GetParameter(0) < 0.05)
-				{
-					cout << "\t double ... " << endl;
-
-					RootFit *Fit_double = new RootFit(2);
-					Fit_double->SetParameters();
-					Fit_double->DoFit();
-					Fit_double->SaveAllGraphs();
+			//	RootFit *Fit_single = new RootFit(1);
+			//	Fit_single->SetParameters();
+			//	Fit_single->DoFit();
+			//	Fit_single->SaveAllGraphs();
 
 
-					if (Fit_double->GetChi2PerDof() > Monostate::chi2_per_dof_th)
-					{
-						cout << "\t \t triple ... " << endl;
+			//	if (Fit_single->GetChi2PerDof() > Monostate::chi2_per_dof_th)
+			//	{
+			//		cout << "\t double ... " << endl;
 
-						RootFit *Fit_triple = new RootFit(3);
-						Fit_triple->SetParameters();
-						Fit_triple->DoFit();
-						Fit_triple->SaveAllGraphs();
-
-						if (Fit_triple->GetChi2PerDof() > Monostate::chi2_per_dof_th)
-						{
-							cout << "\t \t \t quadruple ... " << endl;
-							RootFit *Fit_quadruple = new RootFit(4);
-							Fit_quadruple->SetParameters();
-							Fit_quadruple->DoFit();
-							Fit_quadruple->SaveAllGraphs();
-
-							if (Fit_quadruple->GetChi2PerDof() > Monostate::chi2_per_dof_th)
-							{
-								cout << "\t \t \t \t quintuple ... " << endl;
-								RootFit *Fit_quintuple = new RootFit(5);
-								Fit_quintuple->SetParameters();
-								Fit_quintuple->DoFit();
-								Fit_quintuple->SaveAllGraphs();
-
-							}
-
-						}
-
-					}
+			//		RootFit *Fit_double = new RootFit(2);
+			//		Fit_double->SetParameters();
+			//		Fit_double->DoFit();
+			//		Fit_double->SaveAllGraphs();
 
 
-				}
+			//		if (Fit_double->GetChi2PerDof() > Monostate::chi2_per_dof_th)
+			//		{
+			//			cout << "\t \t triple ... " << endl;
 
-				//Monostate::file_dt <<  << endl;
+			//			RootFit *Fit_triple = new RootFit(3);
+			//			Fit_triple->SetParameters();
+			//			Fit_triple->DoFit();
+			//			Fit_triple->SaveAllGraphs();
+
+			//			if (Fit_triple->GetChi2PerDof() > Monostate::chi2_per_dof_th)
+			//			{
+			//				cout << "\t \t \t quadruple ... " << endl;
+			//				RootFit *Fit_quadruple = new RootFit(4);
+			//				Fit_quadruple->SetParameters();
+			//				Fit_quadruple->DoFit();
+			//				Fit_quadruple->SaveAllGraphs();
+
+			//				if (Fit_quadruple->GetChi2PerDof() > Monostate::chi2_per_dof_th)
+			//				{
+			//					cout << "\t \t \t \t quintuple ... " << endl;
+			//					RootFit *Fit_quintuple = new RootFit(5);
+			//					Fit_quintuple->SetParameters();
+			//					Fit_quintuple->DoFit();
+			//					Fit_quintuple->SaveAllGraphs();
+
+			//				}
+
+			//			}
+
+			//		}
 
 
-			}
+			//	}
+
+			//	//Monostate::file_dt <<  << endl;
+
+
+			//}
 
 			//RootFit::Print_dt_amp();
 

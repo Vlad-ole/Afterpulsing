@@ -13,6 +13,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestNamespace", "TestNamesp
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Probabilities", "Probabilities\Probabilities.vcxproj", "{3587AE0A-8BC9-49F6-87FC-80157AAD9D33}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Parallel", "Parallel\Parallel.vcxproj", "{58F063BC-9844-43A1-93FA-48499870CF33}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -39,6 +41,10 @@ Global
 		{3587AE0A-8BC9-49F6-87FC-80157AAD9D33}.Debug|Win32.Build.0 = Debug|Win32
 		{3587AE0A-8BC9-49F6-87FC-80157AAD9D33}.Release|Win32.ActiveCfg = Release|Win32
 		{3587AE0A-8BC9-49F6-87FC-80157AAD9D33}.Release|Win32.Build.0 = Release|Win32
+		{58F063BC-9844-43A1-93FA-48499870CF33}.Debug|Win32.ActiveCfg = Debug|Win32
+		{58F063BC-9844-43A1-93FA-48499870CF33}.Debug|Win32.Build.0 = Debug|Win32
+		{58F063BC-9844-43A1-93FA-48499870CF33}.Release|Win32.ActiveCfg = Release|Win32
+		{58F063BC-9844-43A1-93FA-48499870CF33}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

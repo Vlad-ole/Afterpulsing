@@ -93,12 +93,13 @@ int main()
 	ofstream file_out("D:\\Data_work\\tektronix_signal\\295K\\295K_73.90\\raw\\test_signal_pure.txt");
 	ofstream file_ti("D:\\Data_work\\tektronix_signal\\295K\\295K_73.90\\raw\\test_signal_ti_pure.txt");
 	ofstream file_ti_hist("D:\\Data_work\\tektronix_signal\\295K\\295K_73.90\\raw\\test_signal_ti_hist_pure.txt");
-	//const double noise_amp = 0.001;
+	
 	
 
 	const int cycles = 10000;
 	const int signal_length = 2001;
 	
+	//const double noise_amp = 0.001;
 	const double noise_amp = 0;
 	const double ampl = 0.04;
 
@@ -176,9 +177,11 @@ int main()
 			cout << "calculate ... " << double(k) / cycles * 100 << " %" << endl;
 		}
 		
+		// выбрать закон распределения временных интервалов
 		//double dt = 20;
-		//double dt = gRandom->Exp(150);
-		double dt = Get_dt();
+		double dt = gRandom->Exp(150);
+		//double dt = Get_dt();
+
 		time_i += dt;
 		
 		int b = time_i * 5;
@@ -270,8 +273,11 @@ int main()
 	cout << "write in file..." << endl;
 	for (int i = 0; i < cycles * signal_length; i++)
 	{
-
 		file_out << i*0.2 << "\t" << yv[i] << endl;
+		if (i % 10000 == 0)
+		{
+			cout << (i * 100.0) / (cycles * signal_length) << " %" << endl;
+		}
 	}
 
 	system("pause");
