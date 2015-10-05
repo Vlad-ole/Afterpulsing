@@ -956,92 +956,95 @@ void RootFit::CalculateDer(int type, int points)
 		//system("pause");
 
 
-		int point_half = (points - 1) / 2.0;
-		double value;
+		const int point_half = (points - 1) / 2.0;
+		//double value;
 
-
-
-
-		for (unsigned int i = 0; i < xv.size(); i++)
+#pragma omp parallel sections
 		{
-			if (i % 100000 == 0)
-			{
-				//long int temp_2 = GetTickCount();
-				cout << "calculate derivative ... " << double(i) / xv.size() * 100 << " %" << endl;
-			}
 
-			if (i < point_half || i >(xv.size() - point_half - 1))
+#pragma omp section
 			{
-				//yv_s.push_back(0);
-				yv_der.push_back(0);
-			}
-			else
-			{
+				for (unsigned int i = 0; i < xv.size(); i++)
+				{
+					if (i % 100000 == 0)
+					{
+						//long int temp_2 = GetTickCount();
+						cout << "calculate derivative ... " << double(i) / xv.size() * 100 << " %" << endl;
+					}
 
-				/*#pragma omp section
-				{
-				value = 0;
-				for (int j = 0; j < C_i_s.size(); j++)
-				{
-				value += C_i_s[j] * yv[i - point_half + j];
+					if (i < point_half || i >(xv.size() - point_half - 1))
+					{
+						//yv_s.push_back(0);
+						yv_der.push_back(0);
+					}
+					else
+					{
+
+						/*#pragma omp section
+						{
+						value = 0;
+						for (int j = 0; j < C_i_s.size(); j++)
+						{
+						value += C_i_s[j] * yv[i - point_half + j];
+						}
+						yv_s.push_back(value);
+						}*/
+
+
+						double value = 0;
+						for (int j = 0; j < C_i_der.size(); j++)
+						{
+							value += C_i_der[j] * yv[i - point_half + j];
+						}
+						yv_der.push_back(value);
+
+					}
+
 				}
-				yv_s.push_back(value);
-				}*/
-
-
-				value = 0;
-				for (int j = 0; j < C_i_der.size(); j++)
-				{
-					value += C_i_der[j] * yv[i - point_half + j];
-				}
-				yv_der.push_back(value);
-
 			}
 
+
+#pragma omp section
+			{
+				for (unsigned int i = 0; i < xv.size(); i++)
+				{
+					if (i % 100000 == 0)
+					{
+						//long int temp_2 = GetTickCount();
+						cout << "calculate derivative 2 ... " << double(i) / xv.size() * 100 << " %" << endl;
+					}
+
+					if (i < point_half || i >(xv.size() - point_half - 1))
+					{
+						//yv_s.push_back(0);
+						yv_der2.push_back(0);
+					}
+					else
+					{
+
+						/*#pragma omp section
+						{
+						value = 0;
+						for (int j = 0; j < C_i_s.size(); j++)
+						{
+						value += C_i_s[j] * yv[i - point_half + j];
+						}
+						yv_s.push_back(value);
+						}*/
+
+						double value = 0;
+						for (int j = 0; j < C_i_der2.size(); j++)
+						{
+							value += 2 * C_i_der2[j] * yv[i - point_half + j];
+						}
+						yv_der2.push_back(value);
+
+					}
+
+
+				}
+			}
 		}
-
-
-
-
-		for (unsigned int i = 0; i < xv.size(); i++)
-		{
-			if (i % 100000 == 0)
-			{
-				//long int temp_2 = GetTickCount();
-				cout << "calculate derivative 2 ... " << double(i) / xv.size() * 100 << " %" << endl;
-			}
-
-			if (i < point_half || i >(xv.size() - point_half - 1))
-			{
-				//yv_s.push_back(0);
-				yv_der2.push_back(0);
-			}
-			else
-			{
-
-				/*#pragma omp section
-				{
-				value = 0;
-				for (int j = 0; j < C_i_s.size(); j++)
-				{
-				value += C_i_s[j] * yv[i - point_half + j];
-				}
-				yv_s.push_back(value);
-				}*/
-
-				value = 0;
-				for (int j = 0; j < C_i_der2.size(); j++)
-				{
-					value += 2 * C_i_der2[j] * yv[i - point_half + j];
-				}
-				yv_der2.push_back(value);
-
-			}
-
-
-		}
-
-
 
 
 	}
@@ -1264,13 +1267,13 @@ void RootFit::CalculateAverageSignal(double time_dead_forward)
 
 
 	double time_dead_der = 5; // ns
-	double threshold_1e = -0.008;
-	double threshold_2e = 2 * threshold_1e;
+	double threshold_1e = -0.01;
+	double threshold_2e = -0.015;
 	
 	//бежать по времени
 	for (unsigned int i = 0; i < xv.size(); i++)
 	{
-		if ((yv_der[i] < threshold_der && yv[i] < threshold_amp_start) && flag)
+		if ((yv_der[i] < threshold_der /*&& yv[i] < threshold_amp_start*/) && flag && (i + int(time_dead_forward * 5)) < xv.size())
 		{
 			x_time = xv[i];
 			flag = 0;
@@ -1302,31 +1305,47 @@ void RootFit::CalculateAverageSignal(double time_dead_forward)
 			double amplitude = 5000;
 			if (total_num_pulsing == 1) 
 			{
-				for (int j = i - int(time_dead_forward * 5); j < i + int(time_dead_forward * 5); j++) // нахождение максимальной амплитуды
+				for (int j = /*i - int(time_dead_forward * 5)*/ i; j < i + int(time_dead_forward * 5); j++) // нахождение максимальной амплитуды
 				{
 					if (yv[j] < amplitude)
 						amplitude = yv[j];
 				}
 
 				TGraph *gr = new TGraph(int(time_dead_forward * 5) + int(time_dead_forward * 5), &xv[i - int(time_dead_forward * 5)], &yv[i - int(time_dead_forward * 5)]);
+				TGraph *gr_der = new TGraph(int(time_dead_forward * 5) + int(time_dead_forward * 5), &xv[i - int(time_dead_forward * 5)], &yv_der[i - int(time_dead_forward * 5)]);
+				TGraph *gr_der2 = new TGraph(int(time_dead_forward * 5) + int(time_dead_forward * 5), &xv[i - int(time_dead_forward * 5)], &yv_der2[i - int(time_dead_forward * 5)]);
 
-				if (amplitude > -0.008)
-				{
-					Monostate::Hlist_reco_time_bad.Add(gr);
-				}
+				gr->SetMarkerColor(4);
+				gr->SetMarkerStyle(kFullCircle);
 
-				Monostate::Hlist_reco_time_good.Add(gr);
+				gr_der2->SetLineColor(7);
 
+				for (int i = 0; i < gr_der->GetN(); i++) gr_der->GetY()[i] *= 50;
+				for (int i = 0; i < gr_der2->GetN(); i++) gr_der2->GetY()[i] *= 500;
+
+				TMultiGraph *mg = new TMultiGraph();
+				mg->Add(gr);
+				mg->Add(gr_der);
+				mg->Add(gr_der2);
+
+				
+				
 				file_amp_average_mode << abs(amplitude) << endl;
 
-				if (amplitude > threshold_2e && amplitude < threshold_1e) // проверка, что импульс одноэлектронный
+				if (amplitude > threshold_2e && amplitude < threshold_1e && yv[i - int(time_dead_forward * 5)] > (threshold_1e * 0.5) ) // проверка, что импульс одноэлектронный
 				{
+
+					Monostate::Hlist_reco_time_good.Add(mg);
 
 					num_of_signals++;
 					for (int j = -int(time_dead_forward * 5); j < int(time_dead_forward * 5); j++)// запись значений в вектор среднего
 					{
 						yv_average[j + int(time_dead_forward * 5)] += yv[i + j];
 					}
+				}
+				else
+				{
+					Monostate::Hlist_reco_time_bad.Add(mg);
 				}
 
 			}

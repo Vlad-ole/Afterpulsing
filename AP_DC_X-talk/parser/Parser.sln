@@ -15,6 +15,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Probabilities", "Probabilit
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Parallel", "Parallel\Parallel.vcxproj", "{58F063BC-9844-43A1-93FA-48499870CF33}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestFileRead", "TestFileRead\TestFileRead.vcxproj", "{40376F47-1A9C-48EB-8D1D-D520C4CF91FB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -45,8 +47,15 @@ Global
 		{58F063BC-9844-43A1-93FA-48499870CF33}.Debug|Win32.Build.0 = Debug|Win32
 		{58F063BC-9844-43A1-93FA-48499870CF33}.Release|Win32.ActiveCfg = Release|Win32
 		{58F063BC-9844-43A1-93FA-48499870CF33}.Release|Win32.Build.0 = Release|Win32
+		{40376F47-1A9C-48EB-8D1D-D520C4CF91FB}.Debug|Win32.ActiveCfg = Debug|Win32
+		{40376F47-1A9C-48EB-8D1D-D520C4CF91FB}.Debug|Win32.Build.0 = Debug|Win32
+		{40376F47-1A9C-48EB-8D1D-D520C4CF91FB}.Release|Win32.ActiveCfg = Release|Win32
+		{40376F47-1A9C-48EB-8D1D-D520C4CF91FB}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
 	EndGlobalSection
 EndGlobal

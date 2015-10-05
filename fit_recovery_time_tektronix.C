@@ -56,6 +56,9 @@ Double_t fitFunction(Double_t *x,Double_t *par)
 
 void fit_recovery_time_tektronix(char name[])
 {
+	ROOT::Math::MinimizerOptions::SetDefaultStrategy(2);
+	ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit2", "Migrad");
+	
 	TCanvas *c1 = new TCanvas("c1","A Simple Graph Example",200,10,700,500);
 	c1->SetGrid();
 	
@@ -64,9 +67,7 @@ void fit_recovery_time_tektronix(char name[])
 	
 	std::vector<double> xverr;
 	std::vector<double> yverr;
-		
-	int rec_lenght = 9981;
-		
+
 	Double_t x, y, xerr, yerr;
 	FILE *f = fopen(name,"r");
 
@@ -78,14 +79,7 @@ void fit_recovery_time_tektronix(char name[])
 	//ofstream residue_y("D:\\Data_work\\tektronix_signal\\265K\\265K_72.59\\residue_y.dat");
 	
 	//ofstream check_test("D:\\Data_work\\tektronix_signal\\265K\\265K_72.59\\check_test_conv_fast.dat");
-	
-	
-	//double par_vector[num_of_param] = {1, 1000, 20, 5, 0, 0.1};
-	double x_vector[1];
-	
-	//TRandom	rnd;
-	
-	
+
 	while (!feof(f))
 	{ 
 		fscanf(f,"%lf %lf\n", &x, &y);
@@ -94,31 +88,29 @@ void fit_recovery_time_tektronix(char name[])
 		
 		counter++;
 		
-		//xv.push_back(x*0.2); // in ns
-		//x_vector[0] = x*0.2;
-		//yv.push_back(fitFunction(x_vector, par_vector));
-		//check_test << x_vector[0] << "\t" << fitFunction(x_vector, par_vector) << endl;
-		
-		//xverr.push_back(xerr*4);
-		//yverr.push_back(yerr);
-		
-	}	//if (xv.size() % rec_lenght == 0)
+	}	
 		{
+			double time_baseline_left = 0;
+			double time_baseline_right = 150;
+			
+			int time_baseline_left_index = time_baseline_left * 5;
+			int time_baseline_right_index = time_baseline_right * 5;
+			
 			double disp = 0;
 			double avg = 0;
-			for (int j = 100; j < 400; j++)
+			for (int j = time_baseline_left_index; j < time_baseline_right_index; j++)
 			{
 				avg += yv[j] /*+ rnd.Uniform()*0.0005*/;
 			}
 			
-			avg /= 300;
+			avg /= (time_baseline_right_index - time_baseline_left_index);
 			
-			for (int j = 100; j < 400; j++)
+			for (int j = time_baseline_left_index; j < time_baseline_right_index; j++)
 			{
 				disp += pow(yv[j] - avg, 2.0);
 			}
 			
-			disp /= 300;
+			disp /= (time_baseline_right_index - time_baseline_left_index);
 			
 			disp = sqrt(disp);
 			
@@ -131,116 +123,104 @@ void fit_recovery_time_tektronix(char name[])
 				yverr.push_back(disp);
 			}
 			
-			double left_limit = 490;
-			double right_limit = 600;
-			
-			TGraphErrors * gr = new TGraphErrors(xv.size(), &xv[0], &yv[0], &xverr[0], &yverr[0]);
-			TF1 *fitFcn = new TF1("fitFcn", fitFunction, left_limit, right_limit, num_of_param);
-			
 			double base_line = 0;
-			for(int j = 100; j < 400; j++)
+			for(int j = time_baseline_left; j < time_baseline_right_index; j++)
 			{
 				base_line += yv[j];			
 			}
 			
-			base_line /= 300;
+			base_line /= (time_baseline_right_index - time_baseline_left_index);
 			
-			/*
-			//exp model
-			fitFcn->SetParameter(0, 4.74969e-002); // A
-			fitFcn->SetParLimits(0, 0, 1); 
-			
-			fitFcn->SetParameter(1, 9.96439e+002); // t_0
-			fitFcn->SetParLimits(1, 900, 1000); 
-			
-			fitFcn->SetParameter(2, 1.67762e+001); // tau_rec
-			fitFcn->SetParLimits(2, 5, 40); 
-			
-			fitFcn->SetParameter(3, 1.41106e+001); // tau_rise
-			fitFcn->SetParLimits(3, 1, 25);
-			
-			fitFcn->SetParameter(4, base_line);
-			fitFcn->SetParLimits(4, base_line, base_line);
-			*/
+			cout << endl << "baseline " << base_line << endl;
 			
 			
-			
-			//convolution
-			fitFcn->SetParameter(0, 0.012);
-			fitFcn->SetParLimits(0, 0.001, 1000); // A
-			
-			//t_0
-			fitFcn->SetParameter(1, 500);
-			fitFcn->SetParLimits(1, 490, 510); 
-			
-			// tau_rec
-			fitFcn->SetParameter(2, 1.67762e+001);
-			fitFcn->SetParLimits(2, 10, 25);
-
-			// tau_rise
-			fitFcn->SetParameter(3, 5);
-			fitFcn->SetParLimits(3, 3, 18); 
-
-			fitFcn->SetParameter(4, base_line);
-			fitFcn->SetParLimits(4, base_line, base_line);
-			
-		
-			//sigma
-			fitFcn->SetParameter(5, 1.5);
-			fitFcn->SetParLimits(5, 1.5, 1.5);
-			//fitFcn->FixParameter(1, 0);
-				
-			/*	
-			//tau_rec_slow
-			fitFcn->SetParameter(6, 38);
-			fitFcn->SetParLimits(6, 27, 80); 
+			double left_limit = 490;
+			double right_limit = 600;
+			vector<double> chi_per_nfd;
+			ofstream file_out("G:\\Chi2_per_dof.dat");
 			
 
-			//R_slow
-			fitFcn->SetParameter(7, 0.1);
-			fitFcn->SetParLimits(7, 0, 5); 
-			
+				TGraphErrors * gr = new TGraphErrors(xv.size(), &xv[0], &yv[0], &xverr[0], &yverr[0]);
 				
-			
 				
-			fitFcn->SetParameter(8, 1);
-			fitFcn->SetParLimits(8, 1, 1); //R_fast
-			*/
-			
-			gr->Fit("fitFcn", "RM");	
+				TF1 *fitFcn = new TF1("fitFcn", fitFunction, left_limit, right_limit, num_of_param);
+						
+				/*
+				//exp model
+				fitFcn->SetParameter(0, 4.74969e-002); // A
+				fitFcn->SetParLimits(0, 0, 1); 
+				
+				fitFcn->SetParameter(1, 9.96439e+002); // t_0
+				fitFcn->SetParLimits(1, 900, 1000); 
+				
+				fitFcn->SetParameter(2, 1.67762e+001); // tau_rec
+				fitFcn->SetParLimits(2, 5, 40); 
+				
+				fitFcn->SetParameter(3, 1.41106e+001); // tau_rise
+				fitFcn->SetParLimits(3, 1, 25);
+				
+				fitFcn->SetParameter(4, base_line);
+				fitFcn->SetParLimits(4, base_line, base_line);
+				*/
+							
+				
+				//convolution
+				fitFcn->SetParameter(0, 0.012);
+				fitFcn->SetParLimits(0, 0.001, 1000); // A
+				
+				//t_0
+				fitFcn->SetParameter(1, 500);
+				fitFcn->SetParLimits(1, 400, 600); 
+				
+				// tau_rec
+				fitFcn->SetParameter(2, 5);
+				fitFcn->SetParLimits(2, 1, 50);
+
+				double rise = 5;
+				// tau_rise
+				fitFcn->SetParameter(3, rise);
+				fitFcn->SetParLimits(3, 1, 35); 
+
+				//base_line = -1e-006;
+				//baseline
+				fitFcn->SetParameter(4, base_line);
+				fitFcn->SetParLimits(4, base_line, base_line);
+				
+				double sigma = 2.5;
+				//sigma
+				fitFcn->SetParameter(5, sigma);
+				fitFcn->SetParLimits(5, 0.1, 5);
+				//fitFcn->SetParLimits(5, sigma, sigma);
+				//fitFcn->FixParameter(1, 0);
+					
+				/*	
+				//tau_rec_slow
+				fitFcn->SetParameter(6, 38);
+				fitFcn->SetParLimits(6, 27, 80); 
+				
+
+				//R_slow
+				fitFcn->SetParameter(7, 0.1);
+				fitFcn->SetParLimits(7, 0, 5); 
+				
+					
+				
+					
+				fitFcn->SetParameter(8, 1);
+				fitFcn->SetParLimits(8, 1, 1); //R_fast
+				*/
+							
+				gr->Fit("fitFcn", "R");
+				//chi_per_nfd	.push_back(fitFcn->GetChisquare() / fitFcn->GetNDF());			
+				//cout << "Chi2 / Ndf  = " << fitFcn->GetChisquare() / fitFcn->GetNDF() << "right_limit " << i << endl;
+				cout << "Chi2 / Ndf  = " << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
+				//file_out << i << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
+
 			gr->SetMarkerColor(4);
 			gr->SetMarkerStyle(kFullCircle);
-			//gr->Draw("APE");
 			gr->Draw("APE");				
 
-			//gSystem->Sleep(3000);			
 			
-			int left_point = left_limit / 0.2;
-			int right_point = right_limit / 0.2;
-			
-			double par_vector[num_of_param];
-			
-			for (int j = 0; j < num_of_param; j++)
-			{
-				par_vector[j] = fitFcn->GetParameter(j);
-			}
-						
-			/*
-			for (int j = left_point; j < right_point; j++)
-			{
-				x_vector[0] = xv[j];
-				residue_x << xv[j] << "\t" <<  yv[j] - fitFunction(x_vector, par_vector) << endl;
-				residue_y << yv[j] << "\t" <<  yv[j] - fitFunction(x_vector, par_vector) << endl;
-			}
-			
-			double square = 0;
-			for(int j = 0; j < xv.size(); j ++)
-			{
-				square += 0.2 * yv[j];
-			}
-			
-			cout << "square = " << square << endl;
-			*/
 			
 			c1->Update();
 							

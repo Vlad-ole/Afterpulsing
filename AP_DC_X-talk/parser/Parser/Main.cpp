@@ -62,19 +62,25 @@ int main()
 		system("pause");
 	}
 
+	//ifstream file_input(Monostate::raw_name);
+
 	//читать файл
-	while (!feof(f))
+	while (!feof(f) /*!file_input.eof()*/)
 	{
 		fscanf(f, "%lf %lf\n", &x, &y);
+		//file_input >> x >> y ;
 		xv.push_back(counter*0.2); // in ns
 		yv.push_back(y);
+
+
 
 		counter++;
 
 		//показать прогресс
-		if (counter % 10000 == 0)
+		if (counter % 50000 == 0)
 		{
-			cout << "read file " << counter / double(2E7) * 100 << endl;
+			long int read_file = GetTickCount();
+			cout << "read file " << counter / double(2E7) * 100 << "speed is \t " << counter / ((read_file - before) / 1000.0) << " lines / s" << endl;
 		}
 
 		// обработать записанную информацию. Нужно из-за большого размера файла
@@ -101,7 +107,7 @@ int main()
 			//exit(0);
 
 			RootFit::threshold_der2 = -1E-5;
-			RootFit::threshold_der = -3E-4;
+			RootFit::threshold_der = -2E-4;
 			RootFit::threshold_amp = -0.001;
 			RootFit::threshold_amp_start = -0.005;
 
@@ -110,7 +116,7 @@ int main()
 			//system("pause");
 			//exit(0);
 
-			RootFit::FindStartStop(5, 20); // найти начало и конец суммы сигналов
+			//RootFit::FindStartStop(5, 20); // найти начало и конец суммы сигналов
 
 			RootFit::SetDispXY(0, 0.00113151);// записать вектора длины rec_lenght xverr и yverr значениеми ошибок
 
