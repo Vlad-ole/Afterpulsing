@@ -90,7 +90,7 @@ void fit_recovery_time_tektronix(char name[])
 		
 	}	
 		{
-			double time_baseline_left = 0;
+			double time_baseline_left = 100;
 			double time_baseline_right = 150;
 			
 			int time_baseline_left_index = time_baseline_left * 5;
@@ -124,7 +124,7 @@ void fit_recovery_time_tektronix(char name[])
 			}
 			
 			double base_line = 0;
-			for(int j = time_baseline_left; j < time_baseline_right_index; j++)
+			for(int j = time_baseline_left_index; j < time_baseline_right_index; j++)
 			{
 				base_line += yv[j];			
 			}
@@ -134,8 +134,8 @@ void fit_recovery_time_tektronix(char name[])
 			cout << endl << "baseline " << base_line << endl;
 			
 			
-			double left_limit = 490;
-			double right_limit = 600;
+			double left_limit = 200;
+			double right_limit = 290;
 			vector<double> chi_per_nfd;
 			ofstream file_out("G:\\Chi2_per_dof.dat");
 			
@@ -169,8 +169,8 @@ void fit_recovery_time_tektronix(char name[])
 				fitFcn->SetParLimits(0, 0.001, 1000); // A
 				
 				//t_0
-				fitFcn->SetParameter(1, 500);
-				fitFcn->SetParLimits(1, 400, 600); 
+				fitFcn->SetParameter(1, 200);
+				fitFcn->SetParLimits(1, 150, 210); 
 				
 				// tau_rec
 				fitFcn->SetParameter(2, 5);

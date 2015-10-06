@@ -22,7 +22,7 @@ const int Monostate::time_post = (100 / 0.2);
 //string Monostate::dir_name = "G:\\";
 string Monostate::dir_name = "D:\\Data_work\\tektronix_signal\\295K\\73_90V\\";
 //string Monostate::raw_name = dir_name + "raw\\test_signal_pure.txt";
-string Monostate::raw_name = dir_name + "raw\\run_2.txt";
+string Monostate::raw_name = dir_name + "raw\\run_5.txt";
 
 TObjArray Monostate::Hlist_test(0);
 

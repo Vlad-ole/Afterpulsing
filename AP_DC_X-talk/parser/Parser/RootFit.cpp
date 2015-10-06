@@ -927,6 +927,7 @@ void RootFit::CalculateDer(int type, int points)
 
 
 	cout << endl << "Calculate derivative" << endl;
+	long int t0_Calculate_derivative = GetTickCount();
 
 	if (type == 0)
 	{
@@ -959,94 +960,46 @@ void RootFit::CalculateDer(int type, int points)
 		const int point_half = (points - 1) / 2.0;
 		//double value;
 
-#pragma omp parallel sections
+		yv_der.resize(yv.size());
+		yv_der2.resize(yv.size());
+
+#pragma omp parallel for num_threads(8)
+		for (int i = 0; i < xv.size(); i++)
 		{
+			//if (i % 100000 == 0)
+			//{
+			//	//long int temp_2 = GetTickCount();
+			//	cout << "calculate derivative ... " << double(i) / xv.size() * 100 << " %" << endl;
+			//}
 
-#pragma omp section
+			if (i < point_half || i >(xv.size() - point_half - 1))
 			{
-				for (unsigned int i = 0; i < xv.size(); i++)
+				//yv_s.push_back(0);
+				yv_der[i] = 0;
+				yv_der2[i] = 0;
+
+			}
+			else
+			{
+				double value = 0;
+				for (int j = 0; j < C_i_der.size(); j++)
 				{
-					if (i % 100000 == 0)
-					{
-						//long int temp_2 = GetTickCount();
-						cout << "calculate derivative ... " << double(i) / xv.size() * 100 << " %" << endl;
-					}
-
-					if (i < point_half || i >(xv.size() - point_half - 1))
-					{
-						//yv_s.push_back(0);
-						yv_der.push_back(0);
-					}
-					else
-					{
-
-						/*#pragma omp section
-						{
-						value = 0;
-						for (int j = 0; j < C_i_s.size(); j++)
-						{
-						value += C_i_s[j] * yv[i - point_half + j];
-						}
-						yv_s.push_back(value);
-						}*/
-
-
-						double value = 0;
-						for (int j = 0; j < C_i_der.size(); j++)
-						{
-							value += C_i_der[j] * yv[i - point_half + j];
-						}
-						yv_der.push_back(value);
-
-					}
-
+					value += C_i_der[j] * yv[i - point_half + j];
 				}
+				yv_der[i] = value;
+				
+
+				value = 0;
+				for (int j = 0; j < C_i_der.size(); j++)
+				{
+					value += C_i_der2[j] * yv[i - point_half + j];
+				}
+				yv_der2[i] = value;
+				
+
 			}
 
-
-#pragma omp section
-			{
-				for (unsigned int i = 0; i < xv.size(); i++)
-				{
-					if (i % 100000 == 0)
-					{
-						//long int temp_2 = GetTickCount();
-						cout << "calculate derivative 2 ... " << double(i) / xv.size() * 100 << " %" << endl;
-					}
-
-					if (i < point_half || i >(xv.size() - point_half - 1))
-					{
-						//yv_s.push_back(0);
-						yv_der2.push_back(0);
-					}
-					else
-					{
-
-						/*#pragma omp section
-						{
-						value = 0;
-						for (int j = 0; j < C_i_s.size(); j++)
-						{
-						value += C_i_s[j] * yv[i - point_half + j];
-						}
-						yv_s.push_back(value);
-						}*/
-
-						double value = 0;
-						for (int j = 0; j < C_i_der2.size(); j++)
-						{
-							value += 2 * C_i_der2[j] * yv[i - point_half + j];
-						}
-						yv_der2.push_back(value);
-
-					}
-
-
-				}
-			}
 		}
-
-
 	}
 
 	/*ofstream file_raw("D:\\Data_work\\tektronix_signal\\295K\\295K_73.90\\raw\\test_data_raw.txt");
@@ -1063,6 +1016,9 @@ void RootFit::CalculateDer(int type, int points)
 	}
 
 	exit(0);*/
+
+	long int t1_Calculate_derivative = GetTickCount();
+	cout << "Calculate_derivative time is (in s) " << (t1_Calculate_derivative - t0_Calculate_derivative) / 1000.0 << endl;
 }
 
 void RootFit::CalculateFilterCoeff(int points)
@@ -1299,7 +1255,7 @@ void RootFit::CalculateAverageSignal(double time_dead_forward)
 				}
 			}
 
-			cout << "total_num_pulsing " << total_num_pulsing << endl;
+			//cout << "total_num_pulsing " << total_num_pulsing << endl;
 
 			// отбрасывание послеимпульсов
 			double amplitude = 5000;
