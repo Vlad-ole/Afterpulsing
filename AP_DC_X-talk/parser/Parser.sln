@@ -17,6 +17,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Parallel", "Parallel\Parall
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestFileRead", "TestFileRead\TestFileRead.vcxproj", "{40376F47-1A9C-48EB-8D1D-D520C4CF91FB}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TextToBinary", "TextToBinary\TextToBinary.vcxproj", "{767543C8-6E5D-4CAE-88FA-E2871F86A302}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ReferenseTransfer", "ReferenseTransfer\ReferenseTransfer.vcxproj", "{CFDEDD5D-FE41-45AF-A0B8-7796B37CAF5E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -51,6 +55,14 @@ Global
 		{40376F47-1A9C-48EB-8D1D-D520C4CF91FB}.Debug|Win32.Build.0 = Debug|Win32
 		{40376F47-1A9C-48EB-8D1D-D520C4CF91FB}.Release|Win32.ActiveCfg = Release|Win32
 		{40376F47-1A9C-48EB-8D1D-D520C4CF91FB}.Release|Win32.Build.0 = Release|Win32
+		{767543C8-6E5D-4CAE-88FA-E2871F86A302}.Debug|Win32.ActiveCfg = Debug|Win32
+		{767543C8-6E5D-4CAE-88FA-E2871F86A302}.Debug|Win32.Build.0 = Debug|Win32
+		{767543C8-6E5D-4CAE-88FA-E2871F86A302}.Release|Win32.ActiveCfg = Release|Win32
+		{767543C8-6E5D-4CAE-88FA-E2871F86A302}.Release|Win32.Build.0 = Release|Win32
+		{CFDEDD5D-FE41-45AF-A0B8-7796B37CAF5E}.Debug|Win32.ActiveCfg = Debug|Win32
+		{CFDEDD5D-FE41-45AF-A0B8-7796B37CAF5E}.Debug|Win32.Build.0 = Debug|Win32
+		{CFDEDD5D-FE41-45AF-A0B8-7796B37CAF5E}.Release|Win32.ActiveCfg = Release|Win32
+		{CFDEDD5D-FE41-45AF-A0B8-7796B37CAF5E}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

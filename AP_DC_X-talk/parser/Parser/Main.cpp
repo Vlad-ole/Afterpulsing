@@ -42,6 +42,8 @@ vector<int> RootFit::time_front;
 
 int RootFit::current_signal;
 
+double *yv_heap;
+
 //> "D:\\Data_work\\tektronix_signal\\295K\\295K_73.90\\fit_log.txt"
 
 int main()
@@ -62,30 +64,56 @@ int main()
 		system("pause");
 	}
 
-	//ifstream file_input(Monostate::raw_name);
-
 	//читать файл
-	while (!feof(f) /*!file_input.eof()*/)
+	int yv_size;
+	fread(&yv_size, sizeof(int), 1, f);
+	cout << "file length = " << yv_size << endl;
+
+	/*yv_heap = new double[yv_size];
+	double *dP = &yv_heap[0];
+	
+	const int N = 10000;
+	while (!feof(f))
 	{
-		fscanf(f, "%lf %lf\n", &x, &y);
-		//file_input >> x >> y ;
-		xv.push_back(counter*0.2); // in ns
-		yv.push_back(y);
+		fread(dP, sizeof(double), N, f);
+		dP += N;
+	}
+
+	for (int i = 0; i < yv_size; i++)
+	{
+		xv.push_back(i * 0.2);
+		yv.push_back(yv_heap[i]);
+	}*/
+
+	cout << "fread" << endl;
+	int yv_size_new = int(yv_size / 100.0);
+
+	yv.resize(yv_size_new);
+	fread(&yv[0], sizeof(vector<double>::value_type), yv_size_new, f);
+
+	cout << "xv[i]" << endl;
+
+	xv.resize(yv_size_new);
+	for (int i = 0; i < yv_size_new; i++)
+	{
+		xv[i] = 0.2 * i;
+	}
 
 
-
-		counter++;
-
-		//показать прогресс
-		if (counter % 50000 == 0)
-		{
-			long int read_file = GetTickCount();
-			cout << "read file " << counter / double(2E7) * 100 << "speed is \t " << counter / ((read_file - before) / 1000.0) << " lines / s" << endl;
-		}
+		////показать прогресс
+		//if (counter % 50000 == 0)
+		//{
+		//	long int read_file = GetTickCount();
+		//	cout << "read file " << counter / double(2E7) * 100 << "speed is \t " << counter / ((read_file - before) / 1000.0) << " lines / s" << endl;
+		//}
 
 		// обработать записанную информацию. Нужно из-за большого размера файла
-		if (xv.size() % Monostate::rec_lenght == 0)
+		//if (xv.size() % Monostate::rec_lenght == 0)
 		{
+			
+			long int t1_read_file = GetTickCount();
+			cout << endl << "Read file time is (in s) " << (t1_read_file - before) / 1000.0 << endl;
+			
 			/*ofstream file_shift(Monostate::dir_name + "file_shift.dat");
 			int time_shift = 10 * 5; 
 			double A = 1;
@@ -204,10 +232,10 @@ int main()
 			cout << "counter_rec_length = " << counter_rec_length << endl;
 		}
 
-		if (counter_rec_length == 1)
-			break;
+		//if (counter_rec_length == 1)
+		//	break;
 
-	}
+	//}
 
 	Monostate::SaveHlists();
 
