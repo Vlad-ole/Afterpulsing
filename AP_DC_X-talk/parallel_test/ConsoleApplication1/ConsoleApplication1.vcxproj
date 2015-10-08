@@ -11,9 +11,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{58F063BC-9844-43A1-93FA-48499870CF33}</ProjectGuid>
+    <ProjectGuid>{348C9559-2D2F-4854-9A26-07E88BCFE109}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>Parallel</RootNamespace>
+    <RootNamespace>ConsoleApplication1</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -41,8 +41,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Program Files %28x86%29\Microsoft SDKs\MPI\Include;C:\root_v5.34.32\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Program Files %28x86%29\Microsoft SDKs\MPI\Lib\x86;C:\root_v5.34.32\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Program Files %28x86%29\Microsoft SDKs\MPI\Include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files %28x86%29\Microsoft SDKs\MPI\Lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -55,14 +55,11 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <OpenMPSupport>true</OpenMPSupport>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>msmpi.lib;msmpifec.lib;msmpifes.lib;complexDict.lib;dequeDict.lib;freetype.lib;libAfterImage.lib;libASImage.lib;libASImageGui.lib;libCint.lib;libCintex.lib;libCore.lib;libEG.lib;libEGPythia8.lib;libEve.lib;libFitPanel.lib;libFoam.lib;libFTGL.lib;libFumili.lib;libGdml.lib;libGed.lib;libGenetic.lib;libGenVector.lib;libGeom.lib;libGeomBuilder.lib;libGeomPainter.lib;libGLEW.lib;libGpad.lib;libGraf.lib;libGraf3d.lib;libGui.lib;libGuiBld.lib;libGuiHtml.lib;libGviz3d.lib;libHist.lib;libHistPainter.lib;libHtml.lib;libMathCore.lib;libMathMore.lib;libMatrix.lib;libMinuit.lib;libMinuit2.lib;libMLP.lib;libNet.lib;libPhysics.lib;libPostscript.lib;libProof.lib;libProofDraw.lib;libProofPlayer.lib;libPyROOT.lib;libQuadp.lib;libRecorder.lib;libReflex.lib;libReflexDict.lib;libRGL.lib;libRHTTP.lib;libRint.lib;libRIO.lib;libRODBC.lib;libRooFit.lib;libRooFitCore.lib;libRooStats.lib;libRootAuth.lib;libSessionViewer.lib;libSmatrix.lib;libSpectrum.lib;libSpectrumPainter.lib;libSPlot.lib;libSQLIO.lib;libTable.lib;libThread.lib;libTMVA.lib;libTree.lib;libTreePlayer.lib;libTreeViewer.lib;libUnuran.lib;libVMC.lib;libWin32gdk.lib;libXMLIO.lib;listDict.lib;map2Dict.lib;mapDict.lib;mathtext.lib;multimap2Dict.lib;multimapDict.lib;multisetDict.lib;setDict.lib;vectorDict.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>msmpi.lib;msmpifec.lib;msmpifmc.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -84,14 +81,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="MyClass.cpp" />
     <ClCompile Include="Source.cpp" />
-    <ClCompile Include="Source1.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="MyClass.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

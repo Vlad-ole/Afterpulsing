@@ -960,6 +960,8 @@ void RootFit::CalculateDer(int type, int points)
 		const int point_half = (points - 1) / 2.0;
 		//double value;
 
+		//cout << "yv.size()" << yv.size() << endl;
+
 		yv_der.resize(yv.size());
 		yv_der2.resize(yv.size());
 
@@ -1017,8 +1019,37 @@ void RootFit::CalculateDer(int type, int points)
 
 	exit(0);*/
 
+	cout << "xv.size() " << xv.size() << endl;
+	cout << "yv.size() " << yv.size() << endl;
+	cout << "yv_der.size() " << yv_der.size() << endl;
+	cout << "yv_der2.size() " << yv_der2.size() << endl;
+
+	string file_d_string = Monostate::dir_name + "der\\run_1.bin";
+	FILE *file_d = fopen(file_d_string.c_str(), "wb");
+
+	string file_d2_string = Monostate::dir_name + "der2\\run_1.bin";
+	FILE* file_d2 = fopen(file_d2_string.c_str(), "wb");
+	
+	
+	fwrite(&yv_der[0], sizeof(vector<double>::value_type), xv.size(), file_d);
+	fwrite(&yv_der2[0], sizeof(vector<double>::value_type), xv.size(), file_d2);
+	
+	/*for (int i = 0; i < xv.size(); i++)
+	{
+		file_d << i << "\t" << yv_der[i] << endl;
+		file_d2 << i << "\t" << yv_der2[i] << endl;
+
+		if (i % 50000 == 0)
+		{
+			cout << "progress ... " << (i * 100.0) / xv.size() << endl;
+		}
+	}*/
+
 	long int t1_Calculate_derivative = GetTickCount();
 	cout << "Calculate_derivative time is (in s) " << (t1_Calculate_derivative - t0_Calculate_derivative) / 1000.0 << endl;
+
+	system("pause");
+	exit(0);
 }
 
 void RootFit::CalculateFilterCoeff(int points)

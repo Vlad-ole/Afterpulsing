@@ -19,8 +19,8 @@
 
 using namespace std;
 
-vector<double> xv;
-vector<double> yv;
+//vector<double> xv;
+//vector<double> yv;
 
 
 int RootFit::time_start_index;
@@ -54,6 +54,8 @@ int main()
 
 	Double_t x, y;
 	FILE *f = fopen(Monostate::raw_name.c_str(), "r");
+	FILE *f_der = fopen(Monostate::der_name.c_str(), "rb");
+	FILE *f_der2 = fopen(Monostate::der2_name.c_str(), "rb");
 
 	int counter = 0;
 	int counter_rec_length = 0;
@@ -85,18 +87,16 @@ int main()
 		yv.push_back(yv_heap[i]);
 	}*/
 
-	cout << "fread" << endl;
-	int yv_size_new = int(yv_size / 100.0);
+	int yv_size_new = yv_size * 0.92;
+	cout << "file length cutted= " << yv_size_new << endl;
 
-	yv.resize(yv_size_new);
-	fread(&yv[0], sizeof(vector<double>::value_type), yv_size_new, f);
-
-	cout << "xv[i]" << endl;
-
-	xv.resize(yv_size_new);
+	RootFit::yv.resize(yv_size_new);
+	fread(&RootFit::yv[0], sizeof(vector<double>::value_type), yv_size_new, f);
+	
+	RootFit::xv.resize(yv_size_new);
 	for (int i = 0; i < yv_size_new; i++)
 	{
-		xv[i] = 0.2 * i;
+		RootFit::xv[i] = 0.2 * i;
 	}
 
 
@@ -112,7 +112,7 @@ int main()
 		{
 			
 			long int t1_read_file = GetTickCount();
-			cout << endl << "Read file time is (in s) " << (t1_read_file - before) / 1000.0 << endl;
+			cout << endl << "Time of file reading is (in s) " << (t1_read_file - before) / 1000.0 << endl;
 			
 			/*ofstream file_shift(Monostate::dir_name + "file_shift.dat");
 			int time_shift = 10 * 5; 
@@ -124,11 +124,15 @@ int main()
 
 			exit(0);*/
 			
-			RootFit::xv = xv; // передать вектора длины rec_lenght в класс RootFit
-			RootFit::yv = yv;
+			//RootFit::xv = xv; // передать вектора длины rec_lenght в класс RootFit
+			//RootFit::yv = yv;
 			//RootFit::temp_time_i = 0;
 
-			RootFit::CalculateDer(1, 51); // посчитать производную по данным (число точек должно быть нечетным)
+			RootFit::yv_der.resize(yv_size_new);
+			RootFit::yv_der2.resize(yv_size_new);
+			fread(&RootFit::yv_der[0], sizeof(vector<double>::value_type), yv_size_new, f_der);
+			fread(&RootFit::yv_der2[0], sizeof(vector<double>::value_type), yv_size_new, f_der2);
+			//RootFit::CalculateDer(1, 51); // посчитать производную по данным (число точек должно быть нечетным)
 			
 			//RootFit::CalculateStaircases_der(5); //time_dead in ns
 			//RootFit::CalculateStaircases_amp(10); //time_dead in ns
@@ -139,103 +143,84 @@ int main()
 			RootFit::threshold_amp = -0.001;
 			RootFit::threshold_amp_start = -0.005;
 
-			RootFit::CalculateAverageSignal(200); //time_dead in ns
-			
-			//system("pause");
-			//exit(0);
+			//RootFit::CalculateAverageSignal(200); //time_dead in ns
 
-			//RootFit::FindStartStop(5, 20); // найти начало и конец суммы сигналов
-
+			RootFit::FindStartStop(5, 20); // найти начало и конец суммы сигналов
 			RootFit::SetDispXY(0, 0.00113151);// записать вектора длины rec_lenght xverr и yverr значениеми ошибок
-
 			RootFit::time_shit = 100; // задать смещение по времени для учета базовой линии (в точках)
 
-			//RootFit::PreviousIsSingle = false;
 			RootFit::previousIs1e = true;
 
-			//for (unsigned int i = 0; i < RootFit::time_finish.size(); i++)
-			//{
-			//	long int temp = GetTickCount();
-			//	cout << endl << "calculate fit ... " << i + 1 << " run time is (in s) \t" << (temp - before) / 1000.0 << endl;
+			for (unsigned int i = 0; i < RootFit::time_finish.size(); i++)
+			{
+				long int temp = GetTickCount();
+				cout << endl << "calculate fit ... " << i + 1 << " run time is (in s) \t" << (temp - before) / 1000.0 << " part: " << (i*100.0) / RootFit::time_finish.size() << " %" << endl;
 
-			//	
-			//	
-			//	RootFit::current_signal = i;
-			//	RootFit::CalculateStartParameters(5/*5*/);//вычислить стартовые параметры. Параметр - мертвое время производной в нс	
-			//	RootFit::CalculateNumOfSignals(3);
-			//	RootFit::CreateFrontGraph();
+				
+				
+				RootFit::current_signal = i;
+				RootFit::CalculateStartParameters(5/*5*/);//вычислить стартовые параметры. Параметр - мертвое время производной в нс	
+				RootFit::CalculateNumOfSignals(3);
+				RootFit::CreateFrontGraph();
 
-			//	RootFit *Fit_single = new RootFit(1);
-			//	Fit_single->SetParameters();
-			//	Fit_single->DoFit();
-			//	Fit_single->SaveAllGraphs();
-
-
-			//	if (Fit_single->GetChi2PerDof() > Monostate::chi2_per_dof_th)
-			//	{
-			//		cout << "\t double ... " << endl;
-
-			//		RootFit *Fit_double = new RootFit(2);
-			//		Fit_double->SetParameters();
-			//		Fit_double->DoFit();
-			//		Fit_double->SaveAllGraphs();
+				RootFit *Fit_single = new RootFit(1);
+				Fit_single->SetParameters();
+				Fit_single->DoFit();
+				Fit_single->SaveAllGraphs();
 
 
-			//		if (Fit_double->GetChi2PerDof() > Monostate::chi2_per_dof_th)
-			//		{
-			//			cout << "\t \t triple ... " << endl;
+				if (Fit_single->GetChi2PerDof() > Monostate::chi2_per_dof_th)
+				{
+					cout << "\t double ... " << endl;
 
-			//			RootFit *Fit_triple = new RootFit(3);
-			//			Fit_triple->SetParameters();
-			//			Fit_triple->DoFit();
-			//			Fit_triple->SaveAllGraphs();
-
-			//			if (Fit_triple->GetChi2PerDof() > Monostate::chi2_per_dof_th)
-			//			{
-			//				cout << "\t \t \t quadruple ... " << endl;
-			//				RootFit *Fit_quadruple = new RootFit(4);
-			//				Fit_quadruple->SetParameters();
-			//				Fit_quadruple->DoFit();
-			//				Fit_quadruple->SaveAllGraphs();
-
-			//				if (Fit_quadruple->GetChi2PerDof() > Monostate::chi2_per_dof_th)
-			//				{
-			//					cout << "\t \t \t \t quintuple ... " << endl;
-			//					RootFit *Fit_quintuple = new RootFit(5);
-			//					Fit_quintuple->SetParameters();
-			//					Fit_quintuple->DoFit();
-			//					Fit_quintuple->SaveAllGraphs();
-
-			//				}
-
-			//			}
-
-			//		}
+					RootFit *Fit_double = new RootFit(2);
+					Fit_double->SetParameters();
+					Fit_double->DoFit();
+					Fit_double->SaveAllGraphs();
 
 
-			//	}
+					if (Fit_double->GetChi2PerDof() > Monostate::chi2_per_dof_th)
+					{
+						cout << "\t \t triple ... " << endl;
 
-			//	//Monostate::file_dt <<  << endl;
+						RootFit *Fit_triple = new RootFit(3);
+						Fit_triple->SetParameters();
+						Fit_triple->DoFit();
+						Fit_triple->SaveAllGraphs();
+
+						if (Fit_triple->GetChi2PerDof() > Monostate::chi2_per_dof_th)
+						{
+							cout << "\t \t \t quadruple ... " << endl;
+							RootFit *Fit_quadruple = new RootFit(4);
+							Fit_quadruple->SetParameters();
+							Fit_quadruple->DoFit();
+							Fit_quadruple->SaveAllGraphs();
+
+							if (Fit_quadruple->GetChi2PerDof() > Monostate::chi2_per_dof_th)
+							{
+								cout << "\t \t \t \t quintuple ... " << endl;
+								RootFit *Fit_quintuple = new RootFit(5);
+								Fit_quintuple->SetParameters();
+								Fit_quintuple->DoFit();
+								Fit_quintuple->SaveAllGraphs();
+
+							}
+
+						}
+
+					}
 
 
-			//}
+				}				
+
+
+			}
 
 			//RootFit::Print_dt_amp();
 
-			xv.clear();
-			yv.clear();
 
-			//yv_der.clear();
-
-
-			counter_rec_length++;
-			cout << "counter_rec_length = " << counter_rec_length << endl;
 		}
 
-		//if (counter_rec_length == 1)
-		//	break;
-
-	//}
 
 	Monostate::SaveHlists();
 

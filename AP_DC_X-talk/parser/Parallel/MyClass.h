@@ -24,7 +24,7 @@ private:
 	vector<double> xverr;
 	vector<double> yverr;
 
-	static TF1 *fitFcn;
+	TF1 *fitFcn;
 	static Double_t fitFunction(Double_t *x, Double_t *par);
 	TGraphErrors * gr;
 

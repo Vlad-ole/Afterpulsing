@@ -15,6 +15,8 @@ public:
 
 	static string dir_name;
 	static string raw_name;
+	static string der_name;
+	static string der2_name;
 	
 	static TObjArray Hlist_test;
 

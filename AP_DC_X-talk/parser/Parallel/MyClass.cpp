@@ -1,7 +1,7 @@
 #include "MyClass.h"
 #include "TVirtualFitter.h"
 
-TF1 *MyClass::fitFcn;
+//TF1 *MyClass::fitFcn;
 
 MyClass::MyClass()
 {
