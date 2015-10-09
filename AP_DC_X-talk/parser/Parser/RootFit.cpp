@@ -87,7 +87,7 @@ void RootFit::SetParameters()
 	const double A_limit_l = 0.001;
 	const double A_limit_h = 1;
 
-	const double baseline_limit = 0.003;
+	const double baseline_limit = 0.006;
 	const double sigma = 1.64932;
 
 	const double time_first = xv[time_front[0]];
@@ -1024,11 +1024,8 @@ void RootFit::CalculateDer(int type, int points)
 	cout << "yv_der.size() " << yv_der.size() << endl;
 	cout << "yv_der2.size() " << yv_der2.size() << endl;
 
-	string file_d_string = Monostate::dir_name + "der\\run_1.bin";
-	FILE *file_d = fopen(file_d_string.c_str(), "wb");
-
-	string file_d2_string = Monostate::dir_name + "der2\\run_1.bin";
-	FILE* file_d2 = fopen(file_d2_string.c_str(), "wb");
+	FILE *file_d = fopen(Monostate::der_name.c_str(), "wb");
+	FILE* file_d2 = fopen(Monostate::der2_name.c_str(), "wb");
 	
 	
 	fwrite(&yv_der[0], sizeof(vector<double>::value_type), xv.size(), file_d);

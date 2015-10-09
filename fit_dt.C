@@ -49,7 +49,7 @@ void fit_dt(char name[])
 	
 	const int n_bins = 1000;
 	const double fit_range_min = 0;
-	const double fit_range_max = 400;
+	const double fit_range_max = 1500;
 	
 	TH1F *h1 = new TH1F("h1f","hist", n_bins, fit_range_min, fit_range_max);
 	h1->SetFillColor(kRed);
@@ -68,7 +68,7 @@ void fit_dt(char name[])
 			h1->Scale(scale);
 						
 			fitFcn->SetParameter(0, 50); 
-			fitFcn->SetParLimits(0, 1, 100);
+			fitFcn->SetParLimits(0, 1, 300);
 			
 			//fitFcn->SetParameter(1, 1 / 100.0); 			
 			//fitFcn->SetParLimits(1, 0, 1 / 10.0);

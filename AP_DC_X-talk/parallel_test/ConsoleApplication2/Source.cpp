@@ -30,8 +30,7 @@ int main(int argc, char *argv[])
 				sum += (4.0 / (1.0 + x*x));
 			}
 			mypi = h * sum;
-			MPI_Reduce(&mypi, &pi, 1, MPI_DOUBLE, MPI_SUM, 0,
-				MPI_COMM_WORLD);
+			MPI_Reduce(&mypi, &pi, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 			if (myid == 0)
 			{
 				t2 = MPI_Wtime();

@@ -20,8 +20,8 @@ using namespace RooFit;
 
 void RooFit_my()
 {
-   RooRealVar t("t","time", 0, 150);
-   RooRealVar tau("tau","tau parameter", 50, 1, 100);
+   RooRealVar t("t","time", 0, 1500);
+   RooRealVar tau("tau","tau parameter", 50, 1, 200);
    RooGenericPdf genpdf("genpdf","genpdf","( 1 / tau * exp( - t / tau ) )", RooArgSet(t, tau));
    
    //double x[5] = {0, 5, 4, 8, 0};
@@ -30,11 +30,26 @@ void RooFit_my()
 	std::vector<double> x;
 	RooRealVar varx("t","t",-TMath::Infinity(), TMath::Infinity() );  
 	RooDataSet *data = new RooDataSet("data","data",varx); 
+	
+	ifstream file_input("D:\\Data_work\\simulating_signal\\test_signal_ti_hist_pure.txt");
+	
+	/*
 	for (unsigned int i = 0; i < 100; ++i) 
 	{ 
 		varx.setVal( i ); 
 		data->add(varx);
 		//data->Print("v");
+	}
+	*/
+	
+	
+	//for (unsigned int i = 0; i < 100; ++i)
+	while(!file_input.eof())
+	{
+		double value;
+		file_input >> value;
+		varx.setVal( value ); 
+		data->add(varx);		
 	}
 	
    

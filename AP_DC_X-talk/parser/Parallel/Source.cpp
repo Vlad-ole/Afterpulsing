@@ -49,23 +49,42 @@ int MyClass2::variable;
 
 int main(int argc, char *argv[])
 {
-	//	TVirtualFitter::SetDefaultFitter("Minuit2");
-	//	
-
-	int n, myid, numprocs, i;
+	
+	// Initialise MPI
+	//-----------------------------------------------
 	MPI_Init(&argc, &argv);
+	int n, myid, numprocs, i;
+	double t1, t2;
 
-	MPI_Finalize();
+	MPI_Comm_size(MPI_COMM_WORLD, &numprocs);
+	MPI_Comm_rank(MPI_COMM_WORLD, &myid);
+	MPI_Bcast(&n, 1, MPI_INT, 0, MPI_COMM_WORLD);
+
+	//-----------------------------------------------
+
+	if (myid == 0)
+	{
+		t1 = MPI_Wtime();
+	}
+
+
+	for (i = myid + 1; i <= 50000; i += numprocs)
+	{
+		MyClass *obj = new MyClass();
+		obj->SetParameters();
+		obj->DoFit();
+	}
+
 	
 //#pragma omp parallel num_threads(1)
 //	{
 //#pragma omp for   
 //		for (int i = 0; i < 2; i++)
 //		{
-//			printf(" \n thread is %d\n", omp_get_thread_num());
-//			MyClass *obj = new MyClass();
-//			obj->SetParameters();
-//			obj->DoFit();
+			//printf(" \n thread is %d\n", omp_get_thread_num());
+			//MyClass *obj = new MyClass();
+			//obj->SetParameters();
+			//obj->DoFit();
 //		}
 //	}
 
@@ -100,6 +119,17 @@ int main(int argc, char *argv[])
 	//int commsize, rank, len;
 	//MPI_Comm_size(MPI_COMM_WORLD, &commsize);
 
-	system("pause");
+	if (myid == 0)
+	{
+		t2 = MPI_Wtime();
+		printf("'time is %f seconds \n", t2 - t1);
+		system("pause");
+	}
+	//
+	
+
+	// Finalize MPI
+	MPI_Finalize();
+
 	return 0;
 }

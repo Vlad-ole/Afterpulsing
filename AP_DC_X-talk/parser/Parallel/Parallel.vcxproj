@@ -41,8 +41,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Program Files %28x86%29\Microsoft SDKs\MPI\Include;C:\root_v5.34.32\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Program Files %28x86%29\Microsoft SDKs\MPI\Lib\x86;C:\root_v5.34.32\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Program Files\Microsoft MPI\Inc;C:\root_v5.34.32\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files\Microsoft MPI\Lib\i386;C:\root_v5.34.32\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>

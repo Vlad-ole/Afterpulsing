@@ -47,5 +47,5 @@ void MyClass::SetParameters()
 
 void MyClass::DoFit()
 {
-	gr->Fit("fitFcn", "R");
+	gr->Fit("fitFcn", "RQ");
 }

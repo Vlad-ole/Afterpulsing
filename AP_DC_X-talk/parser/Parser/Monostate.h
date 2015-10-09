@@ -57,11 +57,6 @@ public:
 	static ofstream file_amp;
 	static ofstream file_long_dt;
 	
-	const static int rec_lenght;
-
-	const static int time_pre;
-	const static int time_post;
-
 	const static double chi2_per_dof_th;
 
 };

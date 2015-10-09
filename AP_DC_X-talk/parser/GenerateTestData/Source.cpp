@@ -90,10 +90,9 @@ double Get_dt()
 
 int main()
 {
-	ofstream file_out("D:\\Data_work\\tektronix_signal\\295K\\295K_73.90\\raw\\test_signal_pure.txt");
-	ofstream file_ti("D:\\Data_work\\tektronix_signal\\295K\\295K_73.90\\raw\\test_signal_ti_pure.txt");
-	ofstream file_ti_hist("D:\\Data_work\\tektronix_signal\\295K\\295K_73.90\\raw\\test_signal_ti_hist_pure.txt");
-	
+	ofstream file_out("D:\\Data_work\\simulating_signal\\test_signal_pure.txt");
+	ofstream file_ti("D:\\Data_work\\simulating_signal\\test_signal_ti_pure.txt");
+	ofstream file_ti_hist("D:\\Data_work\\simulating_signal\\test_signal_ti_hist_pure.txt");	
 	
 
 	const int cycles = 10000;
@@ -271,9 +270,21 @@ int main()
 	}
 
 	cout << "write in file..." << endl;
+
+	FILE *stream;
+	string file_write = "D:\\Data_work\\simulating_signal\\test_signal_pure.bin";
+	stream = fopen(file_write.c_str(), "wb");
+
+	int size = yv.size();
+	fwrite(&size, sizeof(size), 1, stream);
+
 	for (int i = 0; i < cycles * signal_length; i++)
 	{
 		file_out << i*0.2 << "\t" << yv[i] << endl;
+
+		double a = yv[i];
+		fwrite(&a, sizeof(a), 1, stream);
+
 		if (i % 10000 == 0)
 		{
 			cout << (i * 100.0) / (cycles * signal_length) << " %" << endl;
