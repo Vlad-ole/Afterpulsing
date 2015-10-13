@@ -26,6 +26,9 @@ int RootFit::time_finish_index;
 
 int RootFit::time_shit;
 
+double RootFit::threshold_1e_low;
+double RootFit::threshold_1e_high;
+
 double RootFit::threshold_der2;
 double RootFit::threshold_der;
 double RootFit::threshold_amp;
@@ -39,6 +42,8 @@ vector<int> RootFit::time_finish;
 vector<int> RootFit::time_front;
 
 int RootFit::current_signal;
+
+bool RootFit::only_1e;
 
 
 //> "D:\\Data_work\\tektronix_signal\\295K\\295K_73.90\\fit_log.txt"
@@ -120,6 +125,9 @@ int main(int argc, char *argv[])
 		RootFit::threshold_amp = -0.001;
 		RootFit::threshold_amp_start = -0.005;
 
+		RootFit::threshold_1e_low = 0;//0.008;
+		RootFit::threshold_1e_high = 0.016;
+
 		//RootFit::CalculateAverageSignal(200); //time_dead in ns
 
 		RootFit::FindStartStop(5, 20); // найти начало и конец суммы сигналов
@@ -127,6 +135,8 @@ int main(int argc, char *argv[])
 		RootFit::time_shit = 100; // задать смещение по времени для учета базовой линии (в точках)
 
 		RootFit::previousIs1e = true;
+
+		RootFit::only_1e = false;
 
 	}
 	//serial region 1 end

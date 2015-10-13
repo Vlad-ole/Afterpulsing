@@ -33,6 +33,8 @@ public:
 	static void CalculateAverageSignal(double time_dead);
 
 	short int number_of_functions;
+
+	static bool only_1e;
 	
 	static vector<double> xv;
 	static vector<double> yv;	
@@ -50,6 +52,9 @@ public:
 	static double threshold_der2;
 	static double threshold_amp;
 	static double threshold_amp_start;
+
+	static double threshold_1e_low;
+	static double threshold_1e_high;
 
 	static int current_signal;
 	

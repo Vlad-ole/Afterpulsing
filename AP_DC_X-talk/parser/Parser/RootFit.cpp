@@ -296,14 +296,21 @@ void RootFit::SaveAllGraphs()
 			this->SaveGraphs(Monostate::Hlist_f2);
 		}
 
-		//печатать в файл амплитуду и время успешно фитированных импульсов
-		if (this->GetChi2PerDof() < Monostate::chi2_per_dof_th && fitFcn->GetParameter(0) < 0.05)
+		if (this->GetChi2PerDof() < Monostate::chi2_per_dof_th)
 		{
-			this->Print_dt_amp();
-		}
-		if (this->GetChi2PerDof() < Monostate::chi2_per_dof_th && fitFcn->GetParameter(0) > 0.05)
-		{
-			previousIs1e = false;
+			if (only_1e)
+			{
+				//печатать в файл амплитуду и время успешно фитированных импульсов
+				bool condition_0 = fitFcn->GetParameter(0) > RootFit::threshold_1e_low && fitFcn->GetParameter(0) < RootFit::threshold_1e_high;
+				if (condition_0)
+					this->Print_dt_amp();
+				else
+					previousIs1e = false;				
+			}
+			else
+			{
+				this->Print_dt_amp();
+			}
 		}
 
 	}
@@ -333,16 +340,26 @@ void RootFit::SaveAllGraphs()
 			this->SaveGraphs(Monostate::Hlist_f2_good);
 		}
 
-		//печатать в файл амплитуду и время успешно фитированных импульсов
-		if (this->GetChi2PerDof() < Monostate::chi2_per_dof_th && fitFcn->GetParameter(0) < 0.05 && fitFcn->GetParameter(6) < 0.05)
-			this->Print_dt_amp();
 		if (this->GetChi2PerDof() < Monostate::chi2_per_dof_th)
 		{
-			if (fitFcn->GetParameter(0) > 0.05 || fitFcn->GetParameter(6) > 0.05)
+			if (only_1e)
 			{
-				previousIs1e = false;
+				//печатать в файл амплитуду и время успешно фитированных импульсов
+				bool condition_0 = fitFcn->GetParameter(0) > RootFit::threshold_1e_low && fitFcn->GetParameter(0) < RootFit::threshold_1e_high;
+				bool condition_6 = fitFcn->GetParameter(6) > RootFit::threshold_1e_low && fitFcn->GetParameter(6) < RootFit::threshold_1e_high;
+
+				if (condition_0 && condition_6)
+					this->Print_dt_amp();
+				else
+					previousIs1e = false;
+				
+			}
+			else
+			{
+				this->Print_dt_amp();
 			}
 		}
+
 
 	}
 
@@ -352,7 +369,7 @@ void RootFit::SaveAllGraphs()
 		/*bool flag_temp = this->fitFcn->GetParameter(0) < 0.03 || this->fitFcn->GetParameter(6) < 0.03 || this->fitFcn->GetParameter(11) < 0.03;
 		if (flag_temp && this->GetChi2PerDof() < Monostate::chi2_per_dof_th)
 		{
-			this->SaveGraphs(Monostate::Hlist_test);
+		this->SaveGraphs(Monostate::Hlist_test);
 		}*/
 
 		//записать графики, после фита тремя функциями
@@ -370,9 +387,25 @@ void RootFit::SaveAllGraphs()
 			this->SaveGraphs(Monostate::Hlist_f3_good);
 		}
 
-		//печатать в файл амплитуду и время успешно фитированных импульсов
-		if (this->GetChi2PerDof() < Monostate::chi2_per_dof_th && fitFcn->GetParameter(0) < 0.05 && fitFcn->GetParameter(6) < 0.05 && fitFcn->GetParameter(11) < 0.05)
-			this->Print_dt_amp();
+		if (this->GetChi2PerDof() < Monostate::chi2_per_dof_th)
+		{
+			if (only_1e)
+			{
+				bool condition_0 = fitFcn->GetParameter(0) > RootFit::threshold_1e_low && fitFcn->GetParameter(0) < RootFit::threshold_1e_high;
+				bool condition_6 = fitFcn->GetParameter(6) > RootFit::threshold_1e_low && fitFcn->GetParameter(6) < RootFit::threshold_1e_high;
+				bool condition_11 = fitFcn->GetParameter(11) > RootFit::threshold_1e_low && fitFcn->GetParameter(11) < RootFit::threshold_1e_high;
+				//печатать в файл амплитуду и время успешно фитированных импульсов
+
+				if (condition_0 && condition_6 && condition_11)
+					this->Print_dt_amp();
+				else
+					previousIs1e = false;
+			}
+			else
+			{
+				this->Print_dt_amp();
+			}
+		}
 
 		//if (fitFcn->GetParameter(0) > 0.02)
 		//{
@@ -397,16 +430,34 @@ void RootFit::SaveAllGraphs()
 			this->SaveGraphs(Monostate::Hlist_f4_good);
 		}
 
-		//печатать в файл амплитуду и время успешно фитированных импульсов
-		if (this->GetChi2PerDof() < Monostate::chi2_per_dof_th && fitFcn->GetParameter(0) < 0.05 && fitFcn->GetParameter(6) < 0.05 && fitFcn->GetParameter(11) < 0.05 && fitFcn->GetParameter(16) < 0.05)
-			this->Print_dt_amp();
+		if (this->GetChi2PerDof() < Monostate::chi2_per_dof_th)
+		{
+			if (only_1e)
+			{
+				bool condition_0 = fitFcn->GetParameter(0) > RootFit::threshold_1e_low && fitFcn->GetParameter(0) < RootFit::threshold_1e_high;
+				bool condition_6 = fitFcn->GetParameter(6) > RootFit::threshold_1e_low && fitFcn->GetParameter(6) < RootFit::threshold_1e_high;
+				bool condition_11 = fitFcn->GetParameter(11) > RootFit::threshold_1e_low && fitFcn->GetParameter(11) < RootFit::threshold_1e_high;
+				bool condition_16 = fitFcn->GetParameter(16) > RootFit::threshold_1e_low && fitFcn->GetParameter(16) < RootFit::threshold_1e_high;
+				//печатать в файл амплитуду и время успешно фитированных импульсов
+				if (condition_0 && condition_6 && condition_11 && condition_16)
+					this->Print_dt_amp();
+				else
+					previousIs1e = false;
+			}
+			else
+			{
+				this->Print_dt_amp();
+			}
+		}
 	}
 
 	if (this->number_of_functions == 5)
 	{
-		//печатать в файл амплитуду и время успешно фитированных импульсов
-		//if (Fit_quintuple->GetChi2PerDof() < Monostate::chi2_per_dof_th)
-		this->Print_dt_amp();
+		//записать графики с хорошим Chi2 после фита 5 функциями
+		if (this->GetChi2PerDof() < Monostate::chi2_per_dof_th)
+		{
+			this->SaveGraphs(Monostate::Hlist_f5_good);
+		}
 
 		//записать графики с плохим Chi2 после фита 5 функциями
 		if (this->GetChi2PerDof() > Monostate::chi2_per_dof_th)
@@ -414,10 +465,30 @@ void RootFit::SaveAllGraphs()
 			this->SaveGraphs(Monostate::Hlist_f5_bad);
 		}
 
-		//записать графики с хорошим Chi2 после фита 5 функциями
-		if (this->GetChi2PerDof() < Monostate::chi2_per_dof_th && fitFcn->GetParameter(0) < 0.05 && fitFcn->GetParameter(6) < 0.05 && fitFcn->GetParameter(11) < 0.05 && fitFcn->GetParameter(16) < 0.05 && fitFcn->GetParameter(21) < 0.05)
+		if (this->GetChi2PerDof() < Monostate::chi2_per_dof_th)
 		{
-			this->SaveGraphs(Monostate::Hlist_f5_good);
+			if (only_1e)
+			{
+				//записать графики с хорошим Chi2 после фита 5 функциями
+				bool condition_0 = fitFcn->GetParameter(0) > RootFit::threshold_1e_low && fitFcn->GetParameter(0) < RootFit::threshold_1e_high;
+				bool condition_6 = fitFcn->GetParameter(6) > RootFit::threshold_1e_low && fitFcn->GetParameter(6) < RootFit::threshold_1e_high;
+				bool condition_11 = fitFcn->GetParameter(11) > RootFit::threshold_1e_low && fitFcn->GetParameter(11) < RootFit::threshold_1e_high;
+				bool condition_16 = fitFcn->GetParameter(16) > RootFit::threshold_1e_low && fitFcn->GetParameter(16) < RootFit::threshold_1e_high;
+				bool condition_21 = fitFcn->GetParameter(21) > RootFit::threshold_1e_low && fitFcn->GetParameter(21) < RootFit::threshold_1e_high;
+
+				if (condition_0 && condition_6 && condition_11 && condition_16 && condition_21)
+					this->Print_dt_amp();
+				else
+					previousIs1e = false;
+			}
+			else
+			{
+				this->Print_dt_amp();
+			}
+		}
+		else
+		{
+			previousIs1e = false;
 		}
 	}
 
@@ -449,51 +520,59 @@ void RootFit::Print_dt_amp()
 		Monostate::file_amp << setprecision(17) << fitFcn->GetParameter(0) << endl;
 
 
-		if (previousIs1e)
+		if (only_1e)
 		{
-			Monostate::file_dt << fitFcn->GetParameter(1) - previous_time << endl;
-
-			if (fitFcn->GetParameter(1) - previous_time > 3000)
+			if (previousIs1e)
 			{
-				cout << endl << "strange times (ns) is " << previous_time << "\t" << fitFcn->GetParameter(1) << endl;
-				cout << endl << "strange times (points) is " << previous_time*5 << "\t" << fitFcn->GetParameter(1)*5 << endl;
-				
-				int a = int(previous_time * 5) - 300;
-				int b = int(fitFcn->GetParameter(1) * 5) + 300;
-				
-				TGraphErrors *gr_long_dt = new TGraphErrors(b - a, &xv[a], &yv[a], &xverr[a], &yverr[a]);
-				gr_long_dt->SetMarkerColor(4);
-				gr_long_dt->SetMarkerStyle(kFullCircle);
+				Monostate::file_dt << fitFcn->GetParameter(1) - previous_time << endl;
 
-				TGraph *gr_der_long_dt = new TGraph(b - a, &xv[a], &yv_der[a]);
-				for (int i = 0; i < gr_der_long_dt->GetN(); i++) gr_der_long_dt->GetY()[i] *= 50;
+				//if (fitFcn->GetParameter(1) - previous_time > 3000)
+				//{
+				//	cout << endl << "strange times (ns) is " << previous_time << "\t" << fitFcn->GetParameter(1) << endl;
+				//	cout << endl << "strange times (points) is " << previous_time * 5 << "\t" << fitFcn->GetParameter(1) * 5 << endl;
 
-				TMultiGraph *mg_long_dt = new TMultiGraph();
+				//	int a = int(previous_time * 5) - 300;
+				//	int b = int(fitFcn->GetParameter(1) * 5) + 300;
 
-				mg_long_dt->Add(gr_long_dt);
-				mg_long_dt->Add(gr_der_long_dt);
+				//	TGraphErrors *gr_long_dt = new TGraphErrors(b - a, &xv[a], &yv[a], &xverr[a], &yverr[a]);
+				//	gr_long_dt->SetMarkerColor(4);
+				//	gr_long_dt->SetMarkerStyle(kFullCircle);
 
-				Monostate::Hlist_test.Add(mg_long_dt);
-				/*for (int k = int(previous_time * 5); k < int(fitFcn->GetParameter(1) * 5); k++)
-				{
-					Monostate::file_long_dt << xv[k] << "\t" << yv[k] << endl;
-				}
+				//	TGraph *gr_der_long_dt = new TGraph(b - a, &xv[a], &yv_der[a]);
+				//	for (int i = 0; i < gr_der_long_dt->GetN(); i++) gr_der_long_dt->GetY()[i] *= 50;
 
-				system("pause");*/
-				//this->SaveGraphs(Monostate::Hlist_test);
-				
-				//delete mg_long_dt;
-				//delete gr_der_long_dt;				
-				//delete gr_long_dt;
-								
+				//	TMultiGraph *mg_long_dt = new TMultiGraph();
+
+				//	mg_long_dt->Add(gr_long_dt);
+				//	mg_long_dt->Add(gr_der_long_dt);
+
+				//	Monostate::Hlist_test.Add(mg_long_dt);
+				//	/*for (int k = int(previous_time * 5); k < int(fitFcn->GetParameter(1) * 5); k++)
+				//	{
+				//	Monostate::file_long_dt << xv[k] << "\t" << yv[k] << endl;
+				//	}
+
+				//	system("pause");*/
+				//	//this->SaveGraphs(Monostate::Hlist_test);
+
+				//	//delete mg_long_dt;
+				//	//delete gr_der_long_dt;				
+				//	//delete gr_long_dt;
+
+				//}
+
+				previous_time = fitFcn->GetParameter(1);
 			}
-
-			previous_time = fitFcn->GetParameter(1);
+			else
+			{
+				previous_time = fitFcn->GetParameter(1);
+				previousIs1e = true;
+			}
 		}
 		else
 		{
+			Monostate::file_dt << fitFcn->GetParameter(1) - previous_time << endl;
 			previous_time = fitFcn->GetParameter(1);
-			previousIs1e = true;
 		}
 
 		/*if (!PreviousIsSingle)
@@ -530,17 +609,26 @@ void RootFit::Print_dt_amp()
 		Monostate::file_amp << v_pairs[0].second << endl;
 		Monostate::file_amp << v_pairs[1].second << endl;
 
-		if (previousIs1e)
+		if (only_1e)
 		{
-			Monostate::file_dt << fitFcn->GetParameter(1) - previous_time << endl;
-			Monostate::file_dt << fitFcn->GetParameter(7) - fitFcn->GetParameter(1) << endl;
-			previous_time = fitFcn->GetParameter(7);
+			if (previousIs1e)
+			{
+				Monostate::file_dt << v_pairs[0].first - previous_time << endl;
+				Monostate::file_dt << v_pairs[1].first - v_pairs[0].first << endl;
+				previous_time = v_pairs[1].first;
+			}
+			else
+			{
+				Monostate::file_dt << v_pairs[1].first - v_pairs[0].first << endl;
+				previous_time = v_pairs[1].first;
+				previousIs1e = true;
+			}
 		}
 		else
 		{
-			Monostate::file_dt << fitFcn->GetParameter(7) - fitFcn->GetParameter(1) << endl;
-			previous_time = fitFcn->GetParameter(7);
-			previousIs1e = true;
+			Monostate::file_dt << v_pairs[0].first - previous_time << endl;
+			Monostate::file_dt << v_pairs[1].first - v_pairs[0].first << endl;
+			previous_time = v_pairs[1].first;
 		}
 
 		//Monostate::file_dt << v_pairs[1].first - v_pairs[0].first << endl;
@@ -580,6 +668,31 @@ void RootFit::Print_dt_amp()
 		Monostate::file_amp << v_pairs[0].second << endl;
 		Monostate::file_amp << v_pairs[1].second << endl;
 		Monostate::file_amp << v_pairs[2].second << endl;
+
+		if (only_1e)
+		{
+			if (previousIs1e)
+			{
+				Monostate::file_dt << v_pairs[0].first - previous_time << endl;
+				Monostate::file_dt << v_pairs[1].first - v_pairs[0].first << endl;
+				Monostate::file_dt << v_pairs[2].first - v_pairs[1].first << endl;
+				previous_time = v_pairs[2].first;
+			}
+			else
+			{
+				Monostate::file_dt << v_pairs[1].first - v_pairs[0].first << endl;
+				Monostate::file_dt << v_pairs[2].first - v_pairs[1].first << endl;
+				previous_time = v_pairs[2].first;
+				previousIs1e = true;
+			}
+		}
+		else
+		{
+			Monostate::file_dt << v_pairs[0].first - previous_time << endl;
+			Monostate::file_dt << v_pairs[1].first - v_pairs[0].first << endl;
+			Monostate::file_dt << v_pairs[2].first - v_pairs[1].first << endl;
+			previous_time = v_pairs[2].first;
+		}
 
 		//Monostate::file_dt << v_pairs[1].first - v_pairs[0].first << endl;
 		//Monostate::file_dt << v_pairs[2].first - v_pairs[1].first << endl;
@@ -626,6 +739,34 @@ void RootFit::Print_dt_amp()
 		Monostate::file_amp << v_pairs[1].second << endl;
 		Monostate::file_amp << v_pairs[2].second << endl;
 		Monostate::file_amp << v_pairs[3].second << endl;
+
+		if (only_1e)
+		{
+			if (previousIs1e)
+			{
+				Monostate::file_dt << v_pairs[0].first - previous_time << endl;
+				Monostate::file_dt << v_pairs[1].first - v_pairs[0].first << endl;
+				Monostate::file_dt << v_pairs[2].first - v_pairs[1].first << endl;
+				Monostate::file_dt << v_pairs[3].first - v_pairs[2].first << endl;
+				previous_time = v_pairs[3].first;
+			}
+			else
+			{
+				Monostate::file_dt << v_pairs[1].first - v_pairs[0].first << endl;
+				Monostate::file_dt << v_pairs[2].first - v_pairs[1].first << endl;
+				Monostate::file_dt << v_pairs[3].first - v_pairs[2].first << endl;
+				previous_time = v_pairs[3].first;
+				previousIs1e = true;
+			}
+		}
+		else
+		{
+			Monostate::file_dt << v_pairs[0].first - previous_time << endl;
+			Monostate::file_dt << v_pairs[1].first - v_pairs[0].first << endl;
+			Monostate::file_dt << v_pairs[2].first - v_pairs[1].first << endl;
+			Monostate::file_dt << v_pairs[3].first - v_pairs[2].first << endl;
+			previous_time = v_pairs[3].first;
+		}
 
 		//Monostate::file_dt << v_pairs[1].first - v_pairs[0].first << endl;
 		//Monostate::file_dt << v_pairs[2].first - v_pairs[1].first << endl;
@@ -680,6 +821,37 @@ void RootFit::Print_dt_amp()
 		Monostate::file_amp << v_pairs[2].second << endl;
 		Monostate::file_amp << v_pairs[3].second << endl;
 		Monostate::file_amp << v_pairs[4].second << endl;
+
+		if (only_1e)
+		{
+			if (previousIs1e)
+			{
+				Monostate::file_dt << v_pairs[0].first - previous_time << endl;
+				Monostate::file_dt << v_pairs[1].first - v_pairs[0].first << endl;
+				Monostate::file_dt << v_pairs[2].first - v_pairs[1].first << endl;
+				Monostate::file_dt << v_pairs[3].first - v_pairs[2].first << endl;
+				Monostate::file_dt << v_pairs[4].first - v_pairs[3].first << endl;
+				previous_time = v_pairs[4].first;
+			}
+			else
+			{
+				Monostate::file_dt << v_pairs[1].first - v_pairs[0].first << endl;
+				Monostate::file_dt << v_pairs[2].first - v_pairs[1].first << endl;
+				Monostate::file_dt << v_pairs[3].first - v_pairs[2].first << endl;
+				Monostate::file_dt << v_pairs[4].first - v_pairs[3].first << endl;
+				previous_time = v_pairs[4].first;
+				previousIs1e = true;
+			}
+		}
+		else
+		{
+			Monostate::file_dt << v_pairs[0].first - previous_time << endl;
+			Monostate::file_dt << v_pairs[1].first - v_pairs[0].first << endl;
+			Monostate::file_dt << v_pairs[2].first - v_pairs[1].first << endl;
+			Monostate::file_dt << v_pairs[3].first - v_pairs[2].first << endl;
+			Monostate::file_dt << v_pairs[4].first - v_pairs[3].first << endl;
+			previous_time = v_pairs[4].first;
+		}
 
 		//Monostate::file_dt << v_pairs[1].first - v_pairs[0].first << endl;
 		///Monostate::file_dt << v_pairs[2].first - v_pairs[1].first << endl;
@@ -989,7 +1161,7 @@ void RootFit::CalculateDer(int type, int points)
 					value += C_i_der[j] * yv[i - point_half + j];
 				}
 				yv_der[i] = value;
-				
+
 
 				value = 0;
 				for (int j = 0; j < C_i_der.size(); j++)
@@ -997,7 +1169,7 @@ void RootFit::CalculateDer(int type, int points)
 					value += C_i_der2[j] * yv[i - point_half + j];
 				}
 				yv_der2[i] = value;
-				
+
 
 			}
 
@@ -1026,20 +1198,20 @@ void RootFit::CalculateDer(int type, int points)
 
 	FILE *file_d = fopen(Monostate::der_name.c_str(), "wb");
 	FILE* file_d2 = fopen(Monostate::der2_name.c_str(), "wb");
-	
-	
+
+
 	fwrite(&yv_der[0], sizeof(vector<double>::value_type), xv.size(), file_d);
 	fwrite(&yv_der2[0], sizeof(vector<double>::value_type), xv.size(), file_d2);
-	
+
 	/*for (int i = 0; i < xv.size(); i++)
 	{
-		file_d << i << "\t" << yv_der[i] << endl;
-		file_d2 << i << "\t" << yv_der2[i] << endl;
+	file_d << i << "\t" << yv_der[i] << endl;
+	file_d2 << i << "\t" << yv_der2[i] << endl;
 
-		if (i % 50000 == 0)
-		{
-			cout << "progress ... " << (i * 100.0) / xv.size() << endl;
-		}
+	if (i % 50000 == 0)
+	{
+	cout << "progress ... " << (i * 100.0) / xv.size() << endl;
+	}
 	}*/
 
 	long int t1_Calculate_derivative = GetTickCount();
@@ -1253,7 +1425,7 @@ void RootFit::CalculateAverageSignal(double time_dead_forward)
 	double time_dead_der = 5; // ns
 	double threshold_1e = -0.01;
 	double threshold_2e = -0.015;
-	
+
 	//бежать по времени
 	for (unsigned int i = 0; i < xv.size(); i++)
 	{
@@ -1265,7 +1437,7 @@ void RootFit::CalculateAverageSignal(double time_dead_forward)
 			bool flag_afp = 1;
 			int x_time_afp = i;
 			int total_num_pulsing = 0;
-			
+
 
 			//вычисление количества импульсов на отрезке 
 			for (int j = i - int(time_dead_forward * 5); j < i + int(time_dead_forward * 5); j++)
@@ -1287,7 +1459,7 @@ void RootFit::CalculateAverageSignal(double time_dead_forward)
 
 			// отбрасывание послеимпульсов
 			double amplitude = 5000;
-			if (total_num_pulsing == 1) 
+			if (total_num_pulsing == 1)
 			{
 				for (int j = /*i - int(time_dead_forward * 5)*/ i; j < i + int(time_dead_forward * 5); j++) // нахождение максимальной амплитуды
 				{
@@ -1312,11 +1484,11 @@ void RootFit::CalculateAverageSignal(double time_dead_forward)
 				mg->Add(gr_der);
 				mg->Add(gr_der2);
 
-				
-				
+
+
 				file_amp_average_mode << abs(amplitude) << endl;
 
-				if (amplitude > threshold_2e && amplitude < threshold_1e && yv[i - int(time_dead_forward * 5)] > (threshold_1e * 0.5) ) // проверка, что импульс одноэлектронный
+				if (amplitude > threshold_2e && amplitude < threshold_1e && yv[i - int(time_dead_forward * 5)] >(threshold_1e * 0.5)) // проверка, что импульс одноэлектронный
 				{
 
 					Monostate::Hlist_reco_time_good.Add(mg);

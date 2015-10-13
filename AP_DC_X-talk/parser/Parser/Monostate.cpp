@@ -12,8 +12,8 @@ Monostate::~Monostate()
 
 const double Monostate::chi2_per_dof_th = 5;
 
-string Monostate::dir_name = "D:\\Data_work\\simulating_signal\\";
-//string Monostate::dir_name = "D:\\Data_work\\tektronix_signal\\295K\\73_90V\\";
+//string Monostate::dir_name = "D:\\Data_work\\simulating_signal\\";
+string Monostate::dir_name = "D:\\Data_work\\tektronix_signal\\295K\\73_90V\\";
 //string Monostate::raw_name = dir_name + "raw\\test_signal_pure.txt";
 string file_name = "run_1.bin";
 string Monostate::raw_name = dir_name + "raw\\binary\\" + file_name;
