@@ -29,6 +29,9 @@ int RootFit::time_shit;
 double RootFit::threshold_1e_low;
 double RootFit::threshold_1e_high;
 
+double RootFit::threshold_1e_A_low;
+double RootFit::threshold_1e_A_high;
+
 double RootFit::threshold_der2;
 double RootFit::threshold_der;
 double RootFit::threshold_amp;
@@ -44,7 +47,7 @@ vector<int> RootFit::time_front;
 int RootFit::current_signal;
 
 bool RootFit::only_1e;
-
+bool RootFit::RecoveryTimeTwoComponents;
 
 //> "D:\\Data_work\\tektronix_signal\\295K\\295K_73.90\\fit_log.txt"
 
@@ -69,6 +72,8 @@ int main(int argc, char *argv[])
 	if (myid == 0)
 	{
 		t_0 = MPI_Wtime();
+
+		const bool ReadDerivative = true;
 
 		ofstream file_test(Monostate::dir_name + "test.dat");
 
@@ -104,39 +109,47 @@ int main(int argc, char *argv[])
 			RootFit::xv[i] = 0.2 * i;
 		}
 
-		//прочитать первую и вторую производную из файла
-		RootFit::yv_der.resize(yv_size_new);
-		RootFit::yv_der2.resize(yv_size_new);
-		fread(&RootFit::yv_der[0], sizeof(vector<double>::value_type), yv_size_new, f_der);
-		fread(&RootFit::yv_der2[0], sizeof(vector<double>::value_type), yv_size_new, f_der2);
+		if (ReadDerivative)
+		{
+			//прочитать первую и вторую производную из файла
+			RootFit::yv_der.resize(yv_size_new);
+			RootFit::yv_der2.resize(yv_size_new);
+			fread(&RootFit::yv_der[0], sizeof(vector<double>::value_type), yv_size_new, f_der);
+			fread(&RootFit::yv_der2[0], sizeof(vector<double>::value_type), yv_size_new, f_der2);
+		}
 		//----------------------------------------------------
 
 		cout << endl << "Time of file reading is (in s) " << MPI_Wtime() - t_0 << endl;
 
-
-		//RootFit::CalculateDer(1, 51); // посчитать производную по данным (число точек должно быть нечетным)
+		if (!ReadDerivative)
+			RootFit::CalculateDer(1, 51); // посчитать производную по данным (число точек должно быть нечетным)
 
 		//RootFit::CalculateStaircases_der(5); //time_dead in ns
 		//RootFit::CalculateStaircases_amp(10); //time_dead in ns
-		//exit(0);
-
+		
 		RootFit::threshold_der2 = -1E-5;
-		RootFit::threshold_der = -2E-4;
-		RootFit::threshold_amp = -0.001;
-		RootFit::threshold_amp_start = -0.005;
+		RootFit::threshold_der =
+			/*-2E-4 (hamamatsu 33 4.5 OV)*/
+			/*-0.06  MPPC_S10362-11-100C */
+			-2E-4;
 
-		RootFit::threshold_1e_low = 0;//0.008;
+		RootFit::RecoveryTimeTwoComponents = true;
+		RootFit::only_1e = true; // рассматривать импульсы с послеимпульсами только с одной ячейки
+		RootFit::previousIs1e = true; // вспомогательное условие
+
+		RootFit::threshold_amp = -0.001; // амплитудный порог, находящийся на уровне шума
+		RootFit::threshold_amp_start = -0.005; // амплитудный порог для запуска 
+
+		RootFit::threshold_1e_low = 0.008; // пороги по амплитуде (в Вольтах) для правильного нахождения средней формы сигнала
 		RootFit::threshold_1e_high = 0.016;
-
 		//RootFit::CalculateAverageSignal(200); //time_dead in ns
 
+		RootFit::threshold_1e_A_low = 0.02;
+		RootFit::threshold_1e_A_high = 0.07;
+		
 		RootFit::FindStartStop(5, 20); // найти начало и конец суммы сигналов
 		RootFit::SetDispXY(0, 0.00113151);// записать вектора xverr и yverr значениеми ошибок
-		RootFit::time_shit = 100; // задать смещение по времени для учета базовой линии (в точках)
-
-		RootFit::previousIs1e = true;
-
-		RootFit::only_1e = false;
+		RootFit::time_shit = 100; // задать смещение по времени для учета базовой линии (в точках)		
 
 	}
 	//serial region 1 end

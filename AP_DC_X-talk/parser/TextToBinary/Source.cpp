@@ -10,8 +10,8 @@ using namespace std;
 //vector<double> xv;
 vector<double> yv;
 
-string dir_name = "D:\\Data_work\\tektronix_signal\\295K\\73_90V\\raw\\";
-string file_name = "run_1";
+string dir_name = "D:\\Data_work\\tektronix_signal\\MPPC_S10362-11-100C\\70_00V\\raw\\";
+string file_name = "run_5";
 string file_write = dir_name + "binary\\" + file_name + ".bin";
 string file_read = dir_name + "text\\" + file_name + ".txt";
 
@@ -43,6 +43,10 @@ void read_data()
 	FILE *stream;
 	
 	stream = fopen(file_read.c_str(), "rb");
+	if (stream == NULL)
+	{
+		cout << "can't open file: " << file_read << endl;
+	}
 	
 	int counter = 0;
 	double x, y;

@@ -10,10 +10,11 @@ Monostate::~Monostate()
 {
 }
 
-const double Monostate::chi2_per_dof_th = 5;
+const double Monostate::chi2_per_dof_th = 1;
 
 //string Monostate::dir_name = "D:\\Data_work\\simulating_signal\\";
-string Monostate::dir_name = "D:\\Data_work\\tektronix_signal\\295K\\73_90V\\";
+//string Monostate::dir_name = "D:\\Data_work\\tektronix_signal\\295K\\73_90V\\";
+string Monostate::dir_name = "D:\\Data_work\\tektronix_signal\\MPPC_S10362-11-100C\\70_00V\\";
 //string Monostate::raw_name = dir_name + "raw\\test_signal_pure.txt";
 string file_name = "run_1.bin";
 string Monostate::raw_name = dir_name + "raw\\binary\\" + file_name;
@@ -21,6 +22,7 @@ string Monostate::der_name = dir_name + "der\\" + file_name;
 string Monostate::der2_name = dir_name + "der2\\" + file_name;
 
 TObjArray Monostate::Hlist_test(0);
+TObjArray Monostate::Hlist_test_2(0);
 
 TObjArray Monostate::Hlist_f1(0);
 TObjArray Monostate::Hlist_f1_good(0);
@@ -55,6 +57,11 @@ ofstream Monostate::amp_chi2_fnc1(dir_name + "amp_chi2_fnc1.dat");
 ofstream Monostate::amp_chi2_fnc2(dir_name + "amp_chi2_fnc2.dat");
 ofstream Monostate::amp_chi2_fnc3(dir_name + "amp_chi2_fnc3.dat");
 
+ofstream Monostate::amp_chi2_fnc1_all_signals(dir_name + "amp_chi2_fnc1_all_signals.dat");
+ofstream Monostate::amp_chi2_fnc2_all_signals(dir_name + "amp_chi2_fnc2_all_signals.dat");
+ofstream Monostate::amp_chi2_fnc3_all_signals(dir_name + "amp_chi2_fnc_all_signals3.dat");
+
+
 ofstream Monostate::time_delta(dir_name + "time_delta.dat");
 ofstream Monostate::file_dt(dir_name + "dt.dat");
 ofstream Monostate::file_amp(dir_name + "amp.dat");
@@ -65,10 +72,8 @@ ofstream Monostate::file_long_dt(dir_name + "long_dt.dat");
 void Monostate::SaveHlists()
 {
 	string s_Hlist_test = dir_name + "Hlist_test.root";
-	
-	//average
-	string s_Hlist_good_time = dir_name + "Hlist_good_time.root";
-	string s_Hlist_bad_time = dir_name + "Hlist_bad_time.root";
+	string s_Hlist_test_2 = dir_name + "Hlist_test_2.root";
+
 	
 	string s_Hlist_f1 = dir_name + "Hlist_f1.root";
 	string s_Hlist_f1_good = dir_name + "Hlist_f1_good.root";
@@ -95,19 +100,15 @@ void Monostate::SaveHlists()
 
 	// Open a file, save the ntuple and close the file
 	
+	//tests
 	TFile ofile_Hlist_test(s_Hlist_test.c_str(), "RECREATE");
 	Hlist_test.Write();
 	ofile_Hlist_test.Close();
 	
+	TFile ofile_Hlist_test_2(s_Hlist_test_2.c_str(), "RECREATE");
+	Hlist_test_2.Write();
+	ofile_Hlist_test_2.Close();
 
-	//average
-	TFile ofile_Hlist_good_time(s_Hlist_good_time.c_str(), "RECREATE");
-	Hlist_reco_time_good.Write();
-	ofile_Hlist_good_time.Close();
-
-	TFile ofile_Hlist_bad_time(s_Hlist_bad_time.c_str(), "RECREATE");
-	Hlist_reco_time_bad.Write();
-	ofile_Hlist_bad_time.Close();
 
 
 	//f1

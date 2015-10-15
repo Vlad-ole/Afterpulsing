@@ -18,7 +18,7 @@ using namespace std;
 using namespace RooFit;
 
 
-void RooFit_my(char name[])
+void RooFit_my_two_comp(char name[])
 {
    RooRealVar t("t","time", 0, 20000);
    
@@ -74,7 +74,7 @@ void RooFit_my(char name[])
 	*/
 	
    
-	genpdf.fitTo(*data, Range(50, 20000));
+	genpdf.fitTo(*data, Range(200, 20000));
 	cout << endl;
 	nu_f.Print();
 	nu_s.Print();

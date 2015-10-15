@@ -14,6 +14,7 @@ public:
 	~RootFit();	
 
 	void SetParameters();
+	void SetParametersTwoComp();
 	void DoFit();
 	double GetChi2PerDof();
 	double GetAmplitude();
@@ -35,6 +36,7 @@ public:
 	short int number_of_functions;
 
 	static bool only_1e;
+	static bool RecoveryTimeTwoComponents;
 	
 	static vector<double> xv;
 	static vector<double> yv;	
@@ -55,7 +57,10 @@ public:
 
 	static double threshold_1e_low;
 	static double threshold_1e_high;
-
+	
+	static double threshold_1e_A_low;
+	static double threshold_1e_A_high;
+	
 	static int current_signal;
 	
 	//static bool PreviousIsSingle;
@@ -66,13 +71,20 @@ public:
 //private:
 	
 	static double fitFunction_nobaseline(double *x, double *par);
+	static double fitFunction_nobaseline_fast_slow(double *x, double *par);
+
 	static Double_t fitFunction(Double_t *x, Double_t *par);
 	static double F(double t, double sigma, double tau);	
 	static double fitFunction_2(Double_t *x, Double_t *par);
 	static double fitFunction_3(Double_t *x, Double_t *par);
 	static double fitFunction_4(Double_t *x, Double_t *par);
 	static double fitFunction_5(Double_t *x, Double_t *par);
-	static double fitFunction_6(Double_t *x, Double_t *par);
+
+	static Double_t fitFunctionTwoComp(Double_t *x, Double_t *par);
+	static double fitFunction_2_TwoComp(Double_t *x, Double_t *par);
+	static double fitFunction_3_TwoComp(Double_t *x, Double_t *par);
+	static double fitFunction_4_TwoComp(Double_t *x, Double_t *par);
+	static double fitFunction_5_TwoComp(Double_t *x, Double_t *par);
 	
 	static void CalculateFilterCoeff(int points);
 

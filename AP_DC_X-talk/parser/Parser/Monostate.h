@@ -19,6 +19,7 @@ public:
 	static string der2_name;
 	
 	static TObjArray Hlist_test;
+	static TObjArray Hlist_test_2;
 
 	static TObjArray Hlist_f1;
 	static TObjArray Hlist_f1_good;
@@ -50,6 +51,10 @@ public:
 	static ofstream amp_chi2_fnc1;
 	static ofstream amp_chi2_fnc2;
 	static ofstream amp_chi2_fnc3;
+
+	static ofstream amp_chi2_fnc1_all_signals;
+	static ofstream amp_chi2_fnc2_all_signals;
+	static ofstream amp_chi2_fnc3_all_signals;
 	
 	static ofstream time_i;
 	static ofstream time_delta;
