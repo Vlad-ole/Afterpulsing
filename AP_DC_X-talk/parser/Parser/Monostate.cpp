@@ -23,6 +23,7 @@ string Monostate::der2_name = dir_name + "der2\\" + file_name;
 
 TObjArray Monostate::Hlist_test(0);
 TObjArray Monostate::Hlist_test_2(0);
+TObjArray Monostate::Hlist_chi2_amp_cut_2(0);
 
 TObjArray Monostate::Hlist_f1(0);
 TObjArray Monostate::Hlist_f1_good(0);
@@ -73,7 +74,7 @@ void Monostate::SaveHlists()
 {
 	string s_Hlist_test = dir_name + "Hlist_test.root";
 	string s_Hlist_test_2 = dir_name + "Hlist_test_2.root";
-
+	string s_Hlist_chi2_amp_cut_2 = dir_name + "Hlist_chi2_amp_cut_2.root";
 	
 	string s_Hlist_f1 = dir_name + "Hlist_f1.root";
 	string s_Hlist_f1_good = dir_name + "Hlist_f1_good.root";
@@ -109,7 +110,9 @@ void Monostate::SaveHlists()
 	Hlist_test_2.Write();
 	ofile_Hlist_test_2.Close();
 
-
+	TFile ofile_Hlist_chi2_amp_cut_2(s_Hlist_chi2_amp_cut_2.c_str(), "RECREATE");
+	Hlist_chi2_amp_cut_2.Write();
+	ofile_Hlist_chi2_amp_cut_2.Close();
 
 	//f1
 	TFile ofile_Hlist_f1(s_Hlist_f1.c_str(), "RECREATE");

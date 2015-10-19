@@ -556,7 +556,7 @@ void RootFit::SaveAllGraphs()
 		//записать коррел€цию амплитуда - chi2 / dof дл€ всех сигналов
 		Monostate::amp_chi2_fnc1_all_signals << setprecision(17) << fitFcn->GetParameter(0) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
 
-		if (this->GetChi2PerDof() > 5 && fitFcn->GetParameter(0) < 0.06)
+		if (this->GetChi2PerDof() < 6 && this->GetChi2PerDof() > 2 && fitFcn->GetParameter(0) > 0.06 && fitFcn->GetParameter(0) < 0.1)
 		{
 			this->SaveGraphs(Monostate::Hlist_test_2);
 		}
@@ -600,16 +600,29 @@ void RootFit::SaveAllGraphs()
 		}
 
 
+
 		if (this->GetChi2PerDof() < Monostate::chi2_per_dof_th)
 		{
 			//записать графики с хорошим Chi2 после фита двум€ функци€ми
 			this->SaveGraphs(Monostate::Hlist_f2_good);
 		}
 
-		//записать коррел€цию амплитуда - chi2 / dof дл€ всех сигналов
-		//Monostate::amp_chi2_fnc1_all_signals << setprecision(17) << fitFcn->GetParameter(0) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
-		//Monostate::amp_chi2_fnc1_all_signals << setprecision(17) << fitFcn->GetParameter(0) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
+		bool SummAmp = true;
+		if (!SummAmp)
+		{
+			//записать коррел€цию амплитуда - chi2 / dof дл€ всех сигналов
+			Monostate::amp_chi2_fnc2_all_signals << setprecision(17) << fitFcn->GetParameter(0) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
+			Monostate::amp_chi2_fnc2_all_signals << setprecision(17) << fitFcn->GetParameter(8) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
+		}
+		else
+		{
+			Monostate::amp_chi2_fnc2_all_signals << setprecision(17) << fitFcn->GetParameter(0) + fitFcn->GetParameter(8) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
+		}
 
+		//if ((this->GetChi2PerDof() < 0.8 && fitFcn->GetParameter(0) < 0.07) || (this->GetChi2PerDof() < 0.8 && fitFcn->GetParameter(8) < 0.07))
+		{
+			this->SaveGraphs(Monostate::Hlist_chi2_amp_cut_2);
+		}
 
 		if (this->GetChi2PerDof() < Monostate::chi2_per_dof_th)
 		{

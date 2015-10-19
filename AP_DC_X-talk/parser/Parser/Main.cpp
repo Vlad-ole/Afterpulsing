@@ -14,6 +14,7 @@
 //#include  "gStyle.h"
 #include "RootFit.h"
 #include "Monostate.h"
+#include <sstream>
 
 //#include "Math.h"
 #include <mpi.h>
@@ -53,10 +54,11 @@ bool RootFit::RecoveryTimeTwoComponents;
 
 int main(int argc, char *argv[])
 {
+	
 	// Initialise MPI
 	//-----------------------------------------------
 	MPI_Init(&argc, &argv);
-	int n, myid, numprocs, i;
+	int n, myid, numprocs;
 	double t_0, t2;
 
 	MPI_Comm_size(MPI_COMM_WORLD, &numprocs);
@@ -64,35 +66,89 @@ int main(int argc, char *argv[])
 	MPI_Bcast(&n, 1, MPI_INT, 0, MPI_COMM_WORLD);
 
 	//-----------------------------------------------
+	
+	
+	// задать параметры алгоритма
+	RootFit::threshold_der2 = -1E-5;
+	RootFit::threshold_der =
+		/*-2E-4 (hamamatsu 33 4.5 OV)*/
+		/*-0.06  MPPC_S10362-11-100C */
+		-2E-4;
 
+	RootFit::RecoveryTimeTwoComponents = true;
+	RootFit::only_1e = true; // рассматривать импульсы с послеимпульсами только с одной ячейки
+	
 
+	RootFit::threshold_amp = -0.001; // амплитудный порог, находящийся на уровне шума
+	RootFit::threshold_amp_start = -0.005; // амплитудный порог для запуска 
 
-	//serial region 1 start
-	//-----------------------------------------------
-	if (myid == 0)
+	RootFit::threshold_1e_low = 0.008; // пороги по амплитуде (в Вольтах) для правильного нахождения средней формы сигнала
+	RootFit::threshold_1e_high = 0.016;
+	//RootFit::CalculateAverageSignal(200); //time_dead in ns
+
+	RootFit::threshold_1e_A_low = 0.02;
+	RootFit::threshold_1e_A_high = 0.07;
+	RootFit::time_shit = 100; // задать смещение по времени для учета базовой линии (в точках)	
+	//-------------------------------------------------------
+	
+
+	t_0 = MPI_Wtime();
+
+	const bool ReadDerivative = true;
+
+	ofstream file_test(Monostate::dir_name + "test.dat");
+
+	Double_t x, y;
+	
+	int counter = 0;
+	int counter_rec_length = 0;
+	
+	
+	for (int file_i = 1; file_i <= 5; file_i++) // цикл по файлам
 	{
-		t_0 = MPI_Wtime();
+		RootFit::xv.clear();
+		RootFit::yv.clear();
+		RootFit::yv_der.clear();
+		RootFit::yv_der2.clear();
 
-		const bool ReadDerivative = true;
+		RootFit::time_start.clear();
+		RootFit::time_finish.clear();
+		RootFit::time_front.clear();
 
-		ofstream file_test(Monostate::dir_name + "test.dat");
+		RootFit::xv_front.clear();
+		RootFit::yv_front.clear();
 
-		Double_t x, y;
-		FILE *f = fopen(Monostate::raw_name.c_str(), "rb");
-		FILE *f_der = fopen(Monostate::der_name.c_str(), "rb");
-		FILE *f_der2 = fopen(Monostate::der2_name.c_str(), "rb");
+		RootFit::xverr.clear();
+		RootFit::yverr.clear();
 
-		int counter = 0;
-		int counter_rec_length = 0;
-
-		if (f == NULL)
-		{
-			cout << "Can't open this file: " << Monostate::raw_name << endl;
-			system("pause");
-		}
+		if (file_i == 1)
+			RootFit::previousIs1e = true; // вспомогательное условие
+		else
+			RootFit::previousIs1e = false;
 
 		//читать файл
 		//----------------------------------------------------
+		ostringstream f_oss;
+		f_oss << Monostate::dir_name << "raw\\binary\\run_" << file_i << ".bin";
+
+		ostringstream f_der_oss;
+		f_der_oss << Monostate::dir_name << "der\\run_" << file_i << ".bin";
+
+		ostringstream f_der2_oss;
+		f_der2_oss << Monostate::dir_name << "der2\\run_" << file_i << ".bin";
+
+		FILE *f = fopen(f_oss.str().c_str(), "rb");
+		FILE *f_der = fopen(f_der_oss.str().c_str(), "rb");
+		FILE *f_der2 = fopen(f_der2_oss.str().c_str(), "rb");
+
+		if (f == NULL || f_der == NULL || f_der2 == NULL)
+		{
+			cout << "Can't open this file: " << f_oss.str().c_str() << endl;
+			cout << "Can't open this file: " << f_der_oss.str().c_str() << endl;
+			cout << "Can't open this file: " << f_der2_oss.str().c_str() << endl;
+			system("pause");
+		}
+
 		int yv_size;
 		fread(&yv_size, sizeof(int), 1, f);
 		cout << "file length = " << yv_size << endl;
@@ -118,7 +174,6 @@ int main(int argc, char *argv[])
 			fread(&RootFit::yv_der2[0], sizeof(vector<double>::value_type), yv_size_new, f_der2);
 		}
 		//----------------------------------------------------
-
 		cout << endl << "Time of file reading is (in s) " << MPI_Wtime() - t_0 << endl;
 
 		if (!ReadDerivative)
@@ -126,126 +181,87 @@ int main(int argc, char *argv[])
 
 		//RootFit::CalculateStaircases_der(5); //time_dead in ns
 		//RootFit::CalculateStaircases_amp(10); //time_dead in ns
-		
-		RootFit::threshold_der2 = -1E-5;
-		RootFit::threshold_der =
-			/*-2E-4 (hamamatsu 33 4.5 OV)*/
-			/*-0.06  MPPC_S10362-11-100C */
-			-2E-4;
 
-		RootFit::RecoveryTimeTwoComponents = true;
-		RootFit::only_1e = true; // рассматривать импульсы с послеимпульсами только с одной ячейки
-		RootFit::previousIs1e = true; // вспомогательное условие
-
-		RootFit::threshold_amp = -0.001; // амплитудный порог, находящийся на уровне шума
-		RootFit::threshold_amp_start = -0.005; // амплитудный порог для запуска 
-
-		RootFit::threshold_1e_low = 0.008; // пороги по амплитуде (в Вольтах) для правильного нахождения средней формы сигнала
-		RootFit::threshold_1e_high = 0.016;
-		//RootFit::CalculateAverageSignal(200); //time_dead in ns
-
-		RootFit::threshold_1e_A_low = 0.02;
-		RootFit::threshold_1e_A_high = 0.07;
-		
 		RootFit::FindStartStop(5, 20); // найти начало и конец суммы сигналов
 		RootFit::SetDispXY(0, 0.00113151);// записать вектора xverr и yverr значениеми ошибок
-		RootFit::time_shit = 100; // задать смещение по времени для учета базовой линии (в точках)		
-
-	}
-	//serial region 1 end
-	//-----------------------------------------------
 
 
 
-
-	//parallel region start
-	//-----------------------------------------------
-	//for (i = myid + 1; i <= 50000; i += numprocs)
-	for (unsigned int i = 0; i < RootFit::time_finish.size(); i++)
-	{
-		cout << endl << "calculate fit ... " << i + 1 << " run time is (in s) \t" << MPI_Wtime() - t_0 << " part: " << (i*100.0) / RootFit::time_finish.size() << " %" << endl;
-
-
-
-		RootFit::current_signal = i;
-		RootFit::CalculateStartParameters(5/*5*/);//вычислить стартовые параметры. Параметр - мертвое время производной в нс	
-		RootFit::CalculateNumOfSignals(3);
-		RootFit::CreateFrontGraph();
-
-		RootFit *Fit_single = new RootFit(1);
-		Fit_single->SetParameters();
-		Fit_single->DoFit();
-		Fit_single->SaveAllGraphs();
-
-
-		if (Fit_single->GetChi2PerDof() > Monostate::chi2_per_dof_th)
+		for (unsigned int i = 0; i < RootFit::time_finish.size(); i++)
 		{
-			cout << "\t double ... " << endl;
-
-			RootFit *Fit_double = new RootFit(2);
-			Fit_double->SetParameters();
-			Fit_double->DoFit();
-			Fit_double->SaveAllGraphs();
+			cout << endl << "calculate fit ... " << i + 1 << " run time is (in s) " << MPI_Wtime() - t_0 << " part: " << (i*100.0) / RootFit::time_finish.size() << " % file № " << file_i << endl;
 
 
-			if (Fit_double->GetChi2PerDof() > Monostate::chi2_per_dof_th)
+
+			RootFit::current_signal = i;
+			RootFit::CalculateStartParameters(5/*5*/);//вычислить стартовые параметры. Параметр - мертвое время производной в нс	
+			RootFit::CalculateNumOfSignals(3);
+			RootFit::CreateFrontGraph();
+
+			RootFit *Fit_single = new RootFit(1);
+			Fit_single->SetParameters();
+			Fit_single->DoFit();
+			Fit_single->SaveAllGraphs();
+
+
+			if (Fit_single->GetChi2PerDof() > 2 /*|| Fit_single->fitFcn->GetParameter(0) > 0.065*/)
 			{
-				cout << "\t \t triple ... " << endl;
+				cout << "\t double ... " << endl;
 
-				RootFit *Fit_triple = new RootFit(3);
-				Fit_triple->SetParameters();
-				Fit_triple->DoFit();
-				Fit_triple->SaveAllGraphs();
+				RootFit *Fit_double = new RootFit(2);
+				Fit_double->SetParameters();
+				Fit_double->DoFit();
+				Fit_double->SaveAllGraphs();
 
-				if (Fit_triple->GetChi2PerDof() > Monostate::chi2_per_dof_th)
+
+				if (Fit_double->GetChi2PerDof() > Monostate::chi2_per_dof_th)
 				{
-					cout << "\t \t \t quadruple ... " << endl;
-					RootFit *Fit_quadruple = new RootFit(4);
-					Fit_quadruple->SetParameters();
-					Fit_quadruple->DoFit();
-					Fit_quadruple->SaveAllGraphs();
+					cout << "\t \t triple ... " << endl;
 
-					if (Fit_quadruple->GetChi2PerDof() > Monostate::chi2_per_dof_th)
+					RootFit *Fit_triple = new RootFit(3);
+					Fit_triple->SetParameters();
+					Fit_triple->DoFit();
+					Fit_triple->SaveAllGraphs();
+
+					if (Fit_triple->GetChi2PerDof() > Monostate::chi2_per_dof_th)
 					{
-						cout << "\t \t \t \t quintuple ... " << endl;
-						RootFit *Fit_quintuple = new RootFit(5);
-						Fit_quintuple->SetParameters();
-						Fit_quintuple->DoFit();
-						Fit_quintuple->SaveAllGraphs();
+						cout << "\t \t \t quadruple ... " << endl;
+						RootFit *Fit_quadruple = new RootFit(4);
+						Fit_quadruple->SetParameters();
+						Fit_quadruple->DoFit();
+						Fit_quadruple->SaveAllGraphs();
+
+						if (Fit_quadruple->GetChi2PerDof() > Monostate::chi2_per_dof_th)
+						{
+							cout << "\t \t \t \t quintuple ... " << endl;
+							RootFit *Fit_quintuple = new RootFit(5);
+							Fit_quintuple->SetParameters();
+							Fit_quintuple->DoFit();
+							Fit_quintuple->SaveAllGraphs();
+
+						}
 
 					}
 
 				}
 
+
 			}
 
 
 		}
-
-
 	}
-	//parallel region end
-	//-----------------------------------------------
 
 
 
-	//serial region 2 start
-	//-----------------------------------------------
-	if (myid == 0)
-	{
-		Monostate::SaveHlists();
+	Monostate::SaveHlists();
 
-		cout << "Total execution time is (in s): " << MPI_Wtime() - t_0 << endl;
+	cout << "Total execution time is (in s): " << MPI_Wtime() - t_0 << endl;
 
-		system("pause");
-	}
-	//serial region 2 end
-	//-----------------------------------------------
-
-
+	system("pause");
 
 	// Finalize MPI
 	MPI_Finalize();
-	
+
 	return 0;
 }

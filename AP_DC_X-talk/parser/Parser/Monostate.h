@@ -20,6 +20,7 @@ public:
 	
 	static TObjArray Hlist_test;
 	static TObjArray Hlist_test_2;
+	static TObjArray Hlist_chi2_amp_cut_2;
 
 	static TObjArray Hlist_f1;
 	static TObjArray Hlist_f1_good;

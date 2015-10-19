@@ -53,7 +53,7 @@ void fit_V_bd_surf(char name[])
 	std::vector<double> yerrv;
 	std::vector<double> zerrv;
 	
-	Double_t x, y, z;
+	Double_t x, y, z, z_err;
 	FILE *f = fopen(name,"r");
 	
 	const double conv = 1E7 / 3710.0;
@@ -61,19 +61,18 @@ void fit_V_bd_surf(char name[])
 	
 	while (!feof(f))
 	{ 
-		fscanf(f,"%lf %lf %lf \n", &x, &y, &z);
+		fscanf(f,"%lf %lf %lf %lf\n", &x, &y, &z, &z_err);
 		xv.push_back(x); 
 		yv.push_back(y);
-		zv.push_back(z * conv );
-		
-		
+		zv.push_back(z * conv);
+		zerrv.push_back(/*z_err * conv*/0.00001);		
 	}	
 
 			for (int i = 0; i < xv.size(); i++)
 			{
-				xerrv.push_back(/*0.29*/0);
-				yerrv.push_back(/*0.01*/0);
-				zerrv.push_back(0.5 * conv);
+				xerrv.push_back(0/*0.29*/);
+				yerrv.push_back(0/*0.01*/);
+				//zerrv.push_back(0.5 * conv);
 			}
 			
 			
@@ -99,13 +98,16 @@ void fit_V_bd_surf(char name[])
 			
 			cout <<  fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
 			
-			cout << "par 0 relative error \t " << fabs(fitFcn->GetParError(0) /  fitFcn->GetParameter(0))  << endl;
-			cout << "par 1 relative error \t " << fabs(fitFcn->GetParError(1) /  fitFcn->GetParameter(1))  << endl;
-			cout << "par 2 relative error \t " << fabs(fitFcn->GetParError(2) /  fitFcn->GetParameter(2))  << endl;
+			cout << "par 0 (b) relative error \t " << fabs(fitFcn->GetParError(0) /  fitFcn->GetParameter(0))  << endl;
+			cout << "par 1 (a) relative error \t " << fabs(fitFcn->GetParError(1) /  fitFcn->GetParameter(1))  << endl;
+			cout << "par 2 (c) relative error \t " << fabs(fitFcn->GetParError(2) /  fitFcn->GetParameter(2))  << endl;
 			
 			cout << "V_0 = " << - (fitFcn->GetParameter(2) / fitFcn->GetParameter(1)) << " +- " 
 			<< sqrt(pow(fitFcn->GetParError(2) /  fitFcn->GetParameter(2) , 2.0) + pow(fitFcn->GetParError(1) /  fitFcn->GetParameter(1) , 2.0)) * (-1) * (fitFcn->GetParameter(2) / fitFcn->GetParameter(1)) <<  endl;
 
+			cout << "dV / dt = " << -(fitFcn->GetParameter(0) / fitFcn->GetParameter(1)) << " +- "
+			<< sqrt(pow(fitFcn->GetParError(0) /  fitFcn->GetParameter(0) , 2.0) + pow(fitFcn->GetParError(1) /  fitFcn->GetParameter(1) , 2.0)) * (-1) * (fitFcn->GetParameter(0) / fitFcn->GetParameter(1)) <<  endl;
+			
 			//gSystem->Sleep(3000);			
 			
 			c1->Update();
