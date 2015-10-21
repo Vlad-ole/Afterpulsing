@@ -10,16 +10,16 @@ Monostate::~Monostate()
 {
 }
 
-const double Monostate::chi2_per_dof_th = 1;
+const double Monostate::chi2_per_dof_th = 5;
 
 //string Monostate::dir_name = "D:\\Data_work\\simulating_signal\\";
 //string Monostate::dir_name = "D:\\Data_work\\tektronix_signal\\295K\\73_90V\\";
-string Monostate::dir_name = "D:\\Data_work\\tektronix_signal\\MPPC_S10362-11-100C\\70_00V\\";
+string Monostate::dir_name = "D:\\Data_work\\tektronix_signal\\MPPC_S10362-11-100C\\295K\\70_01V\\";
 //string Monostate::raw_name = dir_name + "raw\\test_signal_pure.txt";
 string file_name = "run_1.bin";
 string Monostate::raw_name = dir_name + "raw\\binary\\" + file_name;
-string Monostate::der_name = dir_name + "der\\" + file_name;
-string Monostate::der2_name = dir_name + "der2\\" + file_name;
+string Monostate::der_name;
+string Monostate::der2_name;
 
 TObjArray Monostate::Hlist_test(0);
 TObjArray Monostate::Hlist_test_2(0);

@@ -296,14 +296,14 @@ void RootFit::SetParametersTwoComp()
 	const double A_limit_l = 0.001;
 	const double A_limit_h = 1;
 
-	const double tau_rec_fast = 0.938595;
-	const double tau_rise = 1.56325;
+	const double tau_rec_fast = 2.21513;
+	const double tau_rise = 5.47845;
 
 	const double baseline_limit = 0.006;
-	const double sigma = 0.562937;
+	const double sigma = 1.78391;
 
-	const double tau_rec_slow = 41.0678;
-	const double R_slow = 0.236867;
+	const double tau_rec_slow = 43.0645;
+	const double R_slow = 0.254653;
 
 	const double time_first = xv[time_front[0]];
 
@@ -1670,12 +1670,22 @@ void RootFit::CalculateDer(int type, int points)
 	cout << "yv_der.size() " << yv_der.size() << endl;
 	cout << "yv_der2.size() " << yv_der2.size() << endl;
 
+
 	FILE *file_d = fopen(Monostate::der_name.c_str(), "wb");
 	FILE* file_d2 = fopen(Monostate::der2_name.c_str(), "wb");
 
+	if (file_d == NULL)
+	{
+		cout << "can't open this file " << Monostate::der_name << endl;
+		system("pause");
+		exit(0);
+	}
 
 	fwrite(&yv_der[0], sizeof(vector<double>::value_type), xv.size(), file_d);
 	fwrite(&yv_der2[0], sizeof(vector<double>::value_type), xv.size(), file_d2);
+
+	fclose(file_d);
+	fclose(file_d2);
 
 	/*for (int i = 0; i < xv.size(); i++)
 	{
@@ -1691,8 +1701,8 @@ void RootFit::CalculateDer(int type, int points)
 	long int t1_Calculate_derivative = GetTickCount();
 	cout << "Calculate_derivative time is (in s) " << (t1_Calculate_derivative - t0_Calculate_derivative) / 1000.0 << endl;
 
-	system("pause");
-	exit(0);
+	//system("pause");
+	//exit(0);
 }
 
 void RootFit::CalculateFilterCoeff(int points)

@@ -4,16 +4,19 @@
 #include <vector>
 #include <chrono>
 #include <Windows.h>
+#include <sstream>
 
 using namespace std;
 
 //vector<double> xv;
 vector<double> yv;
 
-string dir_name = "D:\\Data_work\\tektronix_signal\\MPPC_S10362-11-100C\\70_00V\\raw\\";
-string file_name = "run_5";
-string file_write = dir_name + "binary\\" + file_name + ".bin";
-string file_read = dir_name + "text\\" + file_name + ".txt";
+string dir_name = "D:\\Data_work\\tektronix_signal\\MPPC_S10362-11-100C\\295K\\70_01V\\";
+string file_name;
+string file_write;
+string file_read;
+
+int file_i;
 
 void write_data()
 {
@@ -60,7 +63,7 @@ void read_data()
 		if (counter % 50000 == 0)
 		{
 			long int read_file = GetTickCount();
-			cout << "read file " << counter / double(2E7) * 100 << endl;
+			cout << "read file " << counter / double(2E7) * 100 << " file ¹ " << file_i << endl;
 		}
 
 		counter++;
@@ -72,11 +75,25 @@ void read_data()
 int main()
 {
 	long int before = GetTickCount();
-	read_data();
-	write_data();
+
+	for (file_i = 1; file_i <= 10; file_i++)
+	{
+		ostringstream file_read_oss;
+		file_read_oss << dir_name << "raw\\text\\run_" << file_i << ".txt";
+		
+		ostringstream file_write_oss;
+		file_write_oss << dir_name << "raw\\binary\\run_" << file_i << ".bin";
+
+		file_write = file_write_oss.str();
+		file_read = file_read_oss.str();
+		
+		yv.clear();
+		read_data();
+		write_data();
+	}
+
 	long int after = GetTickCount();
-
-
+	
 	cout << endl << "run time (in ms) \t " << after - before << endl;
 	cout << endl << "run time (in s) \t " << (after - before) / 1000.0 << endl;
 	cout << endl << "run time (in m) \t " << (after - before) / (1000.0 * 60) << endl;
