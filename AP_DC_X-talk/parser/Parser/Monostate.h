@@ -3,6 +3,7 @@
 #include "TObjArray.h"
 #include <iostream>
 #include <fstream>
+#include "TNtuple.h"
 using namespace std;
 
 class Monostate
@@ -56,12 +57,16 @@ public:
 	static ofstream amp_chi2_fnc1_all_signals;
 	static ofstream amp_chi2_fnc2_all_signals;
 	static ofstream amp_chi2_fnc3_all_signals;
+
+	static ofstream amp_chi2_dt_fnc2_all_signals;
 	
 	static ofstream time_i;
 	static ofstream time_delta;
 	static ofstream file_dt;
 	static ofstream file_amp;
 	static ofstream file_long_dt;
+
+	static TNtuple *ntuple_fit;
 	
 	const static double chi2_per_dof_th;
 

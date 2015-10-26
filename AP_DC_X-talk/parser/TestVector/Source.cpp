@@ -7,11 +7,12 @@ vector<double> xv;
 int main()
 {
 	
-	//for (int j = 0; j < 10; j++)
+	//for (int j = 1; j < 20*1000*1000; j+= 100000)
 	{
-		//xv.clear();
+		int j = 200*1000*1000;
 		
-		int yv_size_new = 200000000;
+		int yv_size_new = j;
+		xv.reserve(yv_size_new + 1);
 		xv.resize(yv_size_new);
 
 		for (int i = 0; i < yv_size_new; i++)
@@ -19,11 +20,23 @@ int main()
 			xv[i] = 0.2 * i;
 		}
 
-		xv.clear();
-
 		cout << "xv.capacity() = " << xv.capacity() << "\t xv.size() = " << xv.size() << endl;
-		system("pause");
+
+		yv_size_new = j + 1;
+		xv.clear();
+		xv.reserve(yv_size_new);
+		xv.resize(yv_size_new);
+
+		for (int i = 0; i < yv_size_new; i++)
+		{
+			xv[i] = 0.2 * i;
+		}
+
+		cout << "xv.capacity() = " << xv.capacity() << "\t xv.size() = " << xv.size() << endl << endl;
 	}
 	
+	
+	system("pause");
+
 	return 0;
 }

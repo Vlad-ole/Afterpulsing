@@ -1,16 +1,20 @@
+//Root cern
 #include "RootFit.h"
 #include "TGraphErrors.h"
 #include  "TF1.h"
 #include "TMath.h"
 #include "TFile.h"
+#include "Math/MinimizerOptions.h"
 
-#include "Monostate.h"
+//base
+#include <mpi.h>
+#include <sstream>
 #include <chrono>
 #include <iomanip>
-
 #include <Windows.h>
 
-#include "Math/MinimizerOptions.h"
+//my
+#include "Monostate.h"
 
 using namespace std;
 
@@ -95,6 +99,72 @@ RootFit::~RootFit()
 	delete gr_der2;
 	delete gr_der;
 	delete gr;
+}
+
+void RootFit::ReadFiles(const bool ReadDerivative, const int file_run)
+{
+	double t_01 = MPI_Wtime();
+	//читать файл
+	//----------------------------------------------------
+	ostringstream f_oss;
+	f_oss << Monostate::dir_name << "raw\\binary\\run_" << file_run << ".bin";
+
+	FILE *f = fopen(f_oss.str().c_str(), "rb");
+
+	if (f == NULL)
+	{
+		cout << "Can't open this file: " << f_oss.str().c_str() << endl;
+		system("pause");
+	}
+
+	int yv_size;
+	fread(&yv_size, sizeof(int), 1, f);
+	cout << "file length = " << yv_size << endl;
+
+	int yv_size_new = yv_size * 0.92; // выбрать долю от всех данных. Памяти хватит только на 0.92 максимум
+	cout << "file length cutted= " << yv_size_new << endl;
+
+	RootFit::yv.resize(yv_size_new);
+	fread(&RootFit::yv[0], sizeof(vector<double>::value_type), yv_size_new, f);
+
+	RootFit::xv.resize(yv_size_new);
+	for (int i = 0; i < yv_size_new; i++)
+	{
+		RootFit::xv[i] = 0.2 * i;
+	}
+
+	ostringstream f_der_oss;
+	f_der_oss << Monostate::dir_name << "der\\run_" << file_run << ".bin";
+
+	ostringstream f_der2_oss;
+	f_der2_oss << Monostate::dir_name << "der2\\run_" << file_run << ".bin";
+
+	Monostate::der_name = f_der_oss.str();
+	Monostate::der2_name = f_der2_oss.str();
+
+	if (ReadDerivative)
+	{
+		//прочитать первую и вторую производную из файла
+		FILE *f_der = fopen(Monostate::der_name.c_str(), "rb");
+		FILE *f_der2 = fopen(Monostate::der2_name.c_str(), "rb");
+
+		if (f_der == NULL || f_der2 == NULL)
+		{
+			cout << "Can't open this file: " << Monostate::der_name.c_str() << endl;
+			cout << "Can't open this file: " << Monostate::der2_name.c_str() << endl;
+			system("pause");
+		}
+
+		RootFit::yv_der.resize(yv_size_new);
+		RootFit::yv_der2.resize(yv_size_new);
+		fread(&RootFit::yv_der[0], sizeof(vector<double>::value_type), yv_size_new, f_der);
+		fread(&RootFit::yv_der2[0], sizeof(vector<double>::value_type), yv_size_new, f_der2);
+	}
+	//----------------------------------------------------
+	cout << endl << "Time of file reading is (in s) " << MPI_Wtime() - t_01 << endl;
+
+	if (!ReadDerivative)
+		RootFit::CalculateDer(1, 51); // посчитать производную по данным (число точек должно быть нечетным)
 }
 
 
@@ -534,32 +604,39 @@ void RootFit::SaveAllGraphs()
 		//	Fit_single->SaveGraphs(Monostate::Hlist_test);
 		//}		
 
-		//записать все графики
-		this->SaveGraphs(Monostate::Hlist_f1);
 
-		//записать графики с плохим Chi2 после фита одной функцией
-		if (this->GetChi2PerDof() > Monostate::chi2_per_dof_th)
+		if (SaveGraphsBool)
 		{
-			this->SaveGraphs(Monostate::Hlist_f1_bad);
-		}
+			//записать все графики
+			this->SaveGraphs(Monostate::Hlist_f1);
+
+			//записать графики с плохим Chi2 после фита одной функцией
+			if (this->GetChi2PerDof() > Monostate::chi2_per_dof_th)
+			{
+				this->SaveGraphs(Monostate::Hlist_f1_bad);
+			}
 
 
-		if (this->GetChi2PerDof() < Monostate::chi2_per_dof_th)
-		{
-			//записать графики с хорошим Chi2 после фита одной функцией
-			this->SaveGraphs(Monostate::Hlist_f1_good);
+			if (this->GetChi2PerDof() < Monostate::chi2_per_dof_th)
+			{
+				//записать графики с хорошим Chi2 после фита одной функцией
+				this->SaveGraphs(Monostate::Hlist_f1_good);
 
-			//записать все графики после фита одной функцией
-			this->SaveGraphs(Monostate::Hlist_f2);
+				//записать все графики после фита одной функцией
+				this->SaveGraphs(Monostate::Hlist_f2);
+			}
+
+
+
+			if (this->GetChi2PerDof() < 6 && this->GetChi2PerDof() > 2 && fitFcn->GetParameter(0) > 0.06 && fitFcn->GetParameter(0) < 0.1)
+			{
+				this->SaveGraphs(Monostate::Hlist_test_2);
+			}
 		}
 
 		//записать корреляцию амплитуда - chi2 / dof для всех сигналов
 		Monostate::amp_chi2_fnc1_all_signals << setprecision(17) << fitFcn->GetParameter(0) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
 
-		if (this->GetChi2PerDof() < 6 && this->GetChi2PerDof() > 2 && fitFcn->GetParameter(0) > 0.06 && fitFcn->GetParameter(0) < 0.1)
-		{
-			this->SaveGraphs(Monostate::Hlist_test_2);
-		}
 
 		if (this->GetChi2PerDof() < Monostate::chi2_per_dof_th)
 		{
@@ -590,21 +667,31 @@ void RootFit::SaveAllGraphs()
 		//	Fit_double->SaveGraphs(Monostate::Hlist_test);
 		//}
 
-		//записать все графики после фита одной функцией
-		this->SaveGraphs(Monostate::Hlist_f2);
-
-		//записать графики с плохим Chi2 после фита двумя функциями
-		if (this->GetChi2PerDof() > Monostate::chi2_per_dof_th)
+		if (SaveGraphsBool)
 		{
-			this->SaveGraphs(Monostate::Hlist_f2_bad);
-		}
+			//записать все графики после фита одной функцией
+			this->SaveGraphs(Monostate::Hlist_f2);
+
+			//записать графики с плохим Chi2 после фита двумя функциями
+			if (this->GetChi2PerDof() > Monostate::chi2_per_dof_th)
+			{
+				this->SaveGraphs(Monostate::Hlist_f2_bad);
+			}
 
 
 
-		if (this->GetChi2PerDof() < Monostate::chi2_per_dof_th)
-		{
-			//записать графики с хорошим Chi2 после фита двумя функциями
-			this->SaveGraphs(Monostate::Hlist_f2_good);
+			if (this->GetChi2PerDof() < Monostate::chi2_per_dof_th)
+			{
+				//записать графики с хорошим Chi2 после фита двумя функциями
+				this->SaveGraphs(Monostate::Hlist_f2_good);
+			}
+
+			if (this->GetChi2PerDof() < 4 && ((fitFcn->GetParameter(0) + fitFcn->GetParameter(8)) > 0.25) && ((fitFcn->GetParameter(0) + fitFcn->GetParameter(8)) < 0.45))
+			{
+				this->SaveGraphs(Monostate::Hlist_chi2_amp_cut_2);
+				double dt = fabs(fitFcn->GetParameter(9) - fitFcn->GetParameter(1));
+				Monostate::amp_chi2_dt_fnc2_all_signals << setprecision(17) << fitFcn->GetParameter(0) << "\t" << fitFcn->GetParameter(8) << "\t" << dt << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
+			}
 		}
 
 		bool SummAmp = true;
@@ -617,12 +704,10 @@ void RootFit::SaveAllGraphs()
 		else
 		{
 			Monostate::amp_chi2_fnc2_all_signals << setprecision(17) << fitFcn->GetParameter(0) + fitFcn->GetParameter(8) << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
+
 		}
 
-		//if ((this->GetChi2PerDof() < 0.8 && fitFcn->GetParameter(0) < 0.07) || (this->GetChi2PerDof() < 0.8 && fitFcn->GetParameter(8) < 0.07))
-		{
-			this->SaveGraphs(Monostate::Hlist_chi2_amp_cut_2);
-		}
+
 
 		if (this->GetChi2PerDof() < Monostate::chi2_per_dof_th)
 		{
@@ -660,20 +745,25 @@ void RootFit::SaveAllGraphs()
 		this->SaveGraphs(Monostate::Hlist_test);
 		}*/
 
-		//записать графики, после фита тремя функциями
-		this->SaveGraphs(Monostate::Hlist_f3);
-
-		//записать графики с плохим Chi2 после фита тремя функциями
-		if (this->GetChi2PerDof() > Monostate::chi2_per_dof_th)
+		if (SaveGraphsBool)
 		{
-			this->SaveGraphs(Monostate::Hlist_f3_bad);
+			//записать графики, после фита тремя функциями
+			this->SaveGraphs(Monostate::Hlist_f3);
+
+			//записать графики с плохим Chi2 после фита тремя функциями
+			if (this->GetChi2PerDof() > Monostate::chi2_per_dof_th)
+			{
+				this->SaveGraphs(Monostate::Hlist_f3_bad);
+			}
+
+			//записать графики с хорошим Chi2 после фита тремя функциями
+			if (this->GetChi2PerDof() < Monostate::chi2_per_dof_th)
+			{
+				this->SaveGraphs(Monostate::Hlist_f3_good);
+			}
 		}
 
-		//записать графики с хорошим Chi2 после фита тремя функциями
-		if (this->GetChi2PerDof() < Monostate::chi2_per_dof_th)
-		{
-			this->SaveGraphs(Monostate::Hlist_f3_good);
-		}
+
 
 		if (this->GetChi2PerDof() < Monostate::chi2_per_dof_th)
 		{
@@ -717,16 +807,20 @@ void RootFit::SaveAllGraphs()
 
 	if (this->number_of_functions == 4)
 	{
-		//записать графики с плохим Chi2 после фита 4 функциями
-		if (this->GetChi2PerDof() > Monostate::chi2_per_dof_th)
+		
+		if (SaveGraphsBool)
 		{
-			this->SaveGraphs(Monostate::Hlist_f4_bad);
-		}
+			//записать графики с плохим Chi2 после фита 4 функциями
+			if (this->GetChi2PerDof() > Monostate::chi2_per_dof_th)
+			{
+				this->SaveGraphs(Monostate::Hlist_f4_bad);
+			}
 
-		//записать графики с хорошим Chi2 после фита 4 функциями
-		if (this->GetChi2PerDof() < Monostate::chi2_per_dof_th)
-		{
-			this->SaveGraphs(Monostate::Hlist_f4_good);
+			//записать графики с хорошим Chi2 после фита 4 функциями
+			if (this->GetChi2PerDof() < Monostate::chi2_per_dof_th)
+			{
+				this->SaveGraphs(Monostate::Hlist_f4_good);
+			}
 		}
 
 		if (this->GetChi2PerDof() < Monostate::chi2_per_dof_th)
@@ -766,16 +860,20 @@ void RootFit::SaveAllGraphs()
 
 	if (this->number_of_functions == 5)
 	{
-		//записать графики с хорошим Chi2 после фита 5 функциями
-		if (this->GetChi2PerDof() < Monostate::chi2_per_dof_th)
+		
+		if (SaveGraphsBool)
 		{
-			this->SaveGraphs(Monostate::Hlist_f5_good);
-		}
+			//записать графики с хорошим Chi2 после фита 5 функциями
+			if (this->GetChi2PerDof() < Monostate::chi2_per_dof_th)
+			{
+				this->SaveGraphs(Monostate::Hlist_f5_good);
+			}
 
-		//записать графики с плохим Chi2 после фита 5 функциями
-		if (this->GetChi2PerDof() > Monostate::chi2_per_dof_th)
-		{
-			this->SaveGraphs(Monostate::Hlist_f5_bad);
+			//записать графики с плохим Chi2 после фита 5 функциями
+			if (this->GetChi2PerDof() > Monostate::chi2_per_dof_th)
+			{
+				this->SaveGraphs(Monostate::Hlist_f5_bad);
+			}
 		}
 
 		if (this->GetChi2PerDof() < Monostate::chi2_per_dof_th)
@@ -1774,13 +1872,16 @@ void RootFit::SaveGraphs(TObjArray &Hlist)
 }
 
 
-void RootFit::SetDispXY(double x, double y)
+void RootFit::SetDispXY(const double x, const double y)
 {
+	xverr.resize( xv.size() );
+	yverr.resize( xv.size() );
+	
 	//вектора с ошибками
 	for (unsigned int j = 0; j < xv.size(); j++)
 	{
-		xverr.push_back(x);
-		yverr.push_back(y);
+		xverr[j] = x;
+		yverr[j] = y;
 	}
 }
 

@@ -23,6 +23,7 @@ public:
 	void SaveGraphs(TObjArray &Hlist);	
 	void SaveAllGraphs();
 
+	static void ReadFiles(const bool ReadDerivative, const int file_run);
 	static void CalculateDer(int type, int points);
 	static void CalculateStaircases_der(double time_dead);
 	static void CalculateStaircases_amp(double time_dead);
@@ -30,13 +31,15 @@ public:
 	static void CalculateStartParameters(double time_dead); 
 	static void CalculateNumOfSignals(double time_dead);//найти число сигналов на участке по 2-й производной. Ќеобходимо задать мертвое врем€ в нс.
 	static void CreateFrontGraph();
-	static void SetDispXY(double x = 0, double y = 0);
+	static void SetDispXY(const double x = 0, const double y = 0);
 	static void CalculateAverageSignal(double time_dead);
 
 	short int number_of_functions;
 
 	static bool only_1e;
 	static bool RecoveryTimeTwoComponents;
+	static bool SaveGraphsBool;
+	static bool ReadDerivative;
 	
 	static vector<double> xv;
 	static vector<double> yv;	

@@ -62,12 +62,15 @@ ofstream Monostate::amp_chi2_fnc1_all_signals(dir_name + "amp_chi2_fnc1_all_sign
 ofstream Monostate::amp_chi2_fnc2_all_signals(dir_name + "amp_chi2_fnc2_all_signals.dat");
 ofstream Monostate::amp_chi2_fnc3_all_signals(dir_name + "amp_chi2_fnc_all_signals3.dat");
 
+ofstream Monostate::amp_chi2_dt_fnc2_all_signals(dir_name + "amp_chi2_dt_fnc2_all_signals.dat");
 
 ofstream Monostate::time_delta(dir_name + "time_delta.dat");
 ofstream Monostate::file_dt(dir_name + "dt.dat");
 ofstream Monostate::file_amp(dir_name + "amp.dat");
 ofstream Monostate::time_i(dir_name + "time_i.dat");
 ofstream Monostate::file_long_dt(dir_name + "long_dt.dat");
+
+TNtuple *Monostate::ntuple_fit;
 
 
 void Monostate::SaveHlists()
