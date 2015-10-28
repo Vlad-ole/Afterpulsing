@@ -37,6 +37,11 @@ double RootFit::previous_time;
 //bool RootFit::PreviousIsSingle;
 //double RootFit::temp_time_i;
 
+RootFit::RootFit()
+{
+	gr = new TGraphErrors();
+}
+
 RootFit::RootFit(short int number_of_functions)
 {
 	this->number_of_functions = number_of_functions;
@@ -101,7 +106,7 @@ RootFit::~RootFit()
 	delete gr;
 }
 
-void RootFit::ReadFiles(const bool ReadDerivative, const int file_run)
+void RootFit::ReadFiles(const bool ReadDerivative, const int file_run, const double part_or_file)
 {
 	double t_01 = MPI_Wtime();
 	//читать файл
@@ -121,7 +126,7 @@ void RootFit::ReadFiles(const bool ReadDerivative, const int file_run)
 	fread(&yv_size, sizeof(int), 1, f);
 	cout << "file length = " << yv_size << endl;
 
-	int yv_size_new = yv_size * 0.92; // выбрать долю от всех данных. Памяти хватит только на 0.92 максимум
+	int yv_size_new = yv_size * part_or_file; // выбрать долю от всех данных. Памяти хватит только на 0.92 максимум
 	cout << "file length cutted= " << yv_size_new << endl;
 
 	RootFit::yv.resize(yv_size_new);
@@ -686,12 +691,15 @@ void RootFit::SaveAllGraphs()
 				this->SaveGraphs(Monostate::Hlist_f2_good);
 			}
 
-			if (this->GetChi2PerDof() < 4 && ((fitFcn->GetParameter(0) + fitFcn->GetParameter(8)) > 0.25) && ((fitFcn->GetParameter(0) + fitFcn->GetParameter(8)) < 0.45))
-			{
-				this->SaveGraphs(Monostate::Hlist_chi2_amp_cut_2);
-				double dt = fabs(fitFcn->GetParameter(9) - fitFcn->GetParameter(1));
-				Monostate::amp_chi2_dt_fnc2_all_signals << setprecision(17) << fitFcn->GetParameter(0) << "\t" << fitFcn->GetParameter(8) << "\t" << dt << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
-			}
+
+			
+
+			//if (this->GetChi2PerDof() < 4 && ((fitFcn->GetParameter(0) + fitFcn->GetParameter(8)) > 0.25) && ((fitFcn->GetParameter(0) + fitFcn->GetParameter(8)) < 0.45))
+			//{
+			//	this->SaveGraphs(Monostate::Hlist_chi2_amp_cut_2);
+			//	double dt = fabs(fitFcn->GetParameter(9) - fitFcn->GetParameter(1));
+			//	Monostate::amp_chi2_dt_fnc2_all_signals << setprecision(17) << fitFcn->GetParameter(0) << "\t" << fitFcn->GetParameter(8) << "\t" << dt << "\t" << fitFcn->GetChisquare() / fitFcn->GetNDF() << endl;
+			//}
 		}
 
 		bool SummAmp = true;
@@ -1668,8 +1676,6 @@ void RootFit::CalculateStartParameters(double time_dead)
 
 void RootFit::CalculateDer(int type, int points)
 {
-
-
 	cout << endl << "Calculate derivative" << endl;
 	long int t0_Calculate_derivative = GetTickCount();
 
@@ -1857,16 +1863,22 @@ double RootFit::GetAmplitude()
 
 void RootFit::SaveGraphs(TObjArray &Hlist)
 {
+	//TMultiGraph *mg = new TMultiGraph();
+	//mg->Add(gr);
 
+	//mg->Add(gr_front);
 
+	//mg->Add(gr_der);
+	//mg->Add(gr_der2);
+	//Hlist.Add(mg);
 
 	TMultiGraph *mg = new TMultiGraph();
-	mg->Add(gr);
+	mg->Add(new TGraphErrors(*gr));
 
-	mg->Add(gr_front);
+	mg->Add(new TGraph(*gr_front));
 
-	mg->Add(gr_der);
-	mg->Add(gr_der2);
+	mg->Add(new TGraph(*gr_der));
+	mg->Add(new TGraph(*gr_der2));
 	Hlist.Add(mg);
 
 }

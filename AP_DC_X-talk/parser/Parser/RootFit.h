@@ -10,6 +10,7 @@ using namespace std;
 class RootFit
 {
 public:
+	RootFit();
 	RootFit(short int number_of_function);
 	~RootFit();	
 
@@ -23,7 +24,7 @@ public:
 	void SaveGraphs(TObjArray &Hlist);	
 	void SaveAllGraphs();
 
-	static void ReadFiles(const bool ReadDerivative, const int file_run);
+	static void ReadFiles(const bool ReadDerivative, const int file_run, const double part_or_file);
 	static void CalculateDer(int type, int points);
 	static void CalculateStaircases_der(double time_dead);
 	static void CalculateStaircases_amp(double time_dead);

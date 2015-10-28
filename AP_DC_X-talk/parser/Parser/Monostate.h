@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include "TNtuple.h"
+#include "TMultiGraph.h"
 using namespace std;
 
 class Monostate
@@ -67,6 +68,7 @@ public:
 	static ofstream file_long_dt;
 
 	static TNtuple *ntuple_fit;
+	//static TMultiGraph *multi_graph;
 	
 	const static double chi2_per_dof_th;
 

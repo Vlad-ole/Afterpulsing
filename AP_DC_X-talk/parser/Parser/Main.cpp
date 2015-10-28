@@ -22,9 +22,6 @@
 #include "RootFit.h"
 #include "Monostate.h"
 
-
-
-
 using namespace std;
 
 
@@ -117,8 +114,33 @@ int main(int argc, char *argv[])
 	int counter_rec_length = 0;
 
 	TNtuple ntuple("ntuple", "fit results", "a_1:chi_1:a_2:b_2:chi_2:dt_2_ab");
-	
-	for (int file_i = 11; file_i <= 20; file_i++) // цикл по файлам
+	TTree tree("t1", "Parser tree");
+
+	TMultiGraph *multi_graph = new TMultiGraph();
+
+	double a_1, chi_1, a_2, b_2, chi_2, dt_2_ab;
+
+	tree.Branch("a_1", &a_1, "a_1/D");
+	tree.Branch("chi_1", &chi_1, "chi_1/D");
+	tree.Branch("a_2", &a_2, "a_2/D");
+	tree.Branch("b_2", &b_2, "b_2/D");
+	tree.Branch("chi_2", &chi_2, "chi_2/D");
+	tree.Branch("dt_2_ab", &dt_2_ab, "dt_2_ab/D");
+
+	RootFit *Fit_double = new RootFit();
+
+	multi_graph->Add(Fit_double->gr);
+	//multi_graph->Add(new TGraph(*Fit_double->gr_front));
+	//multi_graph->Add(new TGraph(*Fit_double->gr_der));
+	//multi_graph->Add(new TGraph(*Fit_double->gr_der2));
+
+
+	//tree.Branch("multi_graph", "TMultiGraph", &multi_graph);	
+	tree.Branch("gr", "TMultiGraph", &multi_graph, 128000, 0);
+
+
+
+	for (int file_i = 1; file_i <= 1; file_i++) // цикл по файлам
 	{
 
 		RootFit::time_start.clear();
@@ -133,7 +155,7 @@ int main(int argc, char *argv[])
 		else
 			RootFit::previousIs1e = false;
 
-		RootFit::ReadFiles(RootFit::ReadDerivative, file_i);
+		RootFit::ReadFiles(RootFit::ReadDerivative, file_i, 0.02);
 		
 
 		if (CalculateAvgSignal)
@@ -167,20 +189,29 @@ int main(int argc, char *argv[])
 				RootFit *Fit_single = new RootFit(1);
 				Fit_single->SetParameters();
 				Fit_single->DoFit();
-				Fit_single->SaveAllGraphs();
+				//Fit_single->SaveAllGraphs();
 
 
 				if (true/*Fit_single->GetChi2PerDof() > 4 || Fit_single->fitFcn->GetParameter(0) > 0.065*/)
 				{
 					cout << "\t double ... " << endl;
 
-					RootFit *Fit_double = new RootFit(2);
+					Fit_double = new RootFit(2);
 					Fit_double->SetParameters();
 					Fit_double->DoFit();
-					Fit_double->SaveAllGraphs();
-
-					ntuple.Fill(Fit_single->fitFcn->GetParameter(0), Fit_single->GetChi2PerDof(), Fit_double->fitFcn->GetParameter(0), Fit_double->fitFcn->GetParameter(8), Fit_double->GetChi2PerDof(), fabs(Fit_double->fitFcn->GetParameter(9) - Fit_double->fitFcn->GetParameter(1)) );
-
+					//Fit_double->SaveAllGraphs();
+										
+					a_1 = Fit_single->fitFcn->GetParameter(0);
+					chi_1 = Fit_single->GetChi2PerDof();
+					a_2 = Fit_double->fitFcn->GetParameter(0);
+					b_2 = Fit_double->fitFcn->GetParameter(8);
+					chi_2 = Fit_double->GetChi2PerDof();
+					dt_2_ab = fabs(Fit_double->fitFcn->GetParameter(9) - Fit_double->fitFcn->GetParameter(1));
+					
+					ntuple.Fill(a_1, chi_1, a_2, b_2, chi_2, dt_2_ab);
+					tree.Fill();
+					//multi_graph->Clear();
+					
 					if (Fit_double->GetChi2PerDof() > Monostate::chi2_per_dof_th && false)
 					{
 						cout << "\t \t triple ... " << endl;
@@ -231,6 +262,10 @@ int main(int argc, char *argv[])
 
 	}
 
+	string string_tree = Monostate::dir_name + "tree.root";
+	TFile f_tree(string_tree.c_str(), "RECREATE");
+	tree.Write();
+	f_tree.Close();
 
 	if (RootFit::ReadDerivative)
 	{

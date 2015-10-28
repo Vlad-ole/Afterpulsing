@@ -1,5 +1,6 @@
 #include "Monostate.h"
 #include "TFile.h"
+#include "TMultiGraph.h"
 
 Monostate::Monostate()
 {
@@ -71,7 +72,7 @@ ofstream Monostate::time_i(dir_name + "time_i.dat");
 ofstream Monostate::file_long_dt(dir_name + "long_dt.dat");
 
 TNtuple *Monostate::ntuple_fit;
-
+//TMultiGraph *Monostate::multi_graph;
 
 void Monostate::SaveHlists()
 {
@@ -116,6 +117,7 @@ void Monostate::SaveHlists()
 	TFile ofile_Hlist_chi2_amp_cut_2(s_Hlist_chi2_amp_cut_2.c_str(), "RECREATE");
 	Hlist_chi2_amp_cut_2.Write();
 	ofile_Hlist_chi2_amp_cut_2.Close();
+	//Hlist_chi2_amp_cut_2.Clear(); Clear or not?
 
 	//f1
 	TFile ofile_Hlist_f1(s_Hlist_f1.c_str(), "RECREATE");
