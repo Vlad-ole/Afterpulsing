@@ -16,7 +16,7 @@ void NTuple_create()
 	f->Close();
 }
 
-void ReadNTuple()
+void CutTree()
 {
 	//TFile *f = new TFile("D:\\Data_work\\tektronix_signal\\MPPC_S10362-11-100C\\295K\\70_01V\\results\\ntuple_01_10.root");
 	//TNtuple *my_ntuple = (TNtuple*)f->GetObjectChecked("ntuple", "TNtuple");

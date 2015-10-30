@@ -15,7 +15,7 @@ public:
 	~RootFit();	
 
 	void SetParameters();
-	void SetParametersTwoComp();
+	void SetParametersTwoComp(const double A_start, const double A_limit_l, const double A_limit_h);
 	void DoFit();
 	double GetChi2PerDof();
 	double GetAmplitude();
@@ -34,6 +34,8 @@ public:
 	static void CreateFrontGraph();
 	static void SetDispXY(const double x = 0, const double y = 0);
 	static void CalculateAverageSignal(double time_dead);
+	static void SetAlgorithmParameters();
+
 
 	short int number_of_functions;
 
@@ -91,7 +93,7 @@ public:
 	static double fitFunction_5_TwoComp(Double_t *x, Double_t *par);
 	
 	static void CalculateFilterCoeff(int points);
-
+	static void ReserveVectors();
 	
 	static int time_start_index;
 	static int time_finish_index;

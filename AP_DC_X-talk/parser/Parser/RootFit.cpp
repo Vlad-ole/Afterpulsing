@@ -355,7 +355,7 @@ void RootFit::SetParameters()
 	}
 	else
 	{
-		SetParametersTwoComp();
+		//SetParametersTwoComp();
 	}
 
 	//fitFcn->Modify();
@@ -365,11 +365,11 @@ void RootFit::SetParameters()
 }
 
 
-void RootFit::SetParametersTwoComp()
+void RootFit::SetParametersTwoComp(const double A_start, const double A_limit_l, const double A_limit_h)
 {
-	const double A_start = 0.04;
-	const double A_limit_l = 0.001;
-	const double A_limit_h = 1;
+	//const double A_start = 0.04;
+	//const double A_limit_l = 0.001;
+	//const double A_limit_h = 1;
 
 	const double tau_rec_fast = 2.21513;
 	const double tau_rise = 5.47845;
@@ -2190,4 +2190,39 @@ void RootFit::CalculateAverageSignal(double time_dead_forward)
 	cout << "number_of_pulsing = \t" << num_of_signals << endl;
 	system("pause");
 	exit(0);
+}
+
+void RootFit::SetAlgorithmParameters()
+{
+	// задать параметры алгоритма
+	RootFit::threshold_der2 = -1E-5;
+	RootFit::threshold_der =
+		/*-2E-4 (hamamatsu 33 4.5 OV)*/
+		/*-0.06  MPPC_S10362-11-100C */
+		-4E-4;
+
+	RootFit::RecoveryTimeTwoComponents = true;
+	RootFit::only_1e = true; // рассматривать импульсы с послеимпульсами только с одной ячейки
+	RootFit::ReadDerivative = true;
+
+	RootFit::threshold_amp = -0.002; // амплитудный порог, находящийся на уровне шума
+	RootFit::threshold_amp_start = -0.01; // амплитудный порог для запуска 
+
+	RootFit::threshold_1e_low = 0.03; // пороги по амплитуде (в Вольтах) для правильного нахождения средней формы сигнала
+	RootFit::threshold_1e_high = 0.05;
+
+	RootFit::threshold_1e_A_low = 0.02;
+	RootFit::threshold_1e_A_high = 0.07;
+	RootFit::time_shit = 100; // задать смещение по времени для учета базовой линии (в точках)	
+	//-------------------------------------------------------
+}
+
+void RootFit::ReserveVectors()
+{
+	RootFit::xv.reserve(20 * 1000 * 1000);
+	RootFit::yv.reserve(20 * 1000 * 1000);
+	RootFit::yv_der.reserve(20 * 1000 * 1000);
+	RootFit::yv_der2.reserve(20 * 1000 * 1000);
+	RootFit::xverr.reserve(20 * 1000 * 1000);
+	RootFit::yverr.reserve(20 * 1000 * 1000);
 }

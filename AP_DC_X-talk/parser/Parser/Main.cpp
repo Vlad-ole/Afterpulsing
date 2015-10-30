@@ -65,48 +65,14 @@ int main(int argc, char *argv[])
 	MPI_Init(&argc, &argv);
 	int n, myid, numprocs;
 	double t_0, t2;
-
-	MPI_Comm_size(MPI_COMM_WORLD, &numprocs);
-	MPI_Comm_rank(MPI_COMM_WORLD, &myid);
-	MPI_Bcast(&n, 1, MPI_INT, 0, MPI_COMM_WORLD);
-
-	//-----------------------------------------------
 	t_0 = MPI_Wtime();
+	//---------------------------------------------------
 
-	RootFit::xv.reserve(20*1000*1000);
-	RootFit::yv.reserve(20 * 1000 * 1000);
-	RootFit::yv_der.reserve(20 * 1000 * 1000);
-	RootFit::yv_der2.reserve(20 * 1000 * 1000);
-	RootFit::xverr.reserve(20 * 1000 * 1000);
-	RootFit::yverr.reserve(20 * 1000 * 1000);
-
-	// задать параметры алгоритма
-	RootFit::threshold_der2 = -1E-5;
-	RootFit::threshold_der =
-		/*-2E-4 (hamamatsu 33 4.5 OV)*/
-		/*-0.06  MPPC_S10362-11-100C */
-		-4E-4;
-
-	RootFit::RecoveryTimeTwoComponents = true;
-	RootFit::only_1e = true; // рассматривать импульсы с послеимпульсами только с одной ячейки
-	RootFit::ReadDerivative = true;
-
-	RootFit::threshold_amp = -0.002; // амплитудный порог, находящийся на уровне шума
-	RootFit::threshold_amp_start = -0.01; // амплитудный порог для запуска 
-
-	RootFit::threshold_1e_low = 0.03; // пороги по амплитуде (в Вольтах) для правильного нахождения средней формы сигнала
-	RootFit::threshold_1e_high = 0.05;
-
-	RootFit::threshold_1e_A_low = 0.02;
-	RootFit::threshold_1e_A_high = 0.07;
-	RootFit::time_shit = 100; // задать смещение по времени для учета базовой линии (в точках)	
-	//-------------------------------------------------------
-		
+	RootFit::ReserveVectors();
+	RootFit::SetAlgorithmParameters();
 
 	const bool CalculateAvgSignal = false;
 	RootFit::SaveGraphsBool = false;
-
-	ofstream file_test(Monostate::dir_name + "test.dat");
 
 	Double_t x, y;
 	
@@ -116,7 +82,17 @@ int main(int argc, char *argv[])
 	TNtuple ntuple("ntuple", "fit results", "a_1:chi_1:a_2:b_2:chi_2:dt_2_ab");
 	TTree tree("t1", "Parser tree");
 
-	TMultiGraph *multi_graph = new TMultiGraph();
+	TMultiGraph *multi_graph_fit2 = new TMultiGraph();
+	TGraphErrors *gr_tree_fit2 = new TGraphErrors();
+	TGraph *gr_front_tree_fit2 = new TGraph();
+	TGraph *gr_der_tree_fit2 = new TGraph();
+	TGraph *gr_der2_tree_fit2 = new TGraph();
+
+	TMultiGraph *multi_graph_fit1 = new TMultiGraph();
+	TGraphErrors *gr_tree_fit1 = new TGraphErrors();
+	TGraph *gr_front_tree_fit1 = new TGraph();
+	TGraph *gr_der_tree_fit1 = new TGraph();
+	TGraph *gr_der2_tree_fit1 = new TGraph();
 
 	double a_1, chi_1, a_2, b_2, chi_2, dt_2_ab;
 
@@ -127,20 +103,30 @@ int main(int argc, char *argv[])
 	tree.Branch("chi_2", &chi_2, "chi_2/D");
 	tree.Branch("dt_2_ab", &dt_2_ab, "dt_2_ab/D");
 
-	RootFit *Fit_double = new RootFit();
+	
+	multi_graph_fit2->Add(gr_tree_fit2);
+	multi_graph_fit2->Add(gr_front_tree_fit2);
+	multi_graph_fit2->Add(gr_der_tree_fit2);
+	multi_graph_fit2->Add(gr_der2_tree_fit2);
 
-	multi_graph->Add(Fit_double->gr);
+	multi_graph_fit1->Add(gr_tree_fit1);
+	multi_graph_fit1->Add(gr_front_tree_fit1);
+	multi_graph_fit1->Add(gr_der_tree_fit1);
+	multi_graph_fit1->Add(gr_der2_tree_fit1);
+
 	//multi_graph->Add(new TGraph(*Fit_double->gr_front));
 	//multi_graph->Add(new TGraph(*Fit_double->gr_der));
 	//multi_graph->Add(new TGraph(*Fit_double->gr_der2));
 
 
 	//tree.Branch("multi_graph", "TMultiGraph", &multi_graph);	
-	tree.Branch("gr", "TMultiGraph", &multi_graph, 128000, 0);
+	tree.Branch("gr_fit2", "TMultiGraph", &multi_graph_fit2, 128000, 0);
+	tree.Branch("gr_fit1", "TMultiGraph", &multi_graph_fit1, 128000, 0);
 
+	string string_tree = Monostate::dir_name + "tree.root";
+	TFile f_tree(string_tree.c_str(), "RECREATE");
 
-
-	for (int file_i = 1; file_i <= 1; file_i++) // цикл по файлам
+	for (int file_i = 1; file_i <= 20; file_i++) // цикл по файлам
 	{
 
 		RootFit::time_start.clear();
@@ -155,7 +141,7 @@ int main(int argc, char *argv[])
 		else
 			RootFit::previousIs1e = false;
 
-		RootFit::ReadFiles(RootFit::ReadDerivative, file_i, 0.02);
+		RootFit::ReadFiles(RootFit::ReadDerivative, file_i, 1);
 		
 
 		if (CalculateAvgSignal)
@@ -186,18 +172,32 @@ int main(int argc, char *argv[])
 				RootFit::CalculateNumOfSignals(3);
 				RootFit::CreateFrontGraph();
 
+				cout << "\t single step 1 ... " << endl;
 				RootFit *Fit_single = new RootFit(1);
-				Fit_single->SetParameters();
+				Fit_single->SetParametersTwoComp(0.2, 0.13, 0.28);
 				Fit_single->DoFit();
 				//Fit_single->SaveAllGraphs();
 
+				if (Fit_single->GetChi2PerDof() > 4)
+				{
+					cout << "\t single step 2 ... " << endl;
+					Fit_single->SetParametersTwoComp(0.2 + 0.2, 0.13 + 0.2, 0.28 + 0.2);
+					Fit_single->DoFit();
+				}
+
+				if (Fit_single->GetChi2PerDof() > 4)
+				{
+					cout << "\t single step 3 ... " << endl;
+					Fit_single->SetParametersTwoComp(0.2, 0.1, 10);
+					Fit_single->DoFit();
+				}
 
 				if (true/*Fit_single->GetChi2PerDof() > 4 || Fit_single->fitFcn->GetParameter(0) > 0.065*/)
 				{
 					cout << "\t double ... " << endl;
 
-					Fit_double = new RootFit(2);
-					Fit_double->SetParameters();
+					RootFit *Fit_double = new RootFit(2);
+					Fit_double->SetParametersTwoComp(0.2, 0.001, 10);
 					Fit_double->DoFit();
 					//Fit_double->SaveAllGraphs();
 										
@@ -209,8 +209,19 @@ int main(int argc, char *argv[])
 					dt_2_ab = fabs(Fit_double->fitFcn->GetParameter(9) - Fit_double->fitFcn->GetParameter(1));
 					
 					ntuple.Fill(a_1, chi_1, a_2, b_2, chi_2, dt_2_ab);
+					
+					*gr_tree_fit1 = *(Fit_single->gr);
+					*gr_front_tree_fit1 = *(Fit_single->gr_front);
+					*gr_der_tree_fit1 = *(Fit_single->gr_der);
+					*gr_der2_tree_fit1 = *(Fit_single->gr_der2);
+
+					*gr_tree_fit2 = *(Fit_double->gr);
+					*gr_front_tree_fit2 = *(Fit_double->gr_front);
+					*gr_der_tree_fit2 = *(Fit_double->gr_der);
+					*gr_der2_tree_fit2 = *(Fit_double->gr_der2);
+
 					tree.Fill();
-					//multi_graph->Clear();
+					if ((i + 1) % 100 == 1) tree.AutoSave("SaveSelf");
 					
 					if (Fit_double->GetChi2PerDof() > Monostate::chi2_per_dof_th && false)
 					{
@@ -262,10 +273,9 @@ int main(int argc, char *argv[])
 
 	}
 
-	string string_tree = Monostate::dir_name + "tree.root";
-	TFile f_tree(string_tree.c_str(), "RECREATE");
+
 	tree.Write();
-	f_tree.Close();
+	//f_tree.Close();
 
 	if (RootFit::ReadDerivative)
 	{
@@ -283,7 +293,7 @@ int main(int argc, char *argv[])
 	system("pause");
 
 	// Finalize MPI
-	MPI_Finalize();
+	//MPI_Finalize();
 
 	return 0;
 }

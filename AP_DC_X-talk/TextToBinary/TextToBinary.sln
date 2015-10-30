@@ -9,6 +9,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestMemoryLeak", "TestMemor
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GPU", "GPU\GPU.vcxproj", "{D334E780-5731-4470-A1A1-24111C221A92}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Tektronix_read", "Tektronix_read\Tektronix_read.vcxproj", "{2D01D577-3132-4C45-8B2B-D8A594B42E6E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -27,6 +29,10 @@ Global
 		{D334E780-5731-4470-A1A1-24111C221A92}.Debug|Win32.Build.0 = Debug|Win32
 		{D334E780-5731-4470-A1A1-24111C221A92}.Release|Win32.ActiveCfg = Release|Win32
 		{D334E780-5731-4470-A1A1-24111C221A92}.Release|Win32.Build.0 = Release|Win32
+		{2D01D577-3132-4C45-8B2B-D8A594B42E6E}.Debug|Win32.ActiveCfg = Debug|Win32
+		{2D01D577-3132-4C45-8B2B-D8A594B42E6E}.Debug|Win32.Build.0 = Debug|Win32
+		{2D01D577-3132-4C45-8B2B-D8A594B42E6E}.Release|Win32.ActiveCfg = Release|Win32
+		{2D01D577-3132-4C45-8B2B-D8A594B42E6E}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
