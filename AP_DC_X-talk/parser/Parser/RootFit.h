@@ -16,6 +16,10 @@ public:
 
 	void SetParameters();
 	void SetParametersTwoComp(const double A_start, const double A_limit_l, const double A_limit_h);
+	
+	void SetParametersTwoComp_fit1(const double * const A_start, const double * const A_limit_l, const double * const A_limit_h);
+	void SetParametersTwoComp_fit2(const double * const A_start, const double * const A_limit_l, const double * const A_limit_h);
+
 	void DoFit();
 	double GetChi2PerDof();
 	double GetAmplitude();

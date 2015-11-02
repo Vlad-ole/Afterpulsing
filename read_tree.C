@@ -1,6 +1,6 @@
 void ReadTree()
 {
-	string dir_name = "D:\\Data_work\\tektronix_signal\\MPPC_S10362-11-100C\\295K\\70_01V\\";
+	string dir_name = "D:\\Data_work\\tektronix_signal\\MPPC_S10362-11-100C\\295K\\70_01V\\results\\";
 	//string dir_name = "D:\\Data_work\\";
 	string tree_name = dir_name + "tree.root";
 	string graphs_name_fit1 = dir_name + "graphs_fit1.root";
@@ -41,28 +41,37 @@ void ReadTree()
 	
 	TCut fit_2 = "chi_1 > 4 && chi_2 < 4";
 	TCut A2 = "(a_2 + b_2) > 0.15 && (a_2 + b_2) < 0.25";
-	TCut B2_tail = "(a_2 + b_2) > 0.25 && (a_2 + b_2) < 0.38";
-	TCut B2_circle = "(a_2 + b_2) > 0.38 && (a_2 + b_2) < 0.46";
-	TCut C2 = "(a_2 + b_2) > 0.46 && (a_2 + b_2) < 0.7";
+	//TCut B2_tail = "(a_2 + b_2) > 0.25 && (a_2 + b_2) < 0.38";
+	//TCut B2_circle = "(a_2 + b_2) > 0.38 && (a_2 + b_2) < 0.46";
+	TCut B2 = "(a_2 + b_2) > 0.2 && (a_2 + b_2) < 0.47";
+	TCut C2 = "(a_2 + b_2) > 0.47 && (a_2 + b_2) < 0.68";
 	
-	TCut total_cut = fit_2 && A2;
+	TCut temp_cut = "dt_2_ab < 1";
+	
+	TCut total_cut = fit_2 && C2;
 	
 	t->SetMarkerStyle(4);
-	t->Draw("chi_2:(a_2 + b_2)", fit_2);
 	
-	bool condition;	
-	for (int i = 0; i < 1000/*t->GetEntries()*/; ++i)
+	//t->Draw("chi_1:a_1", total_cut);
+	//t->Draw("chi_2:(a_2 + b_2)", total_cut);
+	//t->Draw("a_2:b_2", total_cut);
+	//t->Draw("(a_2 + b_2):dt_2_ab", total_cut);
+	t->Draw("dt_2_ab", total_cut);
+	
+	bool condition = false;	
+	if(condition)
 	{
-		t->GetEntry(i);	
-
-		//condition = chi_1 > 4 && chi_2 < 4 && (a_2 + b_2 > 0.15) && (a_2 + b_2 < 0.25); 
-		condition = (chi_1 > 4 && chi_2 < 4) && ( (a_2 + b_2) > 0.15 && (a_2 + b_2) < 0.25 );
-		//condition = chi_1 < 4 && (a_1 > 0.1 && a_1 < 0.3);
-		
-		if(condition)
+		for (int i = 0; i < 1000/*t->GetEntries()*/; ++i)
 		{
-			Hlist_fit1.Add(graph_fit1->Clone());
-			Hlist_fit2.Add(graph_fit2->Clone());
+			t->GetEntry(i);	
+
+			condition = /*fit_2*/(chi_1 > 4 && chi_2 < 4) && /*C2*/ ( true ) && /*temp*/ ( dt_2_ab < 40 && dt_2_ab > 1 && (a_2 + b_2) > 0.58 );
+			
+			if(condition)
+			{
+				Hlist_fit1.Add(graph_fit1->Clone());
+				Hlist_fit2.Add(graph_fit2->Clone());
+			}
 		}
 	}
 	

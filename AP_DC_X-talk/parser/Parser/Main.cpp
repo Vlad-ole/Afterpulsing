@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
 	string string_tree = Monostate::dir_name + "tree.root";
 	TFile f_tree(string_tree.c_str(), "RECREATE");
 
-	for (int file_i = 1; file_i <= 20; file_i++) // цикл по файлам
+	for (int file_i = 1; file_i <= 1; file_i++) // цикл по файлам
 	{
 
 		RootFit::time_start.clear();
@@ -174,32 +174,64 @@ int main(int argc, char *argv[])
 
 				cout << "\t single step 1 ... " << endl;
 				RootFit *Fit_single = new RootFit(1);
-				Fit_single->SetParametersTwoComp(0.2, 0.13, 0.28);
+				double A_start[] = { 0.2 };
+				double A_limit_l[] = { 0.13 };
+				double A_limit_h[] = { 0.28 };
+				Fit_single->SetParametersTwoComp_fit1(A_start, A_limit_l, A_limit_h);
 				Fit_single->DoFit();
 				//Fit_single->SaveAllGraphs();
 
 				if (Fit_single->GetChi2PerDof() > 4)
 				{
 					cout << "\t single step 2 ... " << endl;
-					Fit_single->SetParametersTwoComp(0.2 + 0.2, 0.13 + 0.2, 0.28 + 0.2);
+					A_start[0] = { 0.2 + 0.2 };
+					A_limit_l[0] = { 0.13 + 0.2 };
+					A_limit_h[0] = { 0.28 + 0.2 };
+					Fit_single->SetParametersTwoComp_fit1(A_start, A_limit_l, A_limit_h);
 					Fit_single->DoFit();
 				}
 
 				if (Fit_single->GetChi2PerDof() > 4)
 				{
 					cout << "\t single step 3 ... " << endl;
-					Fit_single->SetParametersTwoComp(0.2, 0.1, 10);
+					A_start[0] = { 0.2 * 3 };
+					A_limit_l[0] = { 0.5 };
+					A_limit_h[0] = { 0.7 };
+					Fit_single->SetParametersTwoComp_fit1(A_start, A_limit_l, A_limit_h);
+					Fit_single->DoFit();
+				}
+
+				if (Fit_single->GetChi2PerDof() > 4)
+				{
+					cout << "\t single step 4 ... " << endl;
+					A_start[0] = { 0.2 };
+					A_limit_l[0] = { 0.1 };
+					A_limit_h[0] = { 10 };
+					Fit_single->SetParametersTwoComp_fit1(A_start, A_limit_l, A_limit_h);
 					Fit_single->DoFit();
 				}
 
 				if (true/*Fit_single->GetChi2PerDof() > 4 || Fit_single->fitFcn->GetParameter(0) > 0.065*/)
 				{
-					cout << "\t double ... " << endl;
+					cout << "\t double step 1  ... " << endl;
 
 					RootFit *Fit_double = new RootFit(2);
-					Fit_double->SetParametersTwoComp(0.2, 0.001, 10);
+					double A_start[] = { 0.2, 0.2};
+					double A_limit_l[] = { 0.001, 0.001};
+					double A_limit_h[] = { 10, 10};
+					Fit_double->SetParametersTwoComp_fit2(A_start, A_limit_l, A_limit_h);
 					Fit_double->DoFit();
 					//Fit_double->SaveAllGraphs();
+
+					//if (fabs(Fit_double->fitFcn->GetParameter(9) - Fit_double->fitFcn->GetParameter(1)) < 1)
+					//{
+					//	cout << "\t double step 2 ... " << endl;
+					//	A_start[0] = { 0.2 };
+					//	A_limit_l[0] = { 0.1 };
+					//	A_limit_h[0] = { 10 };
+					//	Fit_double->SetParametersTwoComp_fit2(A_start, A_limit_l, A_limit_h);
+					//	Fit_double->DoFit();
+					//}
 										
 					a_1 = Fit_single->fitFcn->GetParameter(0);
 					chi_1 = Fit_single->GetChi2PerDof();

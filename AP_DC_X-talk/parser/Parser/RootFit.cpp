@@ -365,12 +365,8 @@ void RootFit::SetParameters()
 }
 
 
-void RootFit::SetParametersTwoComp(const double A_start, const double A_limit_l, const double A_limit_h)
+void RootFit::SetParametersTwoComp_fit1(const double * const A_start, const double * const A_limit_l, const double * const A_limit_h)
 {
-	//const double A_start = 0.04;
-	//const double A_limit_l = 0.001;
-	//const double A_limit_h = 1;
-
 	const double tau_rec_fast = 2.21513;
 	const double tau_rise = 5.47845;
 
@@ -382,45 +378,86 @@ void RootFit::SetParametersTwoComp(const double A_start, const double A_limit_l,
 
 	const double time_first = xv[time_front[0]];
 
-	//fitFcn->SetParErrors
 
-	// A
-	fitFcn->SetParameter(0, A_start);
-	fitFcn->SetParLimits(0, A_limit_l, A_limit_h);
+		// A
+		fitFcn->SetParameter(0, A_start[0]);
+		fitFcn->SetParLimits(0, A_limit_l[0], A_limit_h[0]);
 
-	//t_0
-	fitFcn->SetParameter(1, time_first);
-	fitFcn->SetParLimits(1, xv[time_start_index], xv[time_finish_index]);
+		//t_0
+		fitFcn->SetParameter(1, time_first);
+		fitFcn->SetParLimits(1, xv[time_start_index], xv[time_finish_index]);
 
-	// tau_rec
-	fitFcn->SetParameter(2, tau_rec_fast);
-	fitFcn->SetParLimits(2, tau_rec_fast, tau_rec_fast);
+		// tau_rec
+		fitFcn->SetParameter(2, tau_rec_fast);
+		fitFcn->SetParLimits(2, tau_rec_fast, tau_rec_fast);
 
-	// tau_rise
-	fitFcn->SetParameter(3, tau_rise);
-	fitFcn->SetParLimits(3, tau_rise, tau_rise);
+		// tau_rise
+		fitFcn->SetParameter(3, tau_rise);
+		fitFcn->SetParLimits(3, tau_rise, tau_rise);
 
-	//sigma
-	fitFcn->SetParameter(4, sigma);
-	fitFcn->SetParLimits(4, sigma, sigma);
+		//sigma
+		fitFcn->SetParameter(4, sigma);
+		fitFcn->SetParLimits(4, sigma, sigma);
 
-	//tau_rec_slow
-	fitFcn->SetParameter(5, tau_rec_slow);
-	fitFcn->SetParLimits(5, tau_rec_slow, tau_rec_slow);
+		//tau_rec_slow
+		fitFcn->SetParameter(5, tau_rec_slow);
+		fitFcn->SetParLimits(5, tau_rec_slow, tau_rec_slow);
 
-	//R_slow
-	fitFcn->SetParameter(6, R_slow);
-	fitFcn->SetParLimits(6, R_slow, R_slow);
+		//R_slow
+		fitFcn->SetParameter(6, R_slow);
+		fitFcn->SetParLimits(6, R_slow, R_slow);
 
-	//baseline
-	fitFcn->SetParameter(7, 0);
-	fitFcn->SetParLimits(7, -baseline_limit, baseline_limit);
+		//baseline
+		fitFcn->SetParameter(7, 0);
+		fitFcn->SetParLimits(7, -baseline_limit, baseline_limit);
+
+}
 
 
+void RootFit::SetParametersTwoComp_fit2(const double * const A_start, const double * const A_limit_l, const double * const A_limit_h)
+{
+	const double tau_rec_fast = 2.21513;
+	const double tau_rise = 5.47845;
 
+	const double baseline_limit = 0.006;
+	const double sigma = 1.78391;
 
-	if (number_of_functions > 1)
-	{
+	const double tau_rec_slow = 43.0645;
+	const double R_slow = 0.254653;
+
+	const double time_first = xv[time_front[0]];
+
+		// A
+		fitFcn->SetParameter(0, A_start[0]);
+		fitFcn->SetParLimits(0, A_limit_l[0], A_limit_h[0]);
+
+		//t_0
+		fitFcn->SetParameter(1, time_first);
+		fitFcn->SetParLimits(1, xv[time_start_index], xv[time_finish_index]);
+
+		// tau_rec
+		fitFcn->SetParameter(2, tau_rec_fast);
+		fitFcn->SetParLimits(2, tau_rec_fast, tau_rec_fast);
+
+		// tau_rise
+		fitFcn->SetParameter(3, tau_rise);
+		fitFcn->SetParLimits(3, tau_rise, tau_rise);
+
+		//sigma
+		fitFcn->SetParameter(4, sigma);
+		fitFcn->SetParLimits(4, sigma, sigma);
+
+		//tau_rec_slow
+		fitFcn->SetParameter(5, tau_rec_slow);
+		fitFcn->SetParLimits(5, tau_rec_slow, tau_rec_slow);
+
+		//R_slow
+		fitFcn->SetParameter(6, R_slow);
+		fitFcn->SetParLimits(6, R_slow, R_slow);
+
+		//baseline
+		fitFcn->SetParameter(7, 0);
+		fitFcn->SetParLimits(7, -baseline_limit, baseline_limit);
 
 		double time_second;
 		if (time_front.size() > 1)
@@ -431,10 +468,11 @@ void RootFit::SetParametersTwoComp(const double A_start, const double A_limit_l,
 		{
 			time_second = xv[time_front[0]];
 		}
+		
 
 		// A
-		fitFcn->SetParameter(8, A_start);
-		fitFcn->SetParLimits(8, A_limit_l, A_limit_h);
+		fitFcn->SetParameter(8, A_start[1]);
+		fitFcn->SetParLimits(8, A_limit_l[1], A_limit_h[1]);
 
 		//t_0
 		fitFcn->SetParameter(9, time_second);
@@ -460,139 +498,7 @@ void RootFit::SetParametersTwoComp(const double A_start, const double A_limit_l,
 		fitFcn->SetParameter(14, R_slow);
 		fitFcn->SetParLimits(14, R_slow, R_slow);
 
-		if (number_of_functions > 2)
-		{
-			double time_third;
-			if (time_front.size() > 2)
-			{
-				time_third = xv[time_front[2]];
-			}
-			else
-			{
-				time_third = xv[time_front[0]];
-			}
-
-
-			// A
-			fitFcn->SetParameter(15, A_start);
-			fitFcn->SetParLimits(15, A_limit_l, A_limit_h);
-
-			//t_0
-			fitFcn->SetParameter(16, time_third);
-			fitFcn->SetParLimits(16, xv[time_start_index], xv[time_finish_index]);
-
-			// tau_rec
-			fitFcn->SetParameter(17, tau_rec_fast);
-			fitFcn->SetParLimits(17, tau_rec_fast, tau_rec_fast);
-
-			// tau_rise
-			fitFcn->SetParameter(18, tau_rise);
-			fitFcn->SetParLimits(18, tau_rise, tau_rise);
-
-			//sigma
-			fitFcn->SetParameter(19, sigma);
-			fitFcn->SetParLimits(19, sigma, sigma);
-
-			//tau_rec_slow
-			fitFcn->SetParameter(20, tau_rec_slow);
-			fitFcn->SetParLimits(20, tau_rec_slow, tau_rec_slow);
-
-			//R_slow
-			fitFcn->SetParameter(21, R_slow);
-			fitFcn->SetParLimits(21, R_slow, R_slow);
-
-
-			if (number_of_functions > 3)
-			{
-				double time_fourth;
-				if (time_front.size() > 3)
-				{
-					time_fourth = xv[time_front[3]];
-				}
-				else
-				{
-					time_fourth = xv[time_front[0]];
-				}
-
-				// A
-				fitFcn->SetParameter(22, A_start);
-				fitFcn->SetParLimits(22, A_limit_l, A_limit_h);
-
-				//t_0
-				fitFcn->SetParameter(23, time_fourth);
-				fitFcn->SetParLimits(23, xv[time_start_index], xv[time_finish_index]);
-
-				// tau_rec
-				fitFcn->SetParameter(24, tau_rec_fast);
-				fitFcn->SetParLimits(24, tau_rec_fast, tau_rec_fast);
-
-				// tau_rise
-				fitFcn->SetParameter(25, tau_rise);
-				fitFcn->SetParLimits(25, tau_rise, tau_rise);
-
-				//sigma
-				fitFcn->SetParameter(26, sigma);
-				fitFcn->SetParLimits(26, sigma, sigma);
-
-				//tau_rec_slow
-				fitFcn->SetParameter(27, tau_rec_slow);
-				fitFcn->SetParLimits(27, tau_rec_slow, tau_rec_slow);
-
-				//R_slow
-				fitFcn->SetParameter(28, R_slow);
-				fitFcn->SetParLimits(28, R_slow, R_slow);
-
-				if (number_of_functions > 4)
-				{
-					double time_fiths;
-					if (time_front.size() > 4)
-					{
-						time_fiths = xv[time_front[4]];
-					}
-					else
-					{
-						time_fiths = xv[time_front[0]];
-					}
-
-					// A
-					fitFcn->SetParameter(29, A_start);
-					fitFcn->SetParLimits(29, A_limit_l, A_limit_h);
-
-					//t_0
-					fitFcn->SetParameter(30, time_fiths);
-					fitFcn->SetParLimits(30, xv[time_start_index], xv[time_finish_index]);
-
-					// tau_rec
-					fitFcn->SetParameter(31, tau_rec_fast);
-					fitFcn->SetParLimits(31, tau_rec_fast, tau_rec_fast);
-
-					// tau_rise
-					fitFcn->SetParameter(32, tau_rise);
-					fitFcn->SetParLimits(32, tau_rise, tau_rise);
-
-					//sigma
-					fitFcn->SetParameter(33, sigma);
-					fitFcn->SetParLimits(33, sigma, sigma);
-
-					//tau_rec_slow
-					fitFcn->SetParameter(34, tau_rec_slow);
-					fitFcn->SetParLimits(34, tau_rec_slow, tau_rec_slow);
-
-					//R_slow
-					fitFcn->SetParameter(35, R_slow);
-					fitFcn->SetParLimits(35, R_slow, R_slow);
-				}
-
-			}
-
-		}
-
-	}
-
-	//fitFcn->Modify();
-	//fitFcn->ReleaseParameter();
-	//fitFcn->Update();
-
+	
 }
 
 
