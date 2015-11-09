@@ -19,6 +19,7 @@ public:
 	
 	void SetParametersTwoComp_fit1(const double * const A_start, const double * const A_limit_l, const double * const A_limit_h);
 	void SetParametersTwoComp_fit2(const double * const A_start, const double * const A_limit_l, const double * const A_limit_h);
+	void SetParametersTwoComp_fit3(const double * const A_start, const double * const A_limit_l, const double * const A_limit_h);
 
 	void DoFit();
 	double GetChi2PerDof();

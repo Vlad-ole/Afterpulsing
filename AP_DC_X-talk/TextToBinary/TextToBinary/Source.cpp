@@ -16,7 +16,7 @@ vector<double> yv_der2;
 vector<double> C_i_der;
 vector<double> C_i_der2;
 
-string dir_name = "D:\\Data_work\\tektronix_signal\\MPPC_S10362-11-100C\\285K\\69_65V\\";
+string dir_name = "D:\\Data_work\\tektronix_signal\\MPPC_S10362-11-100C\\290K\\69_83V\\";
 string file_name;
 string file_write;
 string file_read;
@@ -201,7 +201,7 @@ int main()
 	CalculateFilterCoeff(points);
 	
 
-	for (file_i = 1; file_i <= 10; file_i++)
+	for (file_i = 1; file_i <= 5; file_i++)
 	{
 		ostringstream file_read_oss;
 		file_read_oss << dir_name << "raw\\text\\run_" << file_i << ".txt";

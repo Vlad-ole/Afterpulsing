@@ -11,6 +11,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GPU", "GPU\GPU.vcxproj", "{
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Tektronix_read", "Tektronix_read\Tektronix_read.vcxproj", "{2D01D577-3132-4C45-8B2B-D8A594B42E6E}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DefineThreshold", "DefineThreshold\DefineThreshold.vcxproj", "{ADFD273B-C5D1-46BC-8782-4FAEEE09097C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -33,6 +35,10 @@ Global
 		{2D01D577-3132-4C45-8B2B-D8A594B42E6E}.Debug|Win32.Build.0 = Debug|Win32
 		{2D01D577-3132-4C45-8B2B-D8A594B42E6E}.Release|Win32.ActiveCfg = Release|Win32
 		{2D01D577-3132-4C45-8B2B-D8A594B42E6E}.Release|Win32.Build.0 = Release|Win32
+		{ADFD273B-C5D1-46BC-8782-4FAEEE09097C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{ADFD273B-C5D1-46BC-8782-4FAEEE09097C}.Debug|Win32.Build.0 = Debug|Win32
+		{ADFD273B-C5D1-46BC-8782-4FAEEE09097C}.Release|Win32.ActiveCfg = Release|Win32
+		{ADFD273B-C5D1-46BC-8782-4FAEEE09097C}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

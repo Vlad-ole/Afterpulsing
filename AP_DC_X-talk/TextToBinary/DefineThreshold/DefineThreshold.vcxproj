@@ -11,9 +11,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{2D01D577-3132-4C45-8B2B-D8A594B42E6E}</ProjectGuid>
+    <ProjectGuid>{ADFD273B-C5D1-46BC-8782-4FAEEE09097C}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>Tektronix_read</RootNamespace>
+    <RootNamespace>DefineThreshold</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -41,8 +41,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Program Files %28x86%29\IVI Foundation\VISA\WinNT\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Program Files %28x86%29\IVI Foundation\VISA\WinNT\lib\msc;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\root_v5.34.32\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\root_v5.34.32\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -53,13 +53,14 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
+      <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>tkVISA32.lib;VISA32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>complexDict.lib;dequeDict.lib;freetype.lib;libAfterImage.lib;libASImage.lib;libASImageGui.lib;libCint.lib;libCintex.lib;libCore.lib;libEG.lib;libEGPythia8.lib;libEve.lib;libFitPanel.lib;libFoam.lib;libFTGL.lib;libFumili.lib;libGdml.lib;libGed.lib;libGenetic.lib;libGenVector.lib;libGeom.lib;libGeomBuilder.lib;libGeomPainter.lib;libGLEW.lib;libGpad.lib;libGraf.lib;libGraf3d.lib;libGui.lib;libGuiBld.lib;libGuiHtml.lib;libGviz3d.lib;libHist.lib;libHistPainter.lib;libHtml.lib;libMathCore.lib;libMathMore.lib;libMatrix.lib;libMinuit.lib;libMinuit2.lib;libMLP.lib;libNet.lib;libPhysics.lib;libPostscript.lib;libProof.lib;libProofDraw.lib;libProofPlayer.lib;libPyROOT.lib;libQuadp.lib;libRecorder.lib;libReflex.lib;libReflexDict.lib;libRGL.lib;libRHTTP.lib;libRint.lib;libRIO.lib;libRODBC.lib;libRooFit.lib;libRooFitCore.lib;libRooStats.lib;libRootAuth.lib;libSessionViewer.lib;libSmatrix.lib;libSpectrum.lib;libSpectrumPainter.lib;libSPlot.lib;libSQLIO.lib;libTable.lib;libThread.lib;libTMVA.lib;libTree.lib;libTreePlayer.lib;libTreeViewer.lib;libUnuran.lib;libVMC.lib;libWin32gdk.lib;libXMLIO.lib;listDict.lib;map2Dict.lib;mapDict.lib;mathtext.lib;multimap2Dict.lib;multimapDict.lib;multisetDict.lib;setDict.lib;vectorDict.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -81,18 +82,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="attraccess.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="bufferio.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="simple.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="Source.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="Source.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -20,7 +20,7 @@ using namespace RooFit;
 
 void RooFit_my(char name[])
 {
-   RooRealVar t("t","time", 0, 20000);
+   RooRealVar t("t","time", 1, 20001);
    
    RooRealVar nu_f("nu_f","time", 1.0 / 20, 0, 1.0);
    RooRealVar nu_s("nu_s","time", 1.0 / 100, 0, 1.0);
@@ -74,7 +74,7 @@ void RooFit_my(char name[])
 	*/
 	
    
-	genpdf.fitTo(*data, Range(50, 20000));
+	genpdf.fitTo(*data, Range(26, 20001));
 	cout << endl;
 	nu_f.Print();
 	nu_s.Print();
@@ -85,7 +85,7 @@ void RooFit_my(char name[])
 	
    
    RooPlot* tframe = t.frame(Title("Interpreted expression pdf"));
-   data->plotOn(tframe);
+   data->plotOn(tframe, Binning(5000));
    genpdf.plotOn(tframe);
    
    cout << endl << tframe->chiSquare(5) << endl;

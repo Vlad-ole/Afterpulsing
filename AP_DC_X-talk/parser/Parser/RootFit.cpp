@@ -503,6 +503,133 @@ void RootFit::SetParametersTwoComp_fit2(const double * const A_start, const doub
 
 
 
+
+void RootFit::SetParametersTwoComp_fit3(const double * const A_start, const double * const A_limit_l, const double * const A_limit_h)
+{
+	const double tau_rec_fast = 2.21513;
+	const double tau_rise = 5.47845;
+
+	const double baseline_limit = 0.006;
+	const double sigma = 1.78391;
+
+	const double tau_rec_slow = 43.0645;
+	const double R_slow = 0.254653;
+
+	const double time_first = xv[time_front[0]];
+
+	// A
+	fitFcn->SetParameter(0, A_start[0]);
+	fitFcn->SetParLimits(0, A_limit_l[0], A_limit_h[0]);
+
+	//t_0
+	fitFcn->SetParameter(1, time_first);
+	fitFcn->SetParLimits(1, xv[time_start_index], xv[time_finish_index]);
+
+	// tau_rec
+	fitFcn->SetParameter(2, tau_rec_fast);
+	fitFcn->SetParLimits(2, tau_rec_fast, tau_rec_fast);
+
+	// tau_rise
+	fitFcn->SetParameter(3, tau_rise);
+	fitFcn->SetParLimits(3, tau_rise, tau_rise);
+
+	//sigma
+	fitFcn->SetParameter(4, sigma);
+	fitFcn->SetParLimits(4, sigma, sigma);
+
+	//tau_rec_slow
+	fitFcn->SetParameter(5, tau_rec_slow);
+	fitFcn->SetParLimits(5, tau_rec_slow, tau_rec_slow);
+
+	//R_slow
+	fitFcn->SetParameter(6, R_slow);
+	fitFcn->SetParLimits(6, R_slow, R_slow);
+
+	//baseline
+	fitFcn->SetParameter(7, 0);
+	fitFcn->SetParLimits(7, -baseline_limit, baseline_limit);
+
+	double time_second;
+	if (time_front.size() > 1)
+	{
+		time_second = xv[time_front[1]];
+	}
+	else
+	{
+		time_second = xv[time_front[0]];
+	}
+
+
+	// A
+	fitFcn->SetParameter(8, A_start[1]);
+	fitFcn->SetParLimits(8, A_limit_l[1], A_limit_h[1]);
+
+	//t_0
+	fitFcn->SetParameter(9, time_second);
+	fitFcn->SetParLimits(9, xv[time_start_index], xv[time_finish_index]);
+
+	// tau_rec
+	fitFcn->SetParameter(10, tau_rec_fast);
+	fitFcn->SetParLimits(10, tau_rec_fast, tau_rec_fast);
+
+	// tau_rise
+	fitFcn->SetParameter(11, tau_rise);
+	fitFcn->SetParLimits(11, tau_rise, tau_rise);
+
+	//sigma
+	fitFcn->SetParameter(12, sigma);
+	fitFcn->SetParLimits(12, sigma, sigma);
+
+	//tau_rec_slow
+	fitFcn->SetParameter(13, tau_rec_slow);
+	fitFcn->SetParLimits(13, tau_rec_slow, tau_rec_slow);
+
+	//R_slow
+	fitFcn->SetParameter(14, R_slow);
+	fitFcn->SetParLimits(14, R_slow, R_slow);
+
+
+	double time_third;
+	if (time_front.size() > 2)
+	{
+		time_second = xv[time_front[2]];
+	}
+	else
+	{
+		time_second = xv[time_front[0]];
+	}
+
+	// A
+	fitFcn->SetParameter(15, A_start[2]);
+	fitFcn->SetParLimits(15, A_limit_l[2], A_limit_h[2]);
+
+	//t_0
+	fitFcn->SetParameter(16, time_second);
+	fitFcn->SetParLimits(16, xv[time_start_index], xv[time_finish_index]);
+
+	// tau_rec
+	fitFcn->SetParameter(17, tau_rec_fast);
+	fitFcn->SetParLimits(17, tau_rec_fast, tau_rec_fast);
+
+	// tau_rise
+	fitFcn->SetParameter(18, tau_rise);
+	fitFcn->SetParLimits(18, tau_rise, tau_rise);
+
+	//sigma
+	fitFcn->SetParameter(19, sigma);
+	fitFcn->SetParLimits(19, sigma, sigma);
+
+	//tau_rec_slow
+	fitFcn->SetParameter(20, tau_rec_slow);
+	fitFcn->SetParLimits(20, tau_rec_slow, tau_rec_slow);
+
+	//R_slow
+	fitFcn->SetParameter(21, R_slow);
+	fitFcn->SetParLimits(21, R_slow, R_slow);
+
+}
+
+
 void RootFit::SaveAllGraphs()
 {
 
@@ -2119,7 +2246,7 @@ void RootFit::SetAlgorithmParameters()
 
 	RootFit::threshold_1e_A_low = 0.02;
 	RootFit::threshold_1e_A_high = 0.07;
-	RootFit::time_shit = 100; // задать смещение по времени для учета базовой линии (в точках)	
+	RootFit::time_shit = 20*5; // задать смещение по времени для учета базовой линии (в точках)	
 	//-------------------------------------------------------
 }
 
