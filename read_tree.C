@@ -1,6 +1,6 @@
 void ReadTree()
 {
-	string dir_name = "D:\\Data_work\\tektronix_signal\\MPPC_S10362-11-100C\\295K\\70_01V\\results\\";
+	string dir_name = "D:\\Data_work\\tektronix_signal\\MPPC_S10362-11-100C\\275K\\69_30V\\results\\";
 	//string dir_name = "D:\\Data_work\\";
 	string tree_name = dir_name + "tree.root";
 	string graphs_name_fit1 = dir_name + "graphs_fit1.root";
@@ -78,35 +78,28 @@ void ReadTree()
 	t->SetBranchStatus("gr_fit2", 0);
 	t->SetBranchStatus("gr_fit3", 0);
 	
-	//295 70_01
 	TCut fit_1 = "chi_1 < 4";
 	TCut A1 = "a_1 > 0.1 && a_1 < 0.3";
 	TCut B1 = "a_1 > 0.3 && a_1 < 0.5";
 	TCut C1 = "a_1 > 0.5 && a_1 < 0.7";
 	TCut D1 = "a_1 > 0.7 && a_1 < 0.9";
 	
-	//295 70_01
+
 	TCut fit_2 = "chi_1 > 4 && chi_2 < 4";
 	TCut A2 = "(a_2 + b_2) > 0.2 && (a_2 + b_2) < 0.47";
 	TCut B2 = "(a_2 + b_2) > 0.47 && (a_2 + b_2) < 0.68";
 	TCut C2 = "(a_2 + b_2) > 0.68 && (a_2 + b_2) < 0.88";
 	
-	//275 69_30
-	/*
-	TCut fit_2 = "chi_1 > 4 && chi_2 < 4";
-	TCut A2 = "(a_2 + b_2) > 0.2 && (a_2 + b_2) < 0.45";
-	TCut B2 = "(a_2 + b_2) > 0.45 && (a_2 + b_2) < 0.65";
-	TCut C2 = "(a_2 + b_2) > 0.65 && (a_2 + b_2) < 0.88";
-	*/
+
 	
-	TCut total_cut = fit_1 && D1;
+	TCut total_cut = "chi_1 > 4";
 
 	
 	t->SetMarkerStyle(4);
 	
-	t->Draw("a_1", total_cut);
+	//t->Draw("a_1", total_cut);
 	//t->Draw("chi_1:a_1", total_cut);
-	//t->Draw("chi_2:(a_2 + b_2)", total_cut);
+	t->Draw("chi_2:(a_2 + b_2)", total_cut);
 	//t->Draw("a_2:b_2", total_cut);
 	//t->Draw("dt_2_ab", total_cut);
 	//t->Draw("dt_2_ab", total_cut);

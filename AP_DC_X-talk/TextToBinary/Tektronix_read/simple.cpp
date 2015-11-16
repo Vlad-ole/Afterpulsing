@@ -1,6 +1,9 @@
-#include <stdio.h>
+//#include <stdio.h>
+#include <iostream>
 #include <memory.h>
 #include <visa.h>
+
+using namespace std;
 
 // This example opens a specific GPIB device, does an *idn query
 // and prints the result.
@@ -36,6 +39,8 @@ int main(int argc, char* argv[])
 	viClose(vi); // Not needed, but makes things a bit more understandable
 	viClose(rm);
 
+	system("pause");
+
 	return 0;
 
 error:
@@ -45,5 +50,8 @@ error:
 	if (rm != VI_NULL) {
 		viClose(rm);
 	}
+
+	system("pause");
+
 	return 1;
 }

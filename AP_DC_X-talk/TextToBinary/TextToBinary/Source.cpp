@@ -16,7 +16,7 @@ vector<double> yv_der2;
 vector<double> C_i_der;
 vector<double> C_i_der2;
 
-string dir_name = "D:\\Data_work\\tektronix_signal\\MPPC_S10362-11-100C\\290K\\69_83V\\";
+string dir_name;
 string file_name;
 string file_write;
 string file_read;
@@ -189,8 +189,37 @@ void CalculateDerivative(int points)
 	}
 }
 
-int main()
+int main(int argc, char* argv[])
 {
+	cout << "number of arguments = " << argc << endl;
+	if (argc == 1)
+	{
+		//dir_name = "D:\\Data_work\\tektronix_signal\\MPPC_S10362-11-100C\\275K\\68_60V\\";
+		cout << "Please, input dir_name " << endl;
+		cout << argv[0] << endl;
+		return 0;
+	}
+	else if (argc == 4)
+	{
+		dir_name = argv[1];
+		cout << argv[0] << endl;
+		cout << argv[1] << endl;
+		cout << argv[2] << endl;
+		cout << argv[3] << endl;
+	}
+	else
+	{
+		cout << "too many or too few arguments! " << endl;
+	}
+
+
+
+	int file_i_start = atoi(argv[2]);
+	int file_i_stop = atoi(argv[3]);
+
+	cout << "file_i_start = " << file_i_start << endl;
+	cout << "file_i_stop = " << file_i_stop << endl;
+
 	long int before = GetTickCount();
 
 	yv.reserve(20 * 1000 * 1000);
@@ -201,7 +230,7 @@ int main()
 	CalculateFilterCoeff(points);
 	
 
-	for (file_i = 1; file_i <= 5; file_i++)
+	for (file_i = file_i_start; file_i <= file_i_stop; file_i++)
 	{
 		ostringstream file_read_oss;
 		file_read_oss << dir_name << "raw\\text\\run_" << file_i << ".txt";
@@ -238,6 +267,6 @@ int main()
 	cout << endl << "run time (in s) \t " << (after - before) / 1000.0 << endl;
 	cout << endl << "run time (in m) \t " << (after - before) / (1000.0 * 60) << endl;
 
-	system("pause");
+	//system("pause");
 	return 0;
 }

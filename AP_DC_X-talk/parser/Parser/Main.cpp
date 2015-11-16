@@ -60,7 +60,41 @@ bool RootFit::ReadDerivative;
 
 int main(int argc, char *argv[])
 {
-	
+	RootFit::SetAlgorithmParameters();
+
+	cout << "number of arguments = " << argc << endl;
+	if (argc == 1)
+	{
+		//dir_name = "D:\\Data_work\\tektronix_signal\\MPPC_S10362-11-100C\\275K\\68_60V\\";
+		cout << "Please, input dir_name " << endl;
+		cout << argv[0] << endl;
+		system("pause");
+		return 0;
+	}
+	else if (argc == 4)
+	{
+		
+		cout << argv[0] << endl;
+		cout << argv[1] << endl;
+		cout << argv[2] << endl;
+		cout << argv[3] << endl;
+
+		Monostate::dir_name = argv[1];
+		RootFit::threshold_amp_start = -atof(argv[2]);
+		RootFit::threshold_der = -atof(argv[3]);
+		
+	}
+	else
+	{
+		cout << "too many or too few arguments! " << endl;
+		return 0;
+	}
+
+	cout << "dir_name = " <<Monostate::dir_name << endl;
+	cout << "threshold_amp_start = " << RootFit::threshold_amp_start << endl;
+	cout << "threshold_der = " << RootFit::threshold_der << endl;
+
+
 	// Initialise MPI
 	//-----------------------------------------------
 	MPI_Init(&argc, &argv);
@@ -70,7 +104,7 @@ int main(int argc, char *argv[])
 	//---------------------------------------------------
 
 	RootFit::ReserveVectors();
-	RootFit::SetAlgorithmParameters();
+	
 
 	const bool CalculateAvgSignal = false;
 	RootFit::SaveGraphsBool = false;
@@ -440,7 +474,7 @@ int main(int argc, char *argv[])
 
 	cout << "Total execution time is (in s): " << MPI_Wtime() - t_0 << endl;
 
-	system("pause");
+	//system("pause");
 
 	// Finalize MPI
 	//MPI_Finalize();

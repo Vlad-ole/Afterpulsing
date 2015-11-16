@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include <time.h>
 #include <visa.h>
+#include <string.h>
 
 // This function reads the currently selected waveform and returns
 // it as an array of doubles.
@@ -95,17 +95,16 @@ error:
 }
 
 
-// This program shows the performance effect of sizing buffers 
-// with buffered I/O.
+// This program reads a waveform from a Tektronix
+// TDS scope and writes the floating point values to 
+// stdout.
 int main(int argc, char* argv[])
 {
-	ViSession		rm = VI_NULL, vi = VI_NULL;
-	ViStatus		status;
-	ViChar			buffer[256];
-	double*			wfm = NULL;
-	long			elements, i;
-	ViUInt32		bufferSize = 10;
-	unsigned long	start, total;
+	ViSession	rm = VI_NULL, vi = VI_NULL;
+	ViStatus	status;
+	ViChar		buffer[256];
+	double*		wfm = NULL;
+	long		elements, i;
 
 	// Open a default Session
 	status = viOpenDefaultRM(&rm);
@@ -115,23 +114,12 @@ int main(int argc, char* argv[])
 	status = viOpen(rm, "USB::0x0699::0x0405::C025165::INSTR", VI_NULL, VI_NULL, &vi);
 	if (status < VI_SUCCESS) goto error;
 
-	// Try buffer sizes 10, 100, ..., 10000 to show effect of 
-	// buffer sizes on performance.
-	for (bufferSize = 10; bufferSize <= 10000; bufferSize *= 10) {
-		// Set new buffer size
-		viSetBuf(vi, VI_READ_BUF, bufferSize);
-
-		// Get Start time for benchmark
-		start = time(NULL);
-
-		// Loop several times
-		for (i = 0; i < 5; i++) {
-			wfm = ReadWaveform(vi, &elements);
+	// Read waveform and write it to stdout
+	wfm = ReadWaveform(vi, &elements);
+	if (wfm != NULL) {
+		for (i = 0; i < elements; i++) {
+			printf("%f\n", wfm[i]);
 		}
-
-		// Print results
-		total = time(NULL) - start;
-		printf("bufSize %d, time %3.1fs\n", bufferSize, ((double)total) / 5.0);
 	}
 
 	// Clean up
@@ -148,7 +136,6 @@ error:
 	fprintf(stderr, "failure: %s\n", buffer);
 	if (rm != VI_NULL) viClose(rm);
 	if (wfm != NULL) free(wfm);
-
 	system("pause");
 	return 1;
 }

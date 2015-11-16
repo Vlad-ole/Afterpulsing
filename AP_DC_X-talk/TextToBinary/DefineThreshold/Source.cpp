@@ -22,7 +22,7 @@ int main()
 	yv_der.reserve(20 * 1000 * 1000);
 	yv_der2.reserve(20 * 1000 * 1000);
 	
-	string dir_name = "D:\\Data_work\\tektronix_signal\\MPPC_S10362-11-100C\\275K\\69_30V\\";
+	string dir_name = "D:\\Data_work\\tektronix_signal\\MPPC_S10362-11-100C\\285K\\69_15V\\";
 	int file_run = 1;
 	double part_or_file = 1;
 	
@@ -105,7 +105,7 @@ int main()
 	TFile f_tree(string_tree.c_str(), "RECREATE");
 	//ofstream file(dir_name + "th_amp.dat");
 
-	const bool starecases_der = true;
+	const bool starecases_der = false;
 
 
 	for (tau_amp = 10; tau_amp < 11; tau_amp+= 10)
@@ -122,14 +122,14 @@ int main()
 			{
 				if (starecases_der)
 				{
-					if ((yv_der[i] < th_amp_temp) && flag && (yv[i] < -0.002))
+					if ((yv_der[i] < th_amp_temp) && flag && (yv[i] < -0.005))
 					{
 						x_time = i * 0.2;
 						flag = 0;
 						counter_temp++;
 					}
 
-					if (yv_der[i] > th_amp_temp && (i*0.2 - x_time) > (tau_amp) && flag == 0)
+					if (yv_der[i] > th_amp_temp && (yv[i] > -0.005) && (i*0.2 - x_time) > (tau_amp) && flag == 0)
 					{
 						flag = 1;
 					}

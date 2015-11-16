@@ -1,8 +1,12 @@
-#include <stdio.h>
+#include <iostream>
 #include <stdlib.h>
 #include <assert.h>
-#include <time.h>
 #include <visa.h>
+#include <string.h>
+#include <windows.h>
+
+using namespace std;
+
 
 // This function reads the currently selected waveform and returns
 // it as an array of doubles.
@@ -20,6 +24,20 @@ double* ReadWaveform(ViSession vi, long* elements) {
 	status = viSetAttribute(vi, VI_ATTR_WR_BUF_OPER_MODE, VI_FLUSH_ON_ACCESS);
 	status = viSetAttribute(vi, VI_ATTR_RD_BUF_OPER_MODE, VI_FLUSH_ON_ACCESS);
 
+
+	////my
+	//char stringinput[256];
+	//ViUInt32 Wrcount;
+	//strcpy_s(stringinput, "MEASUREMENT:IMMED:SOURCE1 CH1");
+	//status = viWrite(vi, (ViBuf)stringinput, (ViUInt32)strlen(stringinput), &Wrcount);
+	//if (status < VI_SUCCESS) goto error;
+	////
+
+	//my
+	status = viPrintf(vi, "DATA SOURCE CH2\n");
+	if (status < VI_SUCCESS) goto error;
+	//
+
 	// Turn headers off, this makes parsing easier
 	status = viPrintf(vi, "header off\n");
 	if (status < VI_SUCCESS) goto error;
@@ -27,19 +45,21 @@ double* ReadWaveform(ViSession vi, long* elements) {
 	// Get record length value
 	status = viQueryf(vi, "hor:reco?\n", "%ld", elements);
 	if (status < VI_SUCCESS) goto error;
+	cout << "elements = " << *elements << endl;
 
 	// Make sure start, stop values for curve query match the full record length
-	status = viPrintf(vi, "data:start 1;data:stop %d\n", *elements);
+	status = viPrintf(vi, "data:start 1;data:stop %d\n", *elements );
 	if (status < VI_SUCCESS) goto error;
 
 	// Get the yoffset to help calculate the vertical values.
-
 	status = viQueryf(vi, "WFMOutpre:YOFF?\n", "%f", &yoffset);
 	if (status < VI_SUCCESS) goto error;
+	cout << "yoffset = " << yoffset << endl;
 
 	// Get the ymult to help calculate the vertical values.
 	status = viQueryf(vi, "WFMOutpre:YMULT?\n", "%f", &ymult);
 	if (status < VI_SUCCESS) goto error;
+	cout << "ymult = " << ymult << endl;
 
 	// Request 8bit binary data on the curve query
 	status = viPrintf(vi, "DATA:ENCDG RIBINARY;WIDTH 1\n");
@@ -53,12 +73,26 @@ double* ReadWaveform(ViSession vi, long* elements) {
 	status = viFlush(vi, VI_WRITE_BUF | VI_READ_BUF_DISCARD);
 	if (status < VI_SUCCESS) goto error;
 
+	
 	// Get first char and validate
 	status = viSetAttribute(vi, VI_ATTR_RD_BUF_OPER_MODE, VI_FLUSH_DISABLE);
 	status = viScanf(vi, "%c", &c);
 	if (status < VI_SUCCESS) goto error;
 	assert(c == '#');
 
+
+	////my
+	//ViUInt32	retCnt;
+	//ViChar		buffer_2[256];
+	//memset(buffer_2, 0, sizeof(buffer_2));
+	//status = viRead(vi, (ViBuf)buffer_2, sizeof(buffer_2), &retCnt);
+	//if (status < VI_SUCCESS) cout << "viRead error" << endl;
+	//printf("%s \n", buffer_2);	
+
+	//return NULL;
+	////
+
+	::Sleep(1000);
 	// Get width of element field.
 	status = viScanf(vi, "%c", &c);
 	if (status < VI_SUCCESS) goto error;
@@ -95,17 +129,16 @@ error:
 }
 
 
-// This program shows the performance effect of sizing buffers 
-// with buffered I/O.
+// This program reads a waveform from a Tektronix
+// TDS scope and writes the floating point values to 
+// stdout.
 int main(int argc, char* argv[])
 {
-	ViSession		rm = VI_NULL, vi = VI_NULL;
-	ViStatus		status;
-	ViChar			buffer[256];
-	double*			wfm = NULL;
-	long			elements, i;
-	ViUInt32		bufferSize = 10;
-	unsigned long	start, total;
+	ViSession	rm = VI_NULL, vi = VI_NULL;
+	ViStatus	status;
+	ViChar		buffer[256];
+	double*		wfm = NULL;
+	long		elements, i;
 
 	// Open a default Session
 	status = viOpenDefaultRM(&rm);
@@ -115,23 +148,12 @@ int main(int argc, char* argv[])
 	status = viOpen(rm, "USB::0x0699::0x0405::C025165::INSTR", VI_NULL, VI_NULL, &vi);
 	if (status < VI_SUCCESS) goto error;
 
-	// Try buffer sizes 10, 100, ..., 10000 to show effect of 
-	// buffer sizes on performance.
-	for (bufferSize = 10; bufferSize <= 10000; bufferSize *= 10) {
-		// Set new buffer size
-		viSetBuf(vi, VI_READ_BUF, bufferSize);
-
-		// Get Start time for benchmark
-		start = time(NULL);
-
-		// Loop several times
-		for (i = 0; i < 5; i++) {
-			wfm = ReadWaveform(vi, &elements);
+	// Read waveform and write it to stdout
+	wfm = ReadWaveform(vi, &elements);
+	if (wfm != NULL) {
+		for (i = 0; i < elements; i++) {
+			printf("%f\n", wfm[i]);
 		}
-
-		// Print results
-		total = time(NULL) - start;
-		printf("bufSize %d, time %3.1fs\n", bufferSize, ((double)total) / 5.0);
 	}
 
 	// Clean up

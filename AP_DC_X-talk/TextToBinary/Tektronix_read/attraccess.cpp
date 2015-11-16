@@ -1,4 +1,4 @@
-#include <stdio.h>
+#include <iostream>
 #include <memory.h>
 #include <visa.h>
 
@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
 	printf("VISA Manufacturer Name: %s, supports %x spec, %x implimentation version\n", buffer, version, impl);
 
 	// Open the gpib device at primary address 1, gpib board 8
-	status = viOpen(rm, "GPIB8::1::INSTR", VI_NULL, VI_NULL, &vi);
+	status = viOpen(rm, "USB::0x0699::0x0405::C025165::INSTR", VI_NULL, VI_NULL, &vi);
 	if (status < VI_SUCCESS) goto error;
 
 	// Set timeout to 5 seconds
@@ -51,6 +51,7 @@ int main(int argc, char* argv[])
 	viClose(vi); // Not needed, but makes things a bit more understandable
 	viClose(rm);
 
+	system("pause");
 	return 0;
 
 error:
@@ -60,5 +61,7 @@ error:
 	if (rm != VI_NULL) {
 		viClose(rm);
 	}
+
+	system("pause");
 	return 1;
 }

@@ -1,6 +1,6 @@
 void ReadTreeTh()
 {
-	string dir_name = "D:\\Data_work\\tektronix_signal\\MPPC_S10362-11-100C\\275K\\69_30V\\";
+	string dir_name = "D:\\Data_work\\tektronix_signal\\MPPC_S10362-11-100C\\285K\\69_15V\\";
 	//string dir_name = "D:\\Data_work\\";
 	string tree_name = dir_name + "tree_th_der.root";
 	
@@ -27,12 +27,15 @@ void ReadTreeTh()
 	string file_out_s = dir_name + "tree_th_der.dat";
 	ofstream file_out( file_out_s.c_str() );
 
-	for (int i = 0; i < t->GetEntries(); ++i)
+	if(false)
 	{
-		t->GetEntry(i);	
-		if(tau_amp == 41)
+		for (int i = 0; i < t->GetEntries(); ++i)
 		{
-			file_out << -th_amp << "\t" << counter << endl;
+			t->GetEntry(i);	
+			if(tau_amp == 41)
+			{
+				file_out << -th_amp << "\t" << counter << endl;
+			}
 		}
 	}
 }
