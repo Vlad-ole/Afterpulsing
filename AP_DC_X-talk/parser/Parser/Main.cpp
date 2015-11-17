@@ -185,12 +185,12 @@ int main(int argc, char *argv[])
 	tree.Branch("gr_fit2", "TMultiGraph", &multi_graph_fit2, 128000, 0);
 	tree.Branch("gr_fit3", "TMultiGraph", &multi_graph_fit3, 128000, 0);
 
-	string string_tree = Monostate::dir_name + "tree.root";
-	TFile f_tree(string_tree.c_str(), "RECREATE");
+	//string string_tree = Monostate::dir_name + "tree.root";
+	
 
 	int global_counter = 0;
 
-	for (int file_i = 1; file_i <= 10; file_i++) // цикл по файлам
+	for (int file_i = 1; file_i <= 2; file_i++) // цикл по файлам
 	{
 
 		RootFit::time_start.clear();
@@ -205,8 +205,12 @@ int main(int argc, char *argv[])
 		else
 			RootFit::previousIs1e = false;
 
-		RootFit::ReadFiles(RootFit::ReadDerivative, file_i, 1);
+		RootFit::ReadFiles(RootFit::ReadDerivative, file_i, 0.05);
 		
+		ostringstream file_tree_oss;
+		file_tree_oss << Monostate::dir_name << "trees\\run_" << file_i << ".root";
+		TFile f_tree(file_tree_oss.str().c_str(), "RECREATE");
+
 
 		if (CalculateAvgSignal)
 		{
@@ -445,8 +449,8 @@ int main(int argc, char *argv[])
 
 				delete Fit_single;
 				
-				tree.Fill();
-				if ((i + 1) % 100 == 1) tree.AutoSave("SaveSelf");
+				/*tree.Fill();
+				if ((i + 1) % 100 == 1) tree.AutoSave("SaveSelf");*/
 
 			}
 
@@ -455,10 +459,11 @@ int main(int argc, char *argv[])
 		}
 
 
-	}
+		tree.Write();
+		f_tree.Close();
 
-
-	tree.Write();
+	}//end for files
+		
 	//f_tree.Close();
 
 	if (RootFit::ReadDerivative)

@@ -122,8 +122,8 @@ void RootFit::ReadFiles(const bool ReadDerivative, const int file_run, const dou
 		system("pause");
 	}
 
-	int yv_size;
-	fread(&yv_size, sizeof(int), 1, f);
+	int yv_size = 5000 * 1000;
+	//fread(&yv_size, sizeof(int), 1, f);
 	cout << "file length = " << yv_size << endl;
 
 	int yv_size_new = yv_size * part_or_file; // выбрать долю от всех данных. Памяти хватит только на 0.92 максимум

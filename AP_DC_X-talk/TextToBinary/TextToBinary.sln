@@ -13,6 +13,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Tektronix_read", "Tektronix
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DefineThreshold", "DefineThreshold\DefineThreshold.vcxproj", "{ADFD273B-C5D1-46BC-8782-4FAEEE09097C}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CalculateDerivatives", "CalculateDerivatives\CalculateDerivatives.vcxproj", "{7AAD8172-9F7D-4E8C-8780-8EC178C24DE7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -39,6 +41,10 @@ Global
 		{ADFD273B-C5D1-46BC-8782-4FAEEE09097C}.Debug|Win32.Build.0 = Debug|Win32
 		{ADFD273B-C5D1-46BC-8782-4FAEEE09097C}.Release|Win32.ActiveCfg = Release|Win32
 		{ADFD273B-C5D1-46BC-8782-4FAEEE09097C}.Release|Win32.Build.0 = Release|Win32
+		{7AAD8172-9F7D-4E8C-8780-8EC178C24DE7}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7AAD8172-9F7D-4E8C-8780-8EC178C24DE7}.Debug|Win32.Build.0 = Debug|Win32
+		{7AAD8172-9F7D-4E8C-8780-8EC178C24DE7}.Release|Win32.ActiveCfg = Release|Win32
+		{7AAD8172-9F7D-4E8C-8780-8EC178C24DE7}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
