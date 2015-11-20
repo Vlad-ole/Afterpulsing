@@ -25,6 +25,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestVector", "TestVector\Te
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Tree_IO", "Tree_IO\Tree_IO.vcxproj", "{6D79B643-BE29-4587-B2C7-B215E30AB49E}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TreeTest2", "TreeTest2\TreeTest2.vcxproj", "{ADDF944D-3B3B-4F1A-A55B-5141FAD086AB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -75,6 +77,10 @@ Global
 		{6D79B643-BE29-4587-B2C7-B215E30AB49E}.Debug|Win32.Build.0 = Debug|Win32
 		{6D79B643-BE29-4587-B2C7-B215E30AB49E}.Release|Win32.ActiveCfg = Release|Win32
 		{6D79B643-BE29-4587-B2C7-B215E30AB49E}.Release|Win32.Build.0 = Release|Win32
+		{ADDF944D-3B3B-4F1A-A55B-5141FAD086AB}.Debug|Win32.ActiveCfg = Debug|Win32
+		{ADDF944D-3B3B-4F1A-A55B-5141FAD086AB}.Debug|Win32.Build.0 = Debug|Win32
+		{ADDF944D-3B3B-4F1A-A55B-5141FAD086AB}.Release|Win32.ActiveCfg = Release|Win32
+		{ADDF944D-3B3B-4F1A-A55B-5141FAD086AB}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -19,12 +19,12 @@ yData1           = [];
 %internal flags
 nSaved           = 0;
 
-dir_name = 'D:/Data_work/tektronix_signal/MPPC_S10362-11-100C/280K/69_78V/raw/binary/run_';
+dir_name = 'D:/Data_work/tektronix_signal/MPPC_S10362-11-100C/280K/69_48V/raw/binary/run_';
 
 makeGUI(); 
 connectToInstrument();
 
-for c = 101:250
+for c = 1:1000
     c_string = int2str(c);
     file_out_0 = strcat(dir_name, c_string);
     file_out = strcat(file_out_0, '.bin');
@@ -39,7 +39,7 @@ end
    function connectToInstrument
       try
          % THE FOLLOWING TWO LINES SHOULD BE CHANGED TO SUIT YOUR HARDWARE
-         interfaceObj = visa('tek', 'USB::0x0699::0x0405::C025165::INSTR'); 
+         interfaceObj = visa('tek', 'TCPIP::192.168.255.5::INSTR'); 
          
          % Before you can perform a read or write operation, obj must be connected to the instrument with the fopen function.
          fopen(interfaceObj);

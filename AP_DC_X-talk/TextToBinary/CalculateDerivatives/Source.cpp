@@ -241,6 +241,6 @@ int main(int argc, char* argv[])
 	cout << endl << "run time (in m) \t " << (after - before) / (1000.0 * 60) << endl;
 
 
-	system("pause");
+	//system("pause");
 	return 0;
 }
