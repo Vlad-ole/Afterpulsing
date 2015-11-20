@@ -62,14 +62,25 @@ int main(int argc, char *argv[])
 {
 	RootFit::SetAlgorithmParameters();
 
+	int file_i_start;
+	int file_i_stop;
+
 	cout << "number of arguments = " << argc << endl;
 	if (argc == 1)
 	{
 		//dir_name = "D:\\Data_work\\tektronix_signal\\MPPC_S10362-11-100C\\275K\\68_60V\\";
 		cout << "Please, input dir_name " << endl;
 		cout << argv[0] << endl;
+
+		Monostate::dir_name = "D:\\Data_work\\tektronix_signal\\MPPC_S10362-11-100C\\280K\\69_98V\\";
+		RootFit::threshold_amp_start = -0.012;
+		RootFit::threshold_der = -0.0004;
+
+		file_i_start = 1;
+		file_i_stop = 1;
+
 		system("pause");
-		return 0;
+		//return 0;
 	}
 	else if (argc == 6)
 	{
@@ -84,7 +95,9 @@ int main(int argc, char *argv[])
 		Monostate::dir_name = argv[1];
 		RootFit::threshold_amp_start = -atof(argv[2]);
 		RootFit::threshold_der = -atof(argv[3]);
-
+	
+		file_i_start = atoi(argv[4]);
+		file_i_stop = atoi(argv[5]);
 
 		
 	}
@@ -98,8 +111,7 @@ int main(int argc, char *argv[])
 	cout << "threshold_amp_start = " << RootFit::threshold_amp_start << endl;
 	cout << "threshold_der = " << RootFit::threshold_der << endl;
 
-	int file_i_start = atoi(argv[4]);
-	int file_i_stop = atoi(argv[5]);
+
 
 
 	// Initialise MPI
@@ -160,19 +172,19 @@ int main(int argc, char *argv[])
 		TGraphErrors *gr_tree_fit1 = new TGraphErrors();
 		TGraph *gr_front_tree_fit1 = new TGraph();
 		TGraph *gr_der_tree_fit1 = new TGraph();
-		TGraph *gr_der2_tree_fit1 = new TGraph();
+		//TGraph *gr_der2_tree_fit1 = new TGraph();
 
 		TMultiGraph *multi_graph_fit2 = new TMultiGraph();
 		TGraphErrors *gr_tree_fit2 = new TGraphErrors();
 		TGraph *gr_front_tree_fit2 = new TGraph();
 		TGraph *gr_der_tree_fit2 = new TGraph();
-		TGraph *gr_der2_tree_fit2 = new TGraph();
+		//TGraph *gr_der2_tree_fit2 = new TGraph();
 
 		TMultiGraph *multi_graph_fit3 = new TMultiGraph();
 		TGraphErrors *gr_tree_fit3 = new TGraphErrors();
 		TGraph *gr_front_tree_fit3 = new TGraph();
 		TGraph *gr_der_tree_fit3 = new TGraph();
-		TGraph *gr_der2_tree_fit3 = new TGraph();
+		//TGraph *gr_der2_tree_fit3 = new TGraph();
 
 		double a_1, chi_1, time_1; // fit_1
 		double a_2, b_2, chi_2, dt_2_ab, time_2_a, time_2_b; // fit_2
@@ -207,17 +219,17 @@ int main(int argc, char *argv[])
 		multi_graph_fit1->Add(gr_tree_fit1);
 		multi_graph_fit1->Add(gr_front_tree_fit1);
 		multi_graph_fit1->Add(gr_der_tree_fit1);
-		multi_graph_fit1->Add(gr_der2_tree_fit1);
+		//multi_graph_fit1->Add(gr_der2_tree_fit1);
 
 		multi_graph_fit2->Add(gr_tree_fit2);
 		multi_graph_fit2->Add(gr_front_tree_fit2);
 		multi_graph_fit2->Add(gr_der_tree_fit2);
-		multi_graph_fit2->Add(gr_der2_tree_fit2);
+		//multi_graph_fit2->Add(gr_der2_tree_fit2);
 
 		multi_graph_fit3->Add(gr_tree_fit3);
 		multi_graph_fit3->Add(gr_front_tree_fit3);
 		multi_graph_fit3->Add(gr_der_tree_fit3);
-		multi_graph_fit3->Add(gr_der2_tree_fit3);
+		//multi_graph_fit3->Add(gr_der2_tree_fit3);
 
 		tree.Branch("gr_fit1", "TMultiGraph", &multi_graph_fit1, 128000, 0);
 		tree.Branch("gr_fit2", "TMultiGraph", &multi_graph_fit2, 128000, 0);
@@ -252,7 +264,7 @@ int main(int argc, char *argv[])
 
 				RootFit::current_signal = i;
 				RootFit::CalculateStartParameters(5/*5*/);//вычислить стартовые параметры. Параметр - мертвое время производной в нс	
-				RootFit::CalculateNumOfSignals(3);
+				//RootFit::CalculateNumOfSignals(3);
 				RootFit::CreateFrontGraph();
 
 				cout << "\t single step 1 ... " << endl;
@@ -332,7 +344,7 @@ int main(int argc, char *argv[])
 				*gr_tree_fit1 = *(Fit_single->gr);
 				*gr_front_tree_fit1 = *(Fit_single->gr_front);
 				*gr_der_tree_fit1 = *(Fit_single->gr_der);
-				*gr_der2_tree_fit1 = *(Fit_single->gr_der2);
+				//*gr_der2_tree_fit1 = *(Fit_single->gr_der2);
 
 
 				if (/*Fit_single->GetChi2PerDof() > 3  || Fit_single->fitFcn->GetParameter(0) > 0.065*/ true)
@@ -393,7 +405,7 @@ int main(int argc, char *argv[])
 					*gr_tree_fit2 = *(Fit_double->gr);
 					*gr_front_tree_fit2 = *(Fit_double->gr_front);
 					*gr_der_tree_fit2 = *(Fit_double->gr_der);
-					*gr_der2_tree_fit2 = *(Fit_double->gr_der2);
+					//*gr_der2_tree_fit2 = *(Fit_double->gr_der2);
 
 					////fill tree
 					//////////////////////////////////////////////////
@@ -449,7 +461,7 @@ int main(int argc, char *argv[])
 						*gr_tree_fit3 = *(Fit_triple->gr);
 						*gr_front_tree_fit3 = *(Fit_triple->gr_front);
 						*gr_der_tree_fit3 = *(Fit_triple->gr_der);
-						*gr_der2_tree_fit3 = *(Fit_triple->gr_der2);
+						//*gr_der2_tree_fit3 = *(Fit_triple->gr_der2);
 
 
 
@@ -506,19 +518,19 @@ int main(int argc, char *argv[])
 		delete gr_tree_fit1;
 		delete gr_front_tree_fit1;
 		delete gr_der_tree_fit1;
-		delete gr_der2_tree_fit1;
+		//delete gr_der2_tree_fit1;
 
 		delete multi_graph_fit2;
 		delete gr_tree_fit2;
 		delete gr_front_tree_fit2;
 		delete gr_der_tree_fit2;
-		delete gr_der2_tree_fit2;
+		//delete gr_der2_tree_fit2;
 
 		delete multi_graph_fit3;
 		delete gr_tree_fit3;
 		delete gr_front_tree_fit3;
 		delete gr_der_tree_fit3;
-		delete gr_der2_tree_fit3;
+		//delete gr_der2_tree_fit3;
 
 	}//end for files
 		

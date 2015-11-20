@@ -51,12 +51,12 @@ RootFit::RootFit(short int number_of_functions)
 	gr->SetMarkerStyle(kFullCircle);
 
 	gr_der = new TGraph(time_finish_index - time_start_index, &xv[time_start_index], &yv_der[time_start_index]);
-	gr_der2 = new TGraph(time_finish_index - time_start_index, &xv[time_start_index], &yv_der2[time_start_index]);
+	//gr_der2 = new TGraph(time_finish_index - time_start_index, &xv[time_start_index], &yv_der2[time_start_index]);
 
 	for (int i = 0; i < gr_der->GetN(); i++) gr_der->GetY()[i] *= 50;
-	for (int i = 0; i < gr_der2->GetN(); i++) gr_der2->GetY()[i] *= 500;
+	//for (int i = 0; i < gr_der2->GetN(); i++) gr_der2->GetY()[i] *= 500;
 
-	gr_der2->SetLineColor(7);
+	//gr_der2->SetLineColor(7);
 
 	gr_front = new TGraph(time_finish_index - time_start_index, &xv_front[0], &yv_front[0]);
 	gr_front->SetMarkerColor(6);
@@ -101,7 +101,7 @@ RootFit::~RootFit()
 {
 	delete fitFcn;
 	delete gr_front;
-	delete gr_der2;
+	//delete gr_der2;
 	delete gr_der;
 	delete gr;
 }
@@ -151,19 +151,19 @@ void RootFit::ReadFiles(const bool ReadDerivative, const int file_run, const dou
 	{
 		//прочитать первую и вторую производную из файла
 		FILE *f_der = fopen(Monostate::der_name.c_str(), "rb");
-		FILE *f_der2 = fopen(Monostate::der2_name.c_str(), "rb");
+		//FILE *f_der2 = fopen(Monostate::der2_name.c_str(), "rb");
 
-		if (f_der == NULL || f_der2 == NULL)
+		if (f_der == NULL /*|| f_der2 == NULL*/)
 		{
 			cout << "Can't open this file: " << Monostate::der_name.c_str() << endl;
-			cout << "Can't open this file: " << Monostate::der2_name.c_str() << endl;
+			//cout << "Can't open this file: " << Monostate::der2_name.c_str() << endl;
 			system("pause");
 		}
 
 		RootFit::yv_der.resize(yv_size_new);
-		RootFit::yv_der2.resize(yv_size_new);
+		//RootFit::yv_der2.resize(yv_size_new);
 		fread(&RootFit::yv_der[0], sizeof(vector<double>::value_type), yv_size_new, f_der);
-		fread(&RootFit::yv_der2[0], sizeof(vector<double>::value_type), yv_size_new, f_der2);
+		//fread(&RootFit::yv_der2[0], sizeof(vector<double>::value_type), yv_size_new, f_der2);
 	}
 	//----------------------------------------------------
 	cout << endl << "Time of file reading is (in s) " << MPI_Wtime() - t_01 << endl;
@@ -2252,10 +2252,10 @@ void RootFit::SetAlgorithmParameters()
 
 void RootFit::ReserveVectors()
 {
-	RootFit::xv.reserve(20 * 1000 * 1000);
-	RootFit::yv.reserve(20 * 1000 * 1000);
-	RootFit::yv_der.reserve(20 * 1000 * 1000);
-	RootFit::yv_der2.reserve(20 * 1000 * 1000);
-	RootFit::xverr.reserve(20 * 1000 * 1000);
-	RootFit::yverr.reserve(20 * 1000 * 1000);
+	RootFit::xv.reserve(5 * 1000 * 1000);
+	RootFit::yv.reserve(5 * 1000 * 1000);
+	RootFit::yv_der.reserve(5 * 1000 * 1000);
+	//RootFit::yv_der2.reserve(20 * 1000 * 1000);
+	RootFit::xverr.reserve(5 * 1000 * 1000);
+	RootFit::yverr.reserve(5 * 1000 * 1000);
 }
