@@ -376,7 +376,8 @@ void RootFit::SetParametersTwoComp_fit1(const double * const A_start, const doub
 	const double tau_rec_slow = 43.0645;
 	const double R_slow = 0.254653;
 
-	const double time_first = xv[time_front[0]];
+	//const double time_first = xv[time_front[0]];
+	const double time_first = xv[time_start[current_signal]];
 
 
 		// A
@@ -425,7 +426,8 @@ void RootFit::SetParametersTwoComp_fit2(const double * const A_start, const doub
 	const double tau_rec_slow = 43.0645;
 	const double R_slow = 0.254653;
 
-	const double time_first = xv[time_front[0]];
+	//const double time_first = xv[time_front[0]];
+	const double time_first = xv[time_start[current_signal]];
 
 		// A
 		fitFcn->SetParameter(0, A_start[0]);
@@ -459,15 +461,16 @@ void RootFit::SetParametersTwoComp_fit2(const double * const A_start, const doub
 		fitFcn->SetParameter(7, 0);
 		fitFcn->SetParLimits(7, -baseline_limit, baseline_limit);
 
-		double time_second;
-		if (time_front.size() > 1)
-		{
-			time_second = xv[time_front[1]];
-		}
-		else
-		{
-			time_second = xv[time_front[0]];
-		}
+		double time_second = xv[time_start[current_signal]];
+		//double time_second;
+		//if (time_front.size() > 1)
+		//{
+		//	time_second = xv[time_front[1]];
+		//}
+		//else
+		//{
+		//	time_second = xv[time_front[0]];
+		//}
 		
 
 		// A

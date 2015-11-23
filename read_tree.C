@@ -28,7 +28,7 @@ void ReadTree()
 	//branch->SetAutoDelete(kTRUE);
 	
 	TChain chain("t1");   // name of the tree is the argument
-	for(int i = 1; i < 35; i++)
+	for(int i = 1; i <= 35; i++)
 	{
 		ostringstream file_tree_oss;
 		file_tree_oss << dir_name << "trees\\run_" << i << ".root";
@@ -94,13 +94,13 @@ void ReadTree()
 	
 
 	TCut fit_2 = "chi_1 > 4 && chi_2 < 4";
-	TCut A2 = "(a_2 + b_2) > 0.3 && (a_2 + b_2) < 0.68";
+	TCut A2 = "(a_2 + b_2) > 0.3 && (a_2 + b_2) < 0.67";
 	TCut B2 = "(a_2 + b_2) > 0.47 && (a_2 + b_2) < 0.68";
 	TCut C2 = "(a_2 + b_2) > 0.68 && (a_2 + b_2) < 0.88";
 	
 
 	
-	TCut total_cut = fit_2 && A2;
+	TCut total_cut = "( (a_1 < 0.4 && chi_1 > 4) || (a_1 > 0.4 && chi_1 > 6) ) && chi_2 < 4" && A2 ;
 
 	
 	chain.SetMarkerStyle(4);

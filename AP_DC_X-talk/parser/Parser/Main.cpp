@@ -276,9 +276,9 @@ int main(int argc, char *argv[])
 
 				if (rigid_boundaries)
 				{
-					A_start[0] = { 0.2 };
-					A_limit_l[0] = { 0.1 };
-					A_limit_h[0] = { 0.3 };
+					A_start[0] = { 0.3 };
+					A_limit_l[0] = { 0.2 };
+					A_limit_h[0] = { 0.4 };
 				}
 
 				Fit_single->SetParametersTwoComp_fit1(A_start, A_limit_l, A_limit_h);
@@ -290,9 +290,9 @@ int main(int argc, char *argv[])
 					if (Fit_single->GetChi2PerDof() > 4)
 					{
 						cout << "\t single step 2 ... " << endl;
-						A_start[0] = { 0.4 };
-						A_limit_l[0] = { 0.3 };
-						A_limit_h[0] = { 0.5 };
+						A_start[0] = { 0.6 };
+						A_limit_l[0] = { 0.5 };
+						A_limit_h[0] = { 0.7 };
 						Fit_single->SetParametersTwoComp_fit1(A_start, A_limit_l, A_limit_h);
 						Fit_single->DoFit();
 					}
@@ -310,9 +310,9 @@ int main(int argc, char *argv[])
 					if (Fit_single->GetChi2PerDof() > 4)
 					{
 						cout << "\t single step 4 ... " << endl;
-						A_start[0] = { 0.6 };
-						A_limit_l[0] = { 0.5 };
-						A_limit_h[0] = { 0.7 };
+						A_start[0] = { 0.2 };
+						A_limit_l[0] = { 0.001 };
+						A_limit_h[0] = { 10 };
 						Fit_single->SetParametersTwoComp_fit1(A_start, A_limit_l, A_limit_h);
 						Fit_single->DoFit();
 					}
