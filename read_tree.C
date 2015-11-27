@@ -1,6 +1,6 @@
 void ReadTree()
 {
-	string dir_name = "D:\\Data_work\\tektronix_signal\\MPPC_S10362-11-100C\\280K\\69_98V\\";
+	string dir_name = "D:\\Data_work\\tektronix_signal\\MPPC_S10362-11-100C\\280K\\68_98V\\";
 	//string dir_name = "D:\\Data_work\\";
 	//string tree_name = dir_name + "tree.root";
 	string graphs_name_fit1 = dir_name + "graphs_fit1.root";
@@ -28,7 +28,7 @@ void ReadTree()
 	//branch->SetAutoDelete(kTRUE);
 	
 	TChain chain("t1");   // name of the tree is the argument
-	for(int i = 1; i <= 35; i++)
+	for(int i = 1; i <= 1000; i++)
 	{
 		ostringstream file_tree_oss;
 		file_tree_oss << dir_name << "trees\\run_" << i << ".root";
@@ -40,8 +40,8 @@ void ReadTree()
 	chain.SetBranchAddress("gr_fit3", &graph_fit3);
 	
 	Double_t a_1, chi_1, time_1;
-	Double_t a_2, b_2, chi_2, dt_2_ab, time_2_a, time_2_b;
-	Double_t a_3, b_3, c_3, chi_3, dt_3_ab, dt_3_bc;
+	Double_t a_2, b_2, chi_2, time_2_a, time_2_b;
+	Double_t a_3, b_3, c_3, chi_3, time_3_a, time_3_b, time_3_c;
 	
 	chain.SetBranchAddress("a_1", &a_1);
 	chain.SetBranchAddress("chi_1", &chi_1);
@@ -50,7 +50,6 @@ void ReadTree()
 	chain.SetBranchAddress("a_2", &a_2);
 	chain.SetBranchAddress("b_2", &b_2);
 	chain.SetBranchAddress("chi_2", &chi_2);
-	chain.SetBranchAddress("dt_2_ab", &dt_2_ab);
 	chain.SetBranchAddress("time_2_a", &time_2_a);
 	chain.SetBranchAddress("time_2_b", &time_2_b);
 	
@@ -58,8 +57,9 @@ void ReadTree()
 	chain.SetBranchAddress("b_3", &b_3);
 	chain.SetBranchAddress("c_3", &c_3);
 	chain.SetBranchAddress("chi_3", &chi_3);
-	chain.SetBranchAddress("dt_3_ab", &dt_3_ab);
-	chain.SetBranchAddress("dt_3_bc", &dt_3_bc);
+	chain.SetBranchAddress("time_3_a", &time_3_a);
+	chain.SetBranchAddress("time_3_b", &time_3_b);
+	chain.SetBranchAddress("time_3_c", &time_3_c);
 
 	
 	chain.SetBranchStatus("*", 0); //disable all branches
@@ -71,7 +71,6 @@ void ReadTree()
 	chain.SetBranchStatus("a_2", 1);
 	chain.SetBranchStatus("b_2", 1);
 	chain.SetBranchStatus("chi_2", 1);
-	chain.SetBranchStatus("dt_2_ab", 1);
 	chain.SetBranchStatus("time_2_a", 1);
 	chain.SetBranchStatus("time_2_b", 1);
 	
@@ -79,37 +78,39 @@ void ReadTree()
 	chain.SetBranchStatus("b_3", 1);
 	chain.SetBranchStatus("c_3", 1);
 	chain.SetBranchStatus("chi_3", 1);
-	chain.SetBranchStatus("dt_3_ab", 1);
-	chain.SetBranchStatus("dt_3_bc", 1);
+	chain.SetBranchStatus("time_3_a", 1);
+	chain.SetBranchStatus("time_3_b", 1);
+	chain.SetBranchStatus("time_3_c", 1);
 	
 	chain.SetBranchStatus("gr_fit1", 0);
 	chain.SetBranchStatus("gr_fit2", 0);
 	chain.SetBranchStatus("gr_fit3", 0);
 	
-	TCut fit_1 = "chi_1 < 4";
-	TCut A1 = "a_1 > 0.1 && a_1 < 0.3";
-	TCut B1 = "a_1 > 0.3 && a_1 < 0.5";
-	TCut C1 = "a_1 > 0.5 && a_1 < 0.7";
-	TCut D1 = "a_1 > 0.7 && a_1 < 0.9";
+	TCut fit_1 = "chi_1 < 3.5";
+	TCut A1 = "a_1 > 0.057 && a_1 < 0.16 && chi_1 < 2.5";
+	TCut B1 = "a_1 > 0.16 && a_1 < 0.27 && chi_1 < 2";
+	TCut C1 = "a_1 > 0.28 && a_1 < 0.38 && chi_1 < 2";
+	//TCut D1 = "a_1 > 0.7 && a_1 < 0.9";
 	
 
 	TCut fit_2 = "chi_1 > 4 && chi_2 < 4";
-	TCut A2 = "(a_2 + b_2) > 0.3 && (a_2 + b_2) < 0.67";
+	TCut A2 = "(a_2 + b_2) > 0.12 && (a_2 + b_2) < 0.27 && chi_2 < 2";
 	TCut B2 = "(a_2 + b_2) > 0.47 && (a_2 + b_2) < 0.68";
 	TCut C2 = "(a_2 + b_2) > 0.68 && (a_2 + b_2) < 0.88";
 	
 
 	
-	TCut total_cut = "( (a_1 < 0.4 && chi_1 > 4) || (a_1 > 0.4 && chi_1 > 6) ) && chi_2 < 4" && A2 ;
-
+	//TCut total_cut = "";
+	TCut total_cut = !A1 && !B1 && !C1 && "a_2 + b_2 > 0" && A2 && "!(a_2 < 0.14 && b_2 < 0.14)";
 	
 	chain.SetMarkerStyle(4);
 	
 	//chain.Draw("a_1", total_cut);
-	//chain.Draw("chi_1:a_1", total_cut);
+	chain.Draw("chi_1:a_1", total_cut);
+	
 	//chain.Draw("chi_2:(a_2 + b_2)", total_cut);
-	chain.Draw("a_2:b_2", total_cut);
-	//chain.Draw("dt_2_ab", total_cut);
+	//chain.Draw("a_2:b_2", total_cut);
+	//chain.Draw("(a_2 + b_2):dt_2_ab", total_cut);
 	//chain.Draw("dt_2_ab", total_cut);
 	
 	//chain.Draw("chi_3:(a_3 + b_3 + c_3)", total_cut);
@@ -130,17 +131,15 @@ void ReadTree()
 		{
 			chain.GetEntry(i);	
 
-			//condition = /*fit_2*/(chi_1 > 4 && chi_2 < 4) && /*C2*/ ( true ) && /*temp*/ ( dt_2_ab < 40 && dt_2_ab > 1 && (a_2 + b_2) > 0.58 );
-			//condition = (chi_1 > 4 && chi_2 < 4) && ( (a_2 + b_2) > 0.2 && (a_2 + b_2) < 0.47 ) && "dt_2_ab < 30" && "(a_2 + b_2) < 0.35";
-			bool condition_1 = /*fit_1*/(chi_1 < 2) && /*A1*/ (a_1 > 0.1 && a_1 < 0.3);
-			bool condition_2 = /*fit_2*/(chi_1 > 4 && chi_2 < 1.3) && /*A2*/( (a_2 + b_2) > 0.25 && (a_2 + b_2) < 0.48 );
+			bool condition_1 = /*A1*/ a_1 > 0.2 && a_1 < 0.4 && chi_1 < 3.5;
+			bool condition_2 = /*!A1 && !B1 && !C1 && A2*/ !(a_1 > 0.2 && a_1 < 0.4 && chi_1 < 3.5) && !(a_1 > 0.5 && a_1 < 0.7 && chi_1 < 5) && !(a_1 > 0.8 && a_1 < 1.1 && chi_1 < 8.5) && ((a_2 + b_2) > 0.3 && (a_2 + b_2) < 0.67 && chi_2 < 4);
 			
-			if(condition_1 || condition_2)
+			bool condition_3 = a_1 > 0.07 && a_1 < 0.14 && chi_1 > 0.5 && chi_1 < 1;
+			if(condition_3)
 			{
-				//Hlist_fit1.Add(graph_fit1->Clone());
-				//Hlist_fit2.Add(graph_fit2->Clone());
-				//Hlist_fit3.Add(graph_fit3->Clone());
-				//file_out << dt_2_ab  << "\t" << a_2 + b_2 << endl;
+				Hlist_fit1.Add(graph_fit1->Clone());
+				Hlist_fit2.Add(graph_fit2->Clone());
+				Hlist_fit3.Add(graph_fit3->Clone());
 			}
 			
 			if(condition_1)

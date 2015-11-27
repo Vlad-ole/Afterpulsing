@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
 		file_i_start = 1;
 		file_i_stop = 1;
 
-		system("pause");
+		//system("pause");
 		//return 0;
 	}
 	else if (argc == 6)
@@ -170,20 +170,20 @@ int main(int argc, char *argv[])
 
 		TMultiGraph *multi_graph_fit1 = new TMultiGraph();
 		TGraphErrors *gr_tree_fit1 = new TGraphErrors();
-		TGraph *gr_front_tree_fit1 = new TGraph();
-		TGraph *gr_der_tree_fit1 = new TGraph();
+		//TGraph *gr_front_tree_fit1 = new TGraph();
+		//TGraph *gr_der_tree_fit1 = new TGraph();
 		//TGraph *gr_der2_tree_fit1 = new TGraph();
 
 		TMultiGraph *multi_graph_fit2 = new TMultiGraph();
 		TGraphErrors *gr_tree_fit2 = new TGraphErrors();
-		TGraph *gr_front_tree_fit2 = new TGraph();
-		TGraph *gr_der_tree_fit2 = new TGraph();
+		//TGraph *gr_front_tree_fit2 = new TGraph();
+		//TGraph *gr_der_tree_fit2 = new TGraph();
 		//TGraph *gr_der2_tree_fit2 = new TGraph();
 
 		TMultiGraph *multi_graph_fit3 = new TMultiGraph();
 		TGraphErrors *gr_tree_fit3 = new TGraphErrors();
-		TGraph *gr_front_tree_fit3 = new TGraph();
-		TGraph *gr_der_tree_fit3 = new TGraph();
+		//TGraph *gr_front_tree_fit3 = new TGraph();
+		//TGraph *gr_der_tree_fit3 = new TGraph();
 		//TGraph *gr_der2_tree_fit3 = new TGraph();
 
 		double a_1, chi_1, time_1; // fit_1
@@ -217,18 +217,18 @@ int main(int argc, char *argv[])
 
 
 		multi_graph_fit1->Add(gr_tree_fit1);
-		multi_graph_fit1->Add(gr_front_tree_fit1);
-		multi_graph_fit1->Add(gr_der_tree_fit1);
+		//multi_graph_fit1->Add(gr_front_tree_fit1);
+		//multi_graph_fit1->Add(gr_der_tree_fit1);
 		//multi_graph_fit1->Add(gr_der2_tree_fit1);
 
 		multi_graph_fit2->Add(gr_tree_fit2);
-		multi_graph_fit2->Add(gr_front_tree_fit2);
-		multi_graph_fit2->Add(gr_der_tree_fit2);
+		//multi_graph_fit2->Add(gr_front_tree_fit2);
+		//multi_graph_fit2->Add(gr_der_tree_fit2);
 		//multi_graph_fit2->Add(gr_der2_tree_fit2);
 
 		multi_graph_fit3->Add(gr_tree_fit3);
-		multi_graph_fit3->Add(gr_front_tree_fit3);
-		multi_graph_fit3->Add(gr_der_tree_fit3);
+		//multi_graph_fit3->Add(gr_front_tree_fit3);
+		//multi_graph_fit3->Add(gr_der_tree_fit3);
 		//multi_graph_fit3->Add(gr_der2_tree_fit3);
 
 		tree.Branch("gr_fit1", "TMultiGraph", &multi_graph_fit1, 128000, 0);
@@ -238,8 +238,7 @@ int main(int argc, char *argv[])
 
 
 		if (CalculateAvgSignal)
-		{
-			
+		{			
 			RootFit::CalculateAverageSignal(200); //time_dead in ns
 		}
 
@@ -265,7 +264,7 @@ int main(int argc, char *argv[])
 				RootFit::current_signal = i;
 				RootFit::CalculateStartParameters(5/*5*/);//вычислить стартовые параметры. Параметр - мертвое время производной в нс	
 				//RootFit::CalculateNumOfSignals(3);
-				RootFit::CreateFrontGraph();
+				//RootFit::CreateFrontGraph();
 
 				cout << "\t single step 1 ... " << endl;
 				RootFit *Fit_single = new RootFit(1);
@@ -276,9 +275,9 @@ int main(int argc, char *argv[])
 
 				if (rigid_boundaries)
 				{
-					A_start[0] = { 0.3 };
-					A_limit_l[0] = { 0.2 };
-					A_limit_h[0] = { 0.4 };
+					A_start[0] = { 0.1 };
+					A_limit_l[0] = { 0.057 };
+					A_limit_h[0] = { 0.15 };
 				}
 
 				Fit_single->SetParametersTwoComp_fit1(A_start, A_limit_l, A_limit_h);
@@ -290,9 +289,9 @@ int main(int argc, char *argv[])
 					if (Fit_single->GetChi2PerDof() > 4)
 					{
 						cout << "\t single step 2 ... " << endl;
-						A_start[0] = { 0.6 };
-						A_limit_l[0] = { 0.5 };
-						A_limit_h[0] = { 0.7 };
+						A_start[0] = { 0.2 };
+						A_limit_l[0] = { 0.16 };
+						A_limit_h[0] = { 0.27 };
 						Fit_single->SetParametersTwoComp_fit1(A_start, A_limit_l, A_limit_h);
 						Fit_single->DoFit();
 					}
@@ -342,12 +341,12 @@ int main(int argc, char *argv[])
 				time_3_c = -100;
 
 				*gr_tree_fit1 = *(Fit_single->gr);
-				*gr_front_tree_fit1 = *(Fit_single->gr_front);
-				*gr_der_tree_fit1 = *(Fit_single->gr_der);
+				//*gr_front_tree_fit1 = *(Fit_single->gr_front);
+				//*gr_der_tree_fit1 = *(Fit_single->gr_der);
 				//*gr_der2_tree_fit1 = *(Fit_single->gr_der2);
 
 
-				if (/*Fit_single->GetChi2PerDof() > 3  || Fit_single->fitFcn->GetParameter(0) > 0.065*/ true)
+				if (Fit_single->GetChi2PerDof() > 2 && true)
 				{
 					rigid_boundaries = false;
 					
@@ -403,8 +402,8 @@ int main(int argc, char *argv[])
 					time_2_b = max(Fit_double->fitFcn->GetParameter(1), Fit_double->fitFcn->GetParameter(9));
 
 					*gr_tree_fit2 = *(Fit_double->gr);
-					*gr_front_tree_fit2 = *(Fit_double->gr_front);
-					*gr_der_tree_fit2 = *(Fit_double->gr_der);
+					//*gr_front_tree_fit2 = *(Fit_double->gr_front);
+					//*gr_der_tree_fit2 = *(Fit_double->gr_der);
 					//*gr_der2_tree_fit2 = *(Fit_double->gr_der2);
 
 					////fill tree
@@ -433,7 +432,7 @@ int main(int argc, char *argv[])
 					////fill tree end
 					//////////////////////////////////////////////////
 					
-					if (/*Fit_double->GetChi2PerDof() > 3 && Fit_single->GetChi2PerDof() > 3 */ false)
+					if (Fit_double->GetChi2PerDof() > 2 && false)
 					{
 						cout << "\t \t triple ... " << endl;
 
@@ -459,8 +458,8 @@ int main(int argc, char *argv[])
 						time_3_c = time_abc[2];
 
 						*gr_tree_fit3 = *(Fit_triple->gr);
-						*gr_front_tree_fit3 = *(Fit_triple->gr_front);
-						*gr_der_tree_fit3 = *(Fit_triple->gr_der);
+						//*gr_front_tree_fit3 = *(Fit_triple->gr_front);
+						//*gr_der_tree_fit3 = *(Fit_triple->gr_der);
 						//*gr_der2_tree_fit3 = *(Fit_triple->gr_der2);
 
 
@@ -516,20 +515,20 @@ int main(int argc, char *argv[])
 
 		delete multi_graph_fit1;
 		delete gr_tree_fit1;
-		delete gr_front_tree_fit1;
-		delete gr_der_tree_fit1;
+		//delete gr_front_tree_fit1;
+		//delete gr_der_tree_fit1;
 		//delete gr_der2_tree_fit1;
 
 		delete multi_graph_fit2;
 		delete gr_tree_fit2;
-		delete gr_front_tree_fit2;
-		delete gr_der_tree_fit2;
+		//delete gr_front_tree_fit2;
+		//delete gr_der_tree_fit2;
 		//delete gr_der2_tree_fit2;
 
 		delete multi_graph_fit3;
 		delete gr_tree_fit3;
-		delete gr_front_tree_fit3;
-		delete gr_der_tree_fit3;
+		//delete gr_front_tree_fit3;
+		//delete gr_der_tree_fit3;
 		//delete gr_der2_tree_fit3;
 
 	}//end for files

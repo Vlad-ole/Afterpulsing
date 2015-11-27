@@ -60,7 +60,7 @@
     <ClCompile Include="howo to get a waveform with ViRead.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="formatio_raw.cpp">
+    <ClCompile Include="Source_from_Support.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

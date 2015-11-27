@@ -50,18 +50,18 @@ RootFit::RootFit(short int number_of_functions)
 	gr->SetMarkerColor(4);
 	gr->SetMarkerStyle(kFullCircle);
 
-	gr_der = new TGraph(time_finish_index - time_start_index, &xv[time_start_index], &yv_der[time_start_index]);
+	//gr_der = new TGraph(time_finish_index - time_start_index, &xv[time_start_index], &yv_der[time_start_index]);
 	//gr_der2 = new TGraph(time_finish_index - time_start_index, &xv[time_start_index], &yv_der2[time_start_index]);
 
-	for (int i = 0; i < gr_der->GetN(); i++) gr_der->GetY()[i] *= 50;
+	//for (int i = 0; i < gr_der->GetN(); i++) gr_der->GetY()[i] *= 50;
 	//for (int i = 0; i < gr_der2->GetN(); i++) gr_der2->GetY()[i] *= 500;
 
 	//gr_der2->SetLineColor(7);
 
-	gr_front = new TGraph(time_finish_index - time_start_index, &xv_front[0], &yv_front[0]);
-	gr_front->SetMarkerColor(6);
-	gr_front->SetMarkerStyle(kFullCircle);
-	gr_front->SetMarkerSize(1);
+	//gr_front = new TGraph(time_finish_index - time_start_index, &xv_front[0], &yv_front[0]);
+	//gr_front->SetMarkerColor(6);
+	//gr_front->SetMarkerStyle(kFullCircle);
+	//gr_front->SetMarkerSize(1);
 
 	
 	if (!RecoveryTimeTwoComponents)
@@ -100,9 +100,9 @@ RootFit::RootFit(short int number_of_functions)
 RootFit::~RootFit()
 {
 	delete fitFcn;
-	delete gr_front;
+	//delete gr_front;
 	//delete gr_der2;
-	delete gr_der;
+	//delete gr_der;
 	delete gr;
 }
 
@@ -150,19 +150,19 @@ void RootFit::ReadFiles(const bool ReadDerivative, const int file_run, const dou
 	if (ReadDerivative)
 	{
 		//прочитать первую и вторую производную из файла
-		FILE *f_der = fopen(Monostate::der_name.c_str(), "rb");
+		//FILE *f_der = fopen(Monostate::der_name.c_str(), "rb");
 		//FILE *f_der2 = fopen(Monostate::der2_name.c_str(), "rb");
 
-		if (f_der == NULL /*|| f_der2 == NULL*/)
-		{
-			cout << "Can't open this file: " << Monostate::der_name.c_str() << endl;
-			//cout << "Can't open this file: " << Monostate::der2_name.c_str() << endl;
-			system("pause");
-		}
+		//if (f_der == NULL /*|| f_der2 == NULL*/)
+		//{
+		//	cout << "Can't open this file: " << Monostate::der_name.c_str() << endl;
+		//	//cout << "Can't open this file: " << Monostate::der2_name.c_str() << endl;
+		//	system("pause");
+		//}
 
-		RootFit::yv_der.resize(yv_size_new);
+		//RootFit::yv_der.resize(yv_size_new);
 		//RootFit::yv_der2.resize(yv_size_new);
-		fread(&RootFit::yv_der[0], sizeof(vector<double>::value_type), yv_size_new, f_der);
+		//fread(&RootFit::yv_der[0], sizeof(vector<double>::value_type), yv_size_new, f_der);
 		//fread(&RootFit::yv_der2[0], sizeof(vector<double>::value_type), yv_size_new, f_der2);
 	}
 	//----------------------------------------------------
@@ -518,7 +518,8 @@ void RootFit::SetParametersTwoComp_fit3(const double * const A_start, const doub
 	const double tau_rec_slow = 43.0645;
 	const double R_slow = 0.254653;
 
-	const double time_first = xv[time_front[0]];
+	//const double time_first = xv[time_front[0]];
+	const double time_first = xv[time_start[current_signal]];
 
 	// A
 	fitFcn->SetParameter(0, A_start[0]);
@@ -552,15 +553,17 @@ void RootFit::SetParametersTwoComp_fit3(const double * const A_start, const doub
 	fitFcn->SetParameter(7, 0);
 	fitFcn->SetParLimits(7, -baseline_limit, baseline_limit);
 
-	double time_second;
-	if (time_front.size() > 1)
-	{
-		time_second = xv[time_front[1]];
-	}
-	else
-	{
-		time_second = xv[time_front[0]];
-	}
+	//double time_second;
+	//if (time_front.size() > 1)
+	//{
+	//	time_second = xv[time_front[1]];
+	//}
+	//else
+	//{
+	//	time_second = xv[time_front[0]];
+	//}
+
+	const double time_second = xv[time_start[current_signal]];
 
 
 	// A
@@ -592,15 +595,17 @@ void RootFit::SetParametersTwoComp_fit3(const double * const A_start, const doub
 	fitFcn->SetParLimits(14, R_slow, R_slow);
 
 
-	double time_third;
-	if (time_front.size() > 2)
-	{
-		time_second = xv[time_front[2]];
-	}
-	else
-	{
-		time_second = xv[time_front[0]];
-	}
+	//double time_third;
+	//if (time_front.size() > 2)
+	//{
+	//	time_second = xv[time_front[2]];
+	//}
+	//else
+	//{
+	//	time_second = xv[time_front[0]];
+	//}
+
+	const double time_third = xv[time_start[current_signal]];
 
 	// A
 	fitFcn->SetParameter(15, A_start[2]);
@@ -1555,7 +1560,7 @@ void RootFit::FindStartStop(double time_dead_signal_noise, double time_dead_forw
 	//поиск начала и конца 
 	for (unsigned int i = 0; i < xv.size(); i++)
 	{
-		if ((yv_der[i] < threshold_der && yv[i] < threshold_amp_start) && flag)
+		if ((/*yv_der[i] < threshold_der &&*/ yv[i] < threshold_amp_start) && flag)
 		{
 			x_time = xv[i];
 			flag = 0;
@@ -1572,10 +1577,10 @@ void RootFit::FindStartStop(double time_dead_signal_noise, double time_dead_forw
 			//разрешить искать сигнал, только если впереди на time_dead_2 [ns] нет нового импульса
 			for (int j = i; j < i + time_dead_forward * 5; j++)
 			{
-				if (yv_der.size() > i + time_dead_forward * 5)
+				if (yv.size() > i + time_dead_forward * 5)
 				{
 					//cout << yv_der[j] << "\t" << j << "\t" << yv_der.size() << endl;
-					if (yv_der[j] < threshold_der)
+					if (yv[j] < threshold_amp)
 					{
 						flag_2 = false;
 					}
@@ -1642,64 +1647,35 @@ void RootFit::CalculateStartParameters(double time_dead)
 
 	time_finish_index = time_finish[current_signal];
 
-	bool flag = 1;
-	int x_time = 0;
+	//bool flag = 1;
+	//int x_time = 0;
 
-	//int time_start_index = time_start[current_signal];
+	////int time_start_index = time_start[current_signal];
 
-	time_front.clear();
+	//time_front.clear();
 
-	int time_dead_index = time_dead * 5;
-	//int shift = 20;
+	//int time_dead_index = time_dead * 5;
+	////int shift = 20;
 
-	//найти стартовые параметры для начала сигнала
-	for (int j = time_start_index; j < time_finish[current_signal]; j++)
-	{
+	////найти стартовые параметры для начала сигнала
+	//for (int j = time_start_index; j < time_finish[current_signal]; j++)
+	//{
 
-		if (yv_der[j] < threshold_der && flag)
-		{
-			//int der_min = j;
-			//for (int k = j; k < j + time_dead_index; k++)
-			//{
-			//	if (yv_der[k] < yv_der[j])
-			//	{
-			//		der_min = k;
-			//	}
+	//	if (yv_der[j] < threshold_der && flag)
+	//	{
+	//		int min_index = min_element(yv_der.begin() + j, yv_der.begin() + j + time_dead_index) - yv_der.begin();
 
-			//	//cout << k << "\t" << der_min << endl;
-			//	cout << yv_der[k] << "\t" << yv_der[der_min] << endl;
-			//	cout << xv[k] << "\t" << xv[der_min] << endl;
-			//	cout << endl;
-			//}
+	//		time_front.push_back(min_index);
+	//		flag = 0;
+	//		x_time = j;
+	//	}
 
-			//it2 = max_element(myVector.begin(), myVector.end());
-			//cout << " the max is " << *it2 << endl;
+	//	if (yv_der[j] > threshold_der && (j - x_time) > (time_dead_index))
+	//	{
+	//		flag = 1;
+	//	}
 
-			//cout << *min_element(yv_der.begin(), yv_der.end()) << endl;
-
-			int min_index = min_element(yv_der.begin() + j, yv_der.begin() + j + time_dead_index) - yv_der.begin();
-			//int min_index = min_element(yv_der2.begin() + j - shift, yv_der2.begin() + j + time_dead_index) - yv_der2.begin();
-
-
-			//cout << xv[j] << "\t" << xv[min_index] << "\t" << xv[j + time_dead_index] << "\t" << current_signal << endl;
-			//cout << xv[der_min] << endl;
-
-			//cout << "min value is " << *min_element(yv_der.begin() + j, yv_der.begin() + j + time_dead_index) << endl;
-			//cout << "min value at " << min_element(yv_der.begin() + j, yv_der.begin() + j + time_dead_index) - yv_der.begin() << endl;
-
-			//system("pause");
-
-			time_front.push_back(min_index);
-			flag = 0;
-			x_time = j;
-		}
-
-		if (yv_der[j] > threshold_der && (j - x_time) > (time_dead_index))
-		{
-			flag = 1;
-		}
-
-	}
+	//}
 
 	/*for (int i = 0; i < time_front.size(); i++)
 	{
