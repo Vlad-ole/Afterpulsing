@@ -50,7 +50,7 @@ RootFit::RootFit(short int number_of_functions)
 	gr->SetMarkerColor(4);
 	gr->SetMarkerStyle(kFullCircle);
 
-	gr_der = new TGraph(time_finish_index - time_start_index, &xv[time_start_index], &yv_der[time_start_index]);
+	//gr_der = new TGraph(time_finish_index - time_start_index, &xv[time_start_index], &yv_der[time_start_index]);
 	//gr_der2 = new TGraph(time_finish_index - time_start_index, &xv[time_start_index], &yv_der2[time_start_index]);
 
 	//for (int i = 0; i < gr_der->GetN(); i++) gr_der->GetY()[i] *= 50;
@@ -58,10 +58,10 @@ RootFit::RootFit(short int number_of_functions)
 
 	//gr_der2->SetLineColor(7);
 
-	gr_front = new TGraph(time_finish_index - time_start_index, &xv_front[0], &yv_front[0]);
-	gr_front->SetMarkerColor(6);
-	gr_front->SetMarkerStyle(kFullCircle);
-	gr_front->SetMarkerSize(1);
+	//gr_front = new TGraph(time_finish_index - time_start_index, &xv_front[0], &yv_front[0]);
+	//gr_front->SetMarkerColor(6);
+	//gr_front->SetMarkerStyle(kFullCircle);
+	//gr_front->SetMarkerSize(1);
 
 	
 	if (!RecoveryTimeTwoComponents)
@@ -113,16 +113,14 @@ void RootFit::ReadFiles(const bool ReadDerivative, const int file_run, const dou
 	//читать файл
 	//----------------------------------------------------
 	ostringstream f_oss;
-	//f_oss << Monostate::dir_name << "raw\\binary\\run_" << file_run << ".bin"; //my PC
-     f_oss << Monostate::dir_name << "raw/binary/run_" << file_run << ".bin"; //NSU Claster
+	f_oss << Monostate::dir_name << "raw\\binary\\run_" << file_run << ".bin";
 
 	FILE *f = fopen(f_oss.str().c_str(), "rb");
 
 	if (f == NULL)
 	{
 		cout << "Can't open this file: " << f_oss.str().c_str() << endl;
-		exit(1);
-		//system("pause");
+		system("pause");
 	}
 
 	int yv_size = 5000 * 1000;
@@ -142,10 +140,10 @@ void RootFit::ReadFiles(const bool ReadDerivative, const int file_run, const dou
 	}
 
 	ostringstream f_der_oss;
-	f_der_oss << Monostate::dir_name << "der/run_" << file_run << ".bin";
+	f_der_oss << Monostate::dir_name << "der\\run_" << file_run << ".bin";
 
 	ostringstream f_der2_oss;
-	f_der2_oss << Monostate::dir_name << "der2/run_" << file_run << ".bin";
+	f_der2_oss << Monostate::dir_name << "der2\\run_" << file_run << ".bin";
 
 	Monostate::der_name = f_der_oss.str();
 	Monostate::der2_name = f_der2_oss.str();
@@ -153,19 +151,19 @@ void RootFit::ReadFiles(const bool ReadDerivative, const int file_run, const dou
 	if (ReadDerivative)
 	{
 		//прочитать первую и вторую производную из файла
-		FILE *f_der = fopen(Monostate::der_name.c_str(), "rb");
+		//FILE *f_der = fopen(Monostate::der_name.c_str(), "rb");
 		//FILE *f_der2 = fopen(Monostate::der2_name.c_str(), "rb");
 
-		if (f_der == NULL /*|| f_der2 == NULL*/)
-		{
-			cout << "Can't open this file: " << Monostate::der_name.c_str() << endl;
-			//cout << "Can't open this file: " << Monostate::der2_name.c_str() << endl;
-			//system("pause");
-		}
+		//if (f_der == NULL /*|| f_der2 == NULL*/)
+		//{
+		//	cout << "Can't open this file: " << Monostate::der_name.c_str() << endl;
+		//	//cout << "Can't open this file: " << Monostate::der2_name.c_str() << endl;
+		//	system("pause");
+		//}
 
-		RootFit::yv_der.resize(yv_size_new);
+		//RootFit::yv_der.resize(yv_size_new);
 		//RootFit::yv_der2.resize(yv_size_new);
-		fread(&RootFit::yv_der[0], sizeof(vector<double>::value_type), yv_size_new, f_der);
+		//fread(&RootFit::yv_der[0], sizeof(vector<double>::value_type), yv_size_new, f_der);
 		//fread(&RootFit::yv_der2[0], sizeof(vector<double>::value_type), yv_size_new, f_der2);
 	}
 	//----------------------------------------------------
@@ -379,8 +377,8 @@ void RootFit::SetParametersTwoComp_fit1(const double * const A_start, const doub
 	const double tau_rec_slow = 43.0645;
 	const double R_slow = 0.254653;
 
-	const double time_first = xv[time_front[0]];
-	//const double time_first = xv[time_start[current_signal]];
+	//const double time_first = xv[time_front[0]];
+	const double time_first = xv[time_start[current_signal]];
 
 
 		// A
@@ -429,8 +427,8 @@ void RootFit::SetParametersTwoComp_fit2(const double * const A_start, const doub
 	const double tau_rec_slow = 43.0645;
 	const double R_slow = 0.254653;
 
-	const double time_first = xv[time_front[0]];
-	//const double time_first = xv[time_start[current_signal]];
+	//const double time_first = xv[time_front[0]];
+	const double time_first = xv[time_start[current_signal]];
 
 		// A
 		fitFcn->SetParameter(0, A_start[0]);
@@ -464,17 +462,16 @@ void RootFit::SetParametersTwoComp_fit2(const double * const A_start, const doub
 		fitFcn->SetParameter(7, 0);
 		fitFcn->SetParLimits(7, -baseline_limit, baseline_limit);
 
-		//double time_second = xv[time_start[current_signal]];
-		
-		double time_second;
-		if (time_front.size() > 1)
-		{
-			time_second = xv[time_front[1]];
-		}
-		else
-		{
-			time_second = xv[time_front[0]];
-		}
+		double time_second = xv[time_start[current_signal]];
+		//double time_second;
+		//if (time_front.size() > 1)
+		//{
+		//	time_second = xv[time_front[1]];
+		//}
+		//else
+		//{
+		//	time_second = xv[time_front[0]];
+		//}
 		
 
 		// A
@@ -1510,7 +1507,7 @@ void RootFit::CalculateStaircases_der(double time_dead)
 		conter_temp++;
 	}
 
-	//system("pause");
+	system("pause");
 	exit(0);
 }
 
@@ -1549,7 +1546,7 @@ void RootFit::CalculateStaircases_amp(double time_dead)
 		file_staitcase_amp << th << "\t" << counter << endl;
 	}
 
-	//system("pause");
+	system("pause");
 	exit(0);
 }
 
@@ -1653,35 +1650,35 @@ void RootFit::CalculateStartParameters(double time_dead)
 
 	time_finish_index = time_finish[current_signal];
 
-	bool flag = 1;
-	int x_time = 0;
+	//bool flag = 1;
+	//int x_time = 0;
 
-	//int time_start_index = time_start[current_signal];
+	////int time_start_index = time_start[current_signal];
 
-	time_front.clear();
+	//time_front.clear();
 
-	int time_dead_index = time_dead * 5;
-	//int shift = 20;
+	//int time_dead_index = time_dead * 5;
+	////int shift = 20;
 
-	//найти стартовые параметры для начала сигнала
-	for (int j = time_start_index; j < time_finish[current_signal]; j++)
-	{
+	////найти стартовые параметры для начала сигнала
+	//for (int j = time_start_index; j < time_finish[current_signal]; j++)
+	//{
 
-		if (yv_der[j] < threshold_der && flag)
-		{
-			int min_index = min_element(yv_der.begin() + j, yv_der.begin() + j + time_dead_index) - yv_der.begin();
+	//	if (yv_der[j] < threshold_der && flag)
+	//	{
+	//		int min_index = min_element(yv_der.begin() + j, yv_der.begin() + j + time_dead_index) - yv_der.begin();
 
-			time_front.push_back(min_index);
-			flag = 0;
-			x_time = j;
-		}
+	//		time_front.push_back(min_index);
+	//		flag = 0;
+	//		x_time = j;
+	//	}
 
-		if (yv_der[j] > threshold_der && (j - x_time) > (time_dead_index))
-		{
-			flag = 1;
-		}
+	//	if (yv_der[j] > threshold_der && (j - x_time) > (time_dead_index))
+	//	{
+	//		flag = 1;
+	//	}
 
-	}
+	//}
 
 	/*for (int i = 0; i < time_front.size(); i++)
 	{
@@ -1799,7 +1796,7 @@ void RootFit::CalculateDer(int type, int points)
 	if (file_d == NULL)
 	{
 		cout << "can't open this file " << Monostate::der_name << endl;
-		//system("pause");
+		system("pause");
 		exit(0);
 	}
 
@@ -2208,7 +2205,7 @@ void RootFit::CalculateAverageSignal(double time_dead_forward)
 	}
 
 	cout << "number_of_pulsing = \t" << num_of_signals << endl;
-	//system("pause");
+	system("pause");
 	exit(0);
 }
 

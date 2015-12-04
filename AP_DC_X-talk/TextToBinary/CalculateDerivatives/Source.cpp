@@ -2,8 +2,9 @@
 #include <fstream>
 #include <string>
 #include <vector>
-#include <chrono>
-#include <Windows.h>
+//#include <chrono>
+//#include <Windows.h>
+#include <ctime>
 #include <sstream>
 
 using namespace std;
@@ -56,13 +57,13 @@ void write_data()
 	fclose(stream);
 
 
-	//write der2
-	cout << "write der2" << endl;
+	////write der2
+	//cout << "write der2" << endl;
 
-	stream = fopen(file_der2_write.c_str(), "wb");
-	fwrite(&yv_der2[0], sizeof(vector<double>::value_type), yv.size(), stream);
+	//stream = fopen(file_der2_write.c_str(), "wb");
+	//fwrite(&yv_der2[0], sizeof(vector<double>::value_type), yv.size(), stream);
 
-	fclose(stream);
+	//fclose(stream);
 }
 
 //прочитать бинарный файл и записать его в вектор
@@ -126,7 +127,7 @@ void CalculateDerivative(int points)
 	yv_der.resize(yv.size());
 	yv_der2.resize(yv.size());
 
-#pragma omp parallel for num_threads(8)
+//#pragma omp parallel for num_threads(8)
 	for (int i = 0; i < yv.size(); i++)
 	{
 
@@ -188,11 +189,12 @@ int main(int argc, char* argv[])
 	cout << "file_i_start = " << file_i_start << endl;
 	cout << "file_i_stop = " << file_i_stop << endl;
 
-	long int before = GetTickCount();
+	//long int before = GetTickCount();
+	clock_t before = clock();
 
-	yv.reserve(20 * 1000 * 1000);
-	yv_der.reserve(20 * 1000 * 1000);
-	yv_der2.reserve(20 * 1000 * 1000);
+	yv.reserve(5 * 1000 * 1000);
+	yv_der.reserve(5 * 1000 * 1000);
+	yv_der2.reserve(5 * 1000 * 1000);
 
 	const int points = 51;
 	CalculateFilterCoeff(points);
@@ -234,11 +236,11 @@ int main(int argc, char* argv[])
 
 	}
 
-	long int after = GetTickCount();
+	//long int after = GetTickCount();
+	clock_t after = clock();
 
-	cout << endl << "run time (in ms) \t " << after - before << endl;
-	cout << endl << "run time (in s) \t " << (after - before) / 1000.0 << endl;
-	cout << endl << "run time (in m) \t " << (after - before) / (1000.0 * 60) << endl;
+	cout << endl << "run time (in s) \t " << ((double)(after - before) / CLOCKS_PER_SEC) << endl;
+	cout << endl << "run time (in m) \t " << ((double)(after - before) / CLOCKS_PER_SEC) / (60) << endl;
 
 
 	//system("pause");
