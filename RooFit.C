@@ -20,10 +20,10 @@ using namespace RooFit;
 
 void RooFit_my(char name[])
 {
-   RooRealVar t("t","time", 1, 20001);
+   RooRealVar t("t","time", 1, 30001);
    
    RooRealVar nu_f("nu_f","time", 1.0 / 20, 0, 1.0);
-   RooRealVar nu_s("nu_s","time", 1.0 / 100, 0, 1.0);
+   RooRealVar nu_s("nu_s","time", 1.0 / 160, 1.0 / 180, 1.0 / 140);
    RooRealVar nu_dc("nu_dc","time", 0.001, 0, 0.010);
    
    RooRealVar p_s("p_s","time", 0.1, 0, 1);
@@ -74,7 +74,7 @@ void RooFit_my(char name[])
 	*/
 	
    
-	genpdf.fitTo(*data, Range(26, 20001));
+	genpdf.fitTo(*data, Range(26, 30001));
 	cout << endl;
 	nu_f.Print();
 	nu_s.Print();
