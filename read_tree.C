@@ -1,6 +1,6 @@
 void ReadTree()
 {
-	string dir_name = "D:\\Data_work\\tektronix_signal\\MPPC_S10362-11-100C\\280K\\69_48V\\";
+	string dir_name = "D:\\Data_work\\tektronix_signal\\MPPC_S10362-11-100C\\275K\\69_10V\\";
 	//string dir_name = "D:\\Data_work\\";
 	//string tree_name = dir_name + "tree.root";
 	string graphs_name_fit1 = dir_name + "graphs_fit1.root";
@@ -31,7 +31,7 @@ void ReadTree()
 	for(int i = 1; i <= 1000; i++)
 	{
 		ostringstream file_tree_oss;
-		file_tree_oss << dir_name << "trees\\run_" << i << ".root";
+		file_tree_oss << dir_name << "trees_2\\run_" << i << ".root";
 		chain.Add(file_tree_oss.str().c_str());
 	}
 	
@@ -87,30 +87,36 @@ void ReadTree()
 	chain.SetBranchStatus("gr_fit3", 0);
 	
 	TCut fit_1 = "chi_1 < 3.5";
-	TCut A1 = "a_1 > 0.15 && a_1 < 0.3 && chi_1 < 2.4";
-	TCut B1 = "a_1 > 0.33 && a_1 < 0.5 && chi_1 < 3.4";
-	TCut C1 = "a_1 > 0.55 && a_1 < 0.70 && chi_1 < 3.7";
+	TCut A1 = "a_1 > 0.12 && a_1 < 0.22 && chi_1 < 2.5";
+	TCut B1 = "a_1 > 0.28 && a_1 < 0.4 && chi_1 < 3.0";
+	TCut C1 = "a_1 > 0.44 && a_1 < 0.6 && chi_1 < 4.5";
 	//TCut D1 = "a_1 > 0.7 && a_1 < 0.9";
 	TCut noise = "a_1 < 0.06 && chi_1 < 5.4";
 
+	
 	TCut fit_2 = "chi_1 > 4 && chi_2 < 4";
-	TCut A2 = "(a_2 + b_2) > 0.16 && (a_2 + b_2) < 0.475 && chi_2 < 2 && chi_1 > 3 && a_2 < 0.3 && b_2 < 0.3";
-	TCut B2 = "(a_2 + b_2) > 0.47 && (a_2 + b_2) < 0.68";
+	
+	//TCut A2 = "(a_2 + b_2) > 0.2 && (a_2 + b_2) < 0.59 && chi_2 < 3.5 && chi_1 > 3";
+	//TCut A2 = "(a_2 + b_2) > 0.2 && (a_2 + b_2) < 0.31 && chi_2 < 3.5 && chi_1 > 3";
+	TCut A2 = "(a_2 + b_2) > 0.18 && (a_2 + b_2) < 0.4 && chi_2 < 2 && a_2 < 0.21 && b_2 < 0.21";
+	
+	TCut B2 = "(a_2 + b_2) > 0.6 && (a_2 + b_2) < 0.88 && chi_2 < 4";
 	TCut C2 = "(a_2 + b_2) > 0.68 && (a_2 + b_2) < 0.88";
 	
+	TCut A3 = "(a_3 + b_3 + c_3) > 0.1 && (a_3 + b_3 + c_3) < 0.2";
 
-	TCut total_cut = C1;
-	//TCut total_cut = !noise && "chi_1 > 4" && "chi_2 > 3 && chi_2 < 15" && "(a_2 + b_2) > 0.04 && (a_2 + b_2) < 0.1";
-	//TCut total_cut = !A1 && !B1 && !C1 && "(a_2 + b_2) > 0" ;
+	//TCut total_cut = "";
+	//TCut total_cut = "chi_1 > 10 && (a_2 + b_2) > 0.13 && (a_2 + b_2) < 0.2 && chi_2 < 3";
+	TCut total_cut = !A1 && !B1 && !C1 && "(a_2 + b_2) > 0" && A2;
 	
 	chain.SetMarkerStyle(4);
 	
-	chain.Draw("a_1", total_cut);
+	//chain.Draw("a_1", total_cut);
 	//chain.Draw("chi_1:a_1", total_cut);
 	
 	//chain.Draw("chi_2:(a_2 + b_2)", total_cut);
 	//chain.Draw("a_2:b_2", total_cut);
-	//chain.Draw("(a_2 + b_2):(time_2_b - time_2_a)", total_cut);
+	chain.Draw("(a_2 + b_2):(time_2_b - time_2_a)", total_cut);
 	//chain.Draw("dt_2_ab", total_cut);
 	
 	//chain.Draw("chi_3:(a_3 + b_3 + c_3)", total_cut);
@@ -127,24 +133,26 @@ void ReadTree()
 		bool PreviousIs1e = false;
 		double last_time = 0;
 		
-		for (int i = 0; i < chain.GetEntries(); ++i)
+		for (int i = 0; i < chain.GetEntries() ; ++i)
 		{
-			chain.GetEntry(i);	
+			chain.GetEntry(i);
 			
 			//cout << time_1 << endl;
 
-			bool condition_1 = /*A1*/ a_1 > 0.15 && a_1 < 0.3 && chi_1 < 3;
-			bool condition_2 = /* !A1 && !B1 && !C1 && A2 */ (a_2 + b_2) > 0.16 && (a_2 + b_2) < 0.475 && chi_2 < 2 && chi_1 > 3 && a_2 < 0.3 && b_2 < 0.3;
+			bool condition_1 = /*A1*/ a_1 > 0.12 && a_1 < 0.22 && chi_1 < 2.5;
+			bool condition_2 = /* !A1 && !B1 && !C1 && A2 */ !(condition_1) && !(a_1 > 0.28 && a_1 < 0.4 && chi_1 < 3.0) && !(a_1 > 0.44 && a_1 < 0.6 && chi_1 < 4.5) && ( (a_2 + b_2) > 0.18 && (a_2 + b_2) < 0.4 && chi_2 < 2 && a_2 < 0.21 && b_2 < 0.21 );
 			
 			//bool condition_1 = a_1 > 0.15 && a_1 < 0.27 && chi_1 < 2.2 ;
 			//bool condition_2 = false;
 			
+			bool A1_B1_C1 = !(a_1 > 0.2 && a_1 < 0.35 && chi_1 < 3.2) && !(a_1 > 0.42 && a_1 < 0.65 && chi_1 < 4.7) && !(a_1 > 0.7 && a_1 < 0.9 && chi_1 < 8.3);
+			//bool condition_3 = A1_B1_C1 && ( chi_2 > 7 && (a_3 + b_3 + c_3) > 0.26 && (a_3 + b_3 + c_3) < 0.34 && chi_3 < 3.3 );
 			bool condition_3 = false;
 			if(condition_3)
 			{
 				Hlist_fit1.Add(graph_fit1->Clone());
 				Hlist_fit2.Add(graph_fit2->Clone());
-				//Hlist_fit3.Add(graph_fit3->Clone());
+				Hlist_fit3.Add(graph_fit3->Clone());
 			}
 			
 			if(condition_1)

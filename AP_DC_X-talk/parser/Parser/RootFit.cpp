@@ -53,7 +53,7 @@ RootFit::RootFit(short int number_of_functions)
 	gr_der = new TGraph(time_finish_index - time_start_index, &xv[time_start_index], &yv_der[time_start_index]);
 	//gr_der2 = new TGraph(time_finish_index - time_start_index, &xv[time_start_index], &yv_der2[time_start_index]);
 
-	//for (int i = 0; i < gr_der->GetN(); i++) gr_der->GetY()[i] *= 50;
+     for (int i = 0; i < gr_der->GetN(); i++) gr_der->GetY()[i] *= 50;
 	//for (int i = 0; i < gr_der2->GetN(); i++) gr_der2->GetY()[i] *= 500;
 
 	//gr_der2->SetLineColor(7);
@@ -100,9 +100,9 @@ RootFit::RootFit(short int number_of_functions)
 RootFit::~RootFit()
 {
 	delete fitFcn;
-	//delete gr_front;
+        delete gr_front;
 	//delete gr_der2;
-	//delete gr_der;
+        delete gr_der;
 	delete gr;
 }
 
@@ -388,8 +388,12 @@ void RootFit::SetParametersTwoComp_fit1(const double * const A_start, const doub
 		fitFcn->SetParLimits(0, A_limit_l[0], A_limit_h[0]);
 
 		//t_0
-		fitFcn->SetParameter(1, time_first);
-		fitFcn->SetParLimits(1, xv[time_start_index], xv[time_finish_index]);
+          fitFcn->SetParameter(1, time_first);
+          fitFcn->SetParLimits(1, xv[time_start_index], xv[time_finish_index]); //simple variant
+          //fitFcn->SetParLimits(1, xv[time_start_index] + 5, time_first); // more complex variant
+
+          //fitFcn->SetParameter(1, time_first + 5);
+          //fitFcn->SetParLimits(1, xv[time_start_index] + 5, time_first+10); // slava variant
 
 		// tau_rec
 		fitFcn->SetParameter(2, tau_rec_fast);
@@ -1667,7 +1671,7 @@ void RootFit::CalculateStartParameters(double time_dead)
 	for (int j = time_start_index; j < time_finish[current_signal]; j++)
 	{
 
-		if (yv_der[j] < threshold_der && flag)
+          if (yv_der[j] < threshold_der && flag && yv[j] < -0.007) //modification
 		{
 			int min_index = min_element(yv_der.begin() + j, yv_der.begin() + j + time_dead_index) - yv_der.begin();
 

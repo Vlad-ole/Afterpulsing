@@ -75,10 +75,10 @@ int main(int argc, char *argv[])
 		cout << "Please, input dir_name " << endl;
 		cout << argv[0] << endl;
 
-          //Monostate::dir_name = "D:\\Data_work\\tektronix_signal\\MPPC_S10362-11-100C\\280K\\69_98V\\"; // my PC
-          Monostate::dir_name = "/mnt/scratch/ws/vpoleynikov/201601261856ws1/MPPC_S10362-11-100C/285K/69_65V/"; // NSU Cluster
-		RootFit::threshold_amp_start = -0.012;
-		RootFit::threshold_der = -0.0004;
+        Monostate::dir_name = "D:\\Data_work\\tektronix_signal\\MPPC_S10362-11-100C\\275K\\69_60V\\"; // my PC
+        // Monostate::dir_name = "/mnt/scratch/ws/vpoleynikov/201601261856ws1/MPPC_S10362-11-100C/285K/69_65V/"; // NSU Cluster
+		RootFit::threshold_amp_start = -0.01;
+		RootFit::threshold_der = -0.0002;
 
 		file_i_start = 1;
 		file_i_stop = 1;
@@ -187,8 +187,8 @@ int main(int argc, char *argv[])
 
 		TMultiGraph *multi_graph_fit3 = new TMultiGraph();
 		TGraphErrors *gr_tree_fit3 = new TGraphErrors();
-		//TGraph *gr_front_tree_fit3 = new TGraph();
-		//TGraph *gr_der_tree_fit3 = new TGraph();
+		TGraph *gr_front_tree_fit3 = new TGraph();
+		TGraph *gr_der_tree_fit3 = new TGraph();
 		//TGraph *gr_der2_tree_fit3 = new TGraph();
 
 		double a_1, chi_1, time_1; // fit_1
@@ -232,8 +232,8 @@ int main(int argc, char *argv[])
 		//multi_graph_fit2->Add(gr_der2_tree_fit2);
 
 		multi_graph_fit3->Add(gr_tree_fit3);
-		//multi_graph_fit3->Add(gr_front_tree_fit3);
-		//multi_graph_fit3->Add(gr_der_tree_fit3);
+		multi_graph_fit3->Add(gr_front_tree_fit3);
+		multi_graph_fit3->Add(gr_der_tree_fit3);
 		//multi_graph_fit3->Add(gr_der2_tree_fit3);
 
 		tree.Branch("gr_fit1", "TMultiGraph", &multi_graph_fit1, 128000, 0);
@@ -269,20 +269,20 @@ int main(int argc, char *argv[])
 				RootFit::current_signal = i;
 				RootFit::CalculateStartParameters(5/*5*/);//вычислить стартовые параметры. ѕараметр - мертвое врем¤ производной в нс	
 				//RootFit::CalculateNumOfSignals(3);
-				//RootFit::CreateFrontGraph();
+				RootFit::CreateFrontGraph();
 
 				cout << "\t single step 1 ... " << endl;
 				RootFit *Fit_single = new RootFit(1);
 				
-				double A_start[] = { 0.2 };
-                double A_limit_l[] = { 0 };
-                double A_limit_h[] = { 10 };
+                  double A_start[] = { 0.2 };
+                  double A_limit_l[] = { 0 };
+                  double A_limit_h[] = { 10 };
 
 				if (rigid_boundaries)
 				{
-                         A_start[0] = 0.21;
-                         A_limit_l[0] = 0.15;
-                         A_limit_h[0] = 0.27;
+                         A_start[0] = 0.17;
+                         A_limit_l[0] = 0.1;
+                         A_limit_h[0] = 0.24;
 				}
 
 				Fit_single->SetParametersTwoComp_fit1(A_start, A_limit_l, A_limit_h);
@@ -291,27 +291,27 @@ int main(int argc, char *argv[])
 
 				if (rigid_boundaries)
 				{
-                    if (Fit_single->GetChi2PerDof() > 3)
+                    if (Fit_single->GetChi2PerDof() > 4)
 					{
 						cout << "\t single step 2 ... " << endl;
-                                                A_start[0] = 0.43;
-                                                A_limit_l[0] = 0.35;
-                                                A_limit_h[0] = 0.49;
+                              A_start[0] = 0.34;
+                              A_limit_l[0] = 0.27;
+                              A_limit_h[0] = 0.4;
 						Fit_single->SetParametersTwoComp_fit1(A_start, A_limit_l, A_limit_h);
 						Fit_single->DoFit();
 					}
 
-					//if (Fit_single->GetChi2PerDof() > 4)
-					//{
-					//	cout << "\t single step 3 ... " << endl;
-					//	A_start[0] = { 0.5 };
-					//	A_limit_l[0] = { 0.43 };
-					//	A_limit_h[0] = { 0.55 };
-					//	Fit_single->SetParametersTwoComp_fit1(A_start, A_limit_l, A_limit_h);
-					//	Fit_single->DoFit();
-					//}
+                        if (Fit_single->GetChi2PerDof() > 4)
+                        {
+                                cout << "\t single step 3 ... " << endl;
+                                A_start[0] =  0.5 ;
+                                A_limit_l[0] =  0.44 ;
+                                A_limit_h[0] =  0.60 ;
+                                Fit_single->SetParametersTwoComp_fit1(A_start, A_limit_l, A_limit_h);
+                                Fit_single->DoFit();
+                        }
 
-                     if (Fit_single->GetChi2PerDof() > 3)
+                    if (Fit_single->GetChi2PerDof() > 4)
 					{
 						cout << "\t single step 4 ... " << endl;
                                                 A_start[0] = 0.2;
@@ -346,14 +346,14 @@ int main(int argc, char *argv[])
 				time_3_c = -100;
 
 				*gr_tree_fit1 = *(Fit_single->gr);
-				//*gr_front_tree_fit1 = *(Fit_single->gr_front);
-				//*gr_der_tree_fit1 = *(Fit_single->gr_der);
+				*gr_front_tree_fit1 = *(Fit_single->gr_front);
+				*gr_der_tree_fit1 = *(Fit_single->gr_der);
 				//*gr_der2_tree_fit1 = *(Fit_single->gr_der2);
 
 
                 if (Fit_single->GetChi2PerDof() > 1.5 && true)
 				{
-					rigid_boundaries = false;
+                         rigid_boundaries = false;
 					
 					cout << "\t double step 1  ... " << endl;
 
@@ -406,8 +406,8 @@ int main(int argc, char *argv[])
 					time_2_b = max(Fit_double->fitFcn->GetParameter(1), Fit_double->fitFcn->GetParameter(9));
 
 					*gr_tree_fit2 = *(Fit_double->gr);
-					//*gr_front_tree_fit2 = *(Fit_double->gr_front);
-					//*gr_der_tree_fit2 = *(Fit_double->gr_der);
+					*gr_front_tree_fit2 = *(Fit_double->gr_front);
+					*gr_der_tree_fit2 = *(Fit_double->gr_der);
 					//*gr_der2_tree_fit2 = *(Fit_double->gr_der2);
 
 					////fill tree
@@ -436,7 +436,7 @@ int main(int argc, char *argv[])
 					////fill tree end
 					//////////////////////////////////////////////////
 					
-					if (Fit_double->GetChi2PerDof() > 2 && false)
+					if (Fit_double->GetChi2PerDof() > 1.5 && false)
 					{
 						cout << "\t \t triple ... " << endl;
 
@@ -468,8 +468,8 @@ int main(int argc, char *argv[])
 						time_3_c = time_abc[2];
 
 						*gr_tree_fit3 = *(Fit_triple->gr);
-						//*gr_front_tree_fit3 = *(Fit_triple->gr_front);
-						//*gr_der_tree_fit3 = *(Fit_triple->gr_der);
+						*gr_front_tree_fit3 = *(Fit_triple->gr_front);
+						*gr_der_tree_fit3 = *(Fit_triple->gr_der);
 						//*gr_der2_tree_fit3 = *(Fit_triple->gr_der2);
 
 

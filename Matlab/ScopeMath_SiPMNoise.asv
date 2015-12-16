@@ -19,7 +19,7 @@ yData1           = [];
 %internal flags
 nSaved           = 0;
 
-dir_name = 'D:/Data_work/tektronix_signal/MPPC_S10362-11-100C/280K/69_48V/raw_2/binary/run_';
+dir_name = 'D:/Data_work/tektronix_signal/MPPC_S10362-11-100C/290K/69_33V/raw/binary/run_';
 
 makeGUI(); 
 connectToInstrument();
