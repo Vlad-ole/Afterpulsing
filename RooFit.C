@@ -20,10 +20,10 @@ using namespace RooFit;
 
 void Fit_my(char name[])
 {
-   RooRealVar t("t","time", 1, 30001);
+   RooRealVar t("t","time", 1, 50001);
    
    RooRealVar nu_f("nu_f","time", 1.0 / 20, 0, 1.0);
-   RooRealVar nu_s("nu_s","time", 1.0 / 160, 1.0 / 200, 1.0 / 100);
+   RooRealVar nu_s("nu_s","time", 1.0 / 160, 1.0 / 250, 1.0 / 100);
    RooRealVar nu_dc("nu_dc","time", 0.001, 0, 0.010);
  
    //RooRealVar nu_dc("nu_dc","time",   0.000162976,   0.000162976,   0.000162976);
@@ -77,7 +77,7 @@ void Fit_my(char name[])
 	
 	t.setRange("R1", 26, 100);
 	t.setRange("R2", 250, 30000);
-	t.setRange("Rfull", 26, 30000);
+	t.setRange("Rfull", 50, 50000);
    
 	//genpdf.fitTo(*data, Range(26, 100/*30001*/));
 	genpdf.fitTo(*data, Range("Rfull"),Save());
