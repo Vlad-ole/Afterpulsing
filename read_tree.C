@@ -1,6 +1,6 @@
 void ReadTree()
 {
-	string dir_name = "D:\\Data_work\\tektronix_signal\\MPPC_S10362-11-100C\\275K\\68_60V\\";
+	string dir_name = "D:\\Data_work\\tektronix_signal\\MPPC_S10362-11-100C\\275K\\69_80V\\";
 	//string dir_name = "D:\\Data_work\\";
 	//string tree_name = dir_name + "tree.root";
 	string graphs_name_fit1 = dir_name + "graphs_fit1.root";
@@ -87,9 +87,9 @@ void ReadTree()
 	chain.SetBranchStatus("gr_fit3", 0);
 	
 	TCut fit_1 = "chi_1 < 3.5";
-	TCut A1 = "a_1 > 0.016 && a_1 < 0.104 && chi_1 < 2.2";
-	TCut B1 = "a_1 > 0.104 && a_1 < 0.176 && chi_1 < 2.0";
-	TCut C1 = "a_1 > 0.176 && a_1 < 0.24 && chi_1 < 2.5";
+	TCut A1 = "a_1 > 0.2 && a_1 < 0.4 && chi_1 < 5.7";
+	TCut B1 = "a_1 > 0.5 && a_1 < 0.74 && chi_1 < 14.5";
+	TCut C1 = "a_1 > 0.8 && a_1 < 1.05 && chi_1 < 30.0";
 	//TCut D1 = "a_1 > 0.7 && a_1 < 0.9";
 	TCut noise = "a_1 < 0.06 && chi_1 < 5.4";
 
@@ -98,25 +98,25 @@ void ReadTree()
 	
 	//TCut A2 = "(a_2 + b_2) > 0.2 && (a_2 + b_2) < 0.59 && chi_2 < 3.5 && chi_1 > 3";
 	//TCut A2 = "(a_2 + b_2) > 0.2 && (a_2 + b_2) < 0.31 && chi_2 < 3.5 && chi_1 > 3";
-	TCut A2 = "(a_2 + b_2) > 0.088 && (a_2 + b_2) < 0.17 && chi_2 < 2 ";
+	TCut A2 = "(a_2 + b_2) > 0.3 && (a_2 + b_2) < 0.68 && chi_2 < 6 ";
 	
 	TCut B2 = "(a_2 + b_2) > 0.6 && (a_2 + b_2) < 0.88 && chi_2 < 4";
 	TCut C2 = "(a_2 + b_2) > 0.68 && (a_2 + b_2) < 0.88";
 	
 	TCut A3 = "(a_3 + b_3 + c_3) > 0.1 && (a_3 + b_3 + c_3) < 0.2";
 
-	TCut total_cut = B1;
+	//TCut total_cut = C1;
 	//TCut total_cut = "chi_1 > 10 && (a_2 + b_2) > 0.13 && (a_2 + b_2) < 0.2 && chi_2 < 3";
-	//TCut total_cut = !A1 && !B1 && !C1 && "(a_2 + b_2) > 0" && A2;
+	TCut total_cut = !A1 && !B1 && !C1 && "(a_2 + b_2) > 0" && A2;
 	
 	chain.SetMarkerStyle(4);
 	
-	chain.Draw("chi_1", total_cut);
+	//chain.Draw("chi_1", total_cut);
 	//chain.Draw("chi_1:a_1", total_cut);
 	
 	//chain.Draw("chi_2:(a_2 + b_2)", total_cut);
 	//chain.Draw("a_2:b_2", total_cut);
-	//chain.Draw("(a_2 + b_2):(time_2_b - time_2_a)", total_cut);
+	chain.Draw("(a_2 + b_2):(time_2_b - time_2_a)", total_cut);
 	//chain.Draw("dt_2_ab", total_cut);
 	
 	//chain.Draw("chi_3:(a_3 + b_3 + c_3)", total_cut);
@@ -139,8 +139,8 @@ void ReadTree()
 			
 			//cout << time_1 << endl;
 
-			bool condition_1 = /*A1*/ a_1 > 0.016 && a_1 < 0.104 && chi_1 < 2.2;
-			bool condition_2 = /* !A1 && !B1 && !C1 && A2 */ !(condition_1) && !(a_1 > 0.104 && a_1 < 0.176 && chi_1 < 2.0) && !(a_1 > 0.176 && a_1 < 0.24 && chi_1 < 2.5) && ( (a_2 + b_2) > 0.088 && (a_2 + b_2) < 0.17 && chi_2 < 2 );
+			bool condition_1 = /*A1*/ a_1 > 0.2 && a_1 < 0.4 && chi_1 < 5.7;
+			bool condition_2 = /* !A1 && !B1 && !C1 && A2 */ !(condition_1) && !(a_1 > 0.5 && a_1 < 0.74 && chi_1 < 14.5) && !(a_1 > 0.8 && a_1 < 1.05 && chi_1 < 30.0) && ( (a_2 + b_2) > 0.3 && (a_2 + b_2) < 0.68 && chi_2 < 6 );
 			
 			//bool condition_1 = a_1 > 0.15 && a_1 < 0.27 && chi_1 < 2.2 ;
 			//bool condition_2 = false;

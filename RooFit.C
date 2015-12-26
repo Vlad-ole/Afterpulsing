@@ -22,14 +22,14 @@ void Fit_my(char name[])
 {
    RooRealVar t("t","time", 1, 50001);
    
-   RooRealVar nu_f("nu_f","time", 1.0 / 20, 0, 1.0);
+   RooRealVar nu_f("nu_f","time", 1.0 / 25, 1.0/ 50, 1.0 / 20);
    RooRealVar nu_s("nu_s","time", 1.0 / 160, 1.0 / 250, 1.0 / 100);
    RooRealVar nu_dc("nu_dc","time", 0.001, 0, 0.010);
  
    //RooRealVar nu_dc("nu_dc","time",   0.000162976,   0.000162976,   0.000162976);
    
-   RooRealVar p_s("p_s","time", 0.1, 0, 1);
-   RooRealVar p_f("p_f","time", 0.1, 0, 1);
+   RooRealVar p_s("p_s","time", 0.1, 0.2, 0.5);
+   RooRealVar p_f("p_f","time", 0.1, 0.2, 0.5);
    
    //RooRealVar tau("tau","tau parameter", 50, 1, 200);
    //RooGenericPdf genpdf("genpdf","genpdf","( 1 / tau * exp( - t / tau ) )", RooArgSet(t, tau));
@@ -77,7 +77,7 @@ void Fit_my(char name[])
 	
 	t.setRange("R1", 26, 100);
 	t.setRange("R2", 250, 30000);
-	t.setRange("Rfull", 50, 50000);
+	t.setRange("Rfull", 25, 50000);
    
 	//genpdf.fitTo(*data, Range(26, 100/*30001*/));
 	genpdf.fitTo(*data, Range("Rfull"),Save());
