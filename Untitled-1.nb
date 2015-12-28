@@ -1,0 +1,201 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 8.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       157,          7]
+NotebookDataLength[      5808,        192]
+NotebookOptionsPosition[      5124,        166]
+NotebookOutlinePosition[      5566,        183]
+CellTagsIndexPosition[      5523,        180]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell[BoxData[
+ RowBox[{"Convolve", "[", 
+  RowBox[{
+   RowBox[{"DiracDelta", "[", "x", "]"}], ",", 
+   RowBox[{"f", "[", "x", "]"}], ",", "x", ",", "y"}], "]"}]], "Input",
+ CellChangeTimes->{{3.6593430323684096`*^9, 3.659343071225467*^9}, {
+  3.6593431089135227`*^9, 3.659343109223523*^9}}],
+
+Cell[BoxData[
+ RowBox[{"f", "[", "y", "]"}]], "Output",
+ CellChangeTimes->{3.659343115213533*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"Convolve", "[", 
+   RowBox[{
+    RowBox[{"PDF", "[", 
+     RowBox[{
+      RowBox[{"NormalDistribution", "[", 
+       RowBox[{"0", ",", "\[Sigma]"}], "]"}], ",", "x"}], "]"}], ",", 
+    RowBox[{"\[Alpha]", 
+     SuperscriptBox[
+      RowBox[{"(", "x", ")"}], 
+      RowBox[{"\[Alpha]", "-", "1"}]]}], ",", "x", ",", "y"}], "]"}], 
+  "\[IndentingNewLine]"}]], "Input",
+ CellChangeTimes->{
+  3.6593431176735363`*^9, {3.659343185056637*^9, 3.6593431912116456`*^9}, 
+   3.659343230481703*^9, {3.659343262513751*^9, 3.6593433230328417`*^9}, {
+   3.659343403876961*^9, 3.6593434045869627`*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  FractionBox["1", 
+   RowBox[{
+    SqrtBox["\[Pi]"], " ", "\[Sigma]"}]], 
+  RowBox[{
+   SuperscriptBox["2", 
+    RowBox[{
+     RowBox[{"-", 
+      FractionBox["3", "2"]}], "+", 
+     FractionBox["\[Alpha]", "2"]}]], " ", "\[Alpha]", " ", 
+   SuperscriptBox[
+    RowBox[{"(", 
+     FractionBox["1", 
+      SuperscriptBox["\[Sigma]", "2"]], ")"}], 
+    RowBox[{
+     RowBox[{"-", "\[Alpha]"}], "/", "2"}]], " ", 
+   RowBox[{"(", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"-", 
+       RowBox[{"(", 
+        RowBox[{
+         RowBox[{"-", "1"}], "+", 
+         SuperscriptBox["\[ExponentialE]", 
+          RowBox[{"\[ImaginaryI]", " ", "\[Pi]", " ", "\[Alpha]"}]]}], 
+        ")"}]}], " ", 
+      RowBox[{"Gamma", "[", 
+       FractionBox["\[Alpha]", "2"], "]"}], " ", 
+      RowBox[{"Hypergeometric1F1", "[", 
+       RowBox[{
+        FractionBox[
+         RowBox[{"1", "-", "\[Alpha]"}], "2"], ",", 
+        FractionBox["1", "2"], ",", 
+        RowBox[{"-", 
+         FractionBox[
+          SuperscriptBox["y", "2"], 
+          RowBox[{"2", " ", 
+           SuperscriptBox["\[Sigma]", "2"]}]]}]}], "]"}]}], "+", 
+     RowBox[{
+      SqrtBox["2"], " ", 
+      RowBox[{"(", 
+       RowBox[{"1", "+", 
+        SuperscriptBox["\[ExponentialE]", 
+         RowBox[{"\[ImaginaryI]", " ", "\[Pi]", " ", "\[Alpha]"}]]}], ")"}], 
+      " ", "y", " ", 
+      SqrtBox[
+       FractionBox["1", 
+        SuperscriptBox["\[Sigma]", "2"]]], " ", 
+      RowBox[{"Gamma", "[", 
+       FractionBox[
+        RowBox[{"1", "+", "\[Alpha]"}], "2"], "]"}], " ", 
+      RowBox[{"Hypergeometric1F1", "[", 
+       RowBox[{
+        RowBox[{"1", "-", 
+         FractionBox["\[Alpha]", "2"]}], ",", 
+        FractionBox["3", "2"], ",", 
+        RowBox[{"-", 
+         FractionBox[
+          SuperscriptBox["y", "2"], 
+          RowBox[{"2", " ", 
+           SuperscriptBox["\[Sigma]", "2"]}]]}]}], "]"}]}]}], 
+    ")"}]}]}]], "Output",
+ CellChangeTimes->{
+  3.659343236841713*^9, {3.6593433115898247`*^9, 3.6593433331498566`*^9}, 
+   3.659343411885974*^9}]
+}, Open  ]],
+
+Cell[BoxData[
+ RowBox[{
+  SubsuperscriptBox["\[Integral]", "0", "1"], 
+  RowBox[{"a", "*", 
+   SuperscriptBox["y", "2"], "*", 
+   SuperscriptBox[
+    RowBox[{"(", 
+     RowBox[{"1", "-", "y"}], ")"}], 
+    RowBox[{"a", "-", "1"}]], 
+   RowBox[{"\[DifferentialD]", "y"}]}]}]], "Input",
+ CellChangeTimes->{{3.659346272420682*^9, 3.6593463540488024`*^9}, {
+  3.659346422920904*^9, 3.659346423830905*^9}, {3.659347789632978*^9, 
+  3.659347807618004*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"ConditionalExpression", "[", 
+   RowBox[{
+    FractionBox[
+     RowBox[{"2", " ", "a", " ", 
+      RowBox[{"Gamma", "[", "a", "]"}]}], 
+     RowBox[{"Gamma", "[", 
+      RowBox[{"3", "+", "a"}], "]"}]], ",", 
+    RowBox[{
+     RowBox[{"Re", "[", "a", "]"}], ">", "0"}]}], "]"}], 
+  "\[IndentingNewLine]", "\[IndentingNewLine]"}]], "Input",
+ CellChangeTimes->{{3.6602791488701706`*^9, 3.6602791492211905`*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  SubsuperscriptBox["\[Integral]", "0", "1"], 
+  RowBox[{
+   SuperscriptBox["y", "2"], "*", 
+   RowBox[{"DiracDelta", "[", 
+    RowBox[{"1", "-", "y"}], "]"}], 
+   RowBox[{"\[DifferentialD]", "y"}]}]}]], "Input",
+ CellChangeTimes->{{3.660279173235564*^9, 3.6602791768027687`*^9}, 
+   3.660279256240312*^9, {3.6602792907602863`*^9, 3.660279292340377*^9}}],
+
+Cell[BoxData[""], "Input",
+ CellChangeTimes->{{3.660279190659561*^9, 3.6602791946417885`*^9}, {
+  3.6602792603645477`*^9, 3.660279260937581*^9}}]
+},
+WindowSize->{978, 631},
+WindowMargins->{{302, Automatic}, {Automatic, 101}},
+Magnification:>FEPrivate`If[
+  FEPrivate`Equal[FEPrivate`$VersionNumber, 6.], 2., 2. Inherited],
+FrontEndVersion->"8.0 for Microsoft Windows (64-bit) (October 6, 2011)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[579, 22, 290, 6, 57, "Input"],
+Cell[872, 30, 97, 2, 57, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[1006, 37, 622, 16, 99, "Input"],
+Cell[1631, 55, 2048, 65, 358, "Output"]
+}, Open  ]],
+Cell[3694, 123, 450, 12, 89, "Input"],
+Cell[4147, 137, 444, 12, 164, InheritFromParent],
+Cell[4594, 151, 378, 9, 89, "Input"],
+Cell[4975, 162, 145, 2, 57, "Input"]
+}
+]
+*)
+
+(* End of internal cache information *)
