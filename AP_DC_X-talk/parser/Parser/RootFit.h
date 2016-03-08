@@ -26,6 +26,9 @@ public:
 	void SetParametersTwoComp_fit2(const double * const A_start, const double * const A_limit_l, const double * const A_limit_h);
 	void SetParametersTwoComp_fit3(const double * const A_start, const double * const A_limit_l, const double * const A_limit_h);
 
+	void SetParametersOneComp_fit1(const double * const A_start, const double * const A_limit_l, const double * const A_limit_h);
+	void SetParametersOneComp_fit2(const double * const A_start, const double * const A_limit_l, const double * const A_limit_h);
+
 	void DoFit();
 	double GetChi2PerDof();
 	double GetAmplitude();
@@ -88,6 +91,7 @@ public:
 	
 	static double fitFunction_nobaseline(double *x, double *par);
 	static double fitFunction_nobaseline_fast_slow(double *x, double *par);
+	static double fitFunction_nobaseline_exp(double *x, double *par);
 
 	static Double_t fitFunction(Double_t *x, Double_t *par);
 	static double F(double t, double sigma, double tau);	
@@ -101,6 +105,9 @@ public:
 	static double fitFunction_3_TwoComp(Double_t *x, Double_t *par);
 	static double fitFunction_4_TwoComp(Double_t *x, Double_t *par);
 	static double fitFunction_5_TwoComp(Double_t *x, Double_t *par);
+
+	static Double_t fitFunctionOneComp(Double_t *x, Double_t *par);
+	static double fitFunction_2_OneComp(Double_t *x, Double_t *par);
 	
 	static void CalculateFilterCoeff(int points);
 	static void ReserveVectors();

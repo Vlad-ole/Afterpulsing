@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
 	int file_i_start;
 	int file_i_stop;
 
-     //fopen absd("/mnt/scratch/ws/vpoleynikov/201601261856ws1/MPPC_S10362-11-100C/285K/69_65V/raw/binary/run_1.bin");
+	//fopen absd("/mnt/scratch/ws/vpoleynikov/201601261856ws1/MPPC_S10362-11-100C/285K/69_65V/raw/binary/run_1.bin");
 
 	cout << "number of arguments = " << argc << endl;
 	if (argc == 1)
@@ -75,9 +75,9 @@ int main(int argc, char *argv[])
 		cout << "Please, input dir_name " << endl;
 		cout << argv[0] << endl;
 
-        Monostate::dir_name = "D:\\Data_work\\tektronix_signal\\MPPC_S10362-11-100C\\275K\\69_60V\\"; // my PC
-        // Monostate::dir_name = "/mnt/scratch/ws/vpoleynikov/201601261856ws1/MPPC_S10362-11-100C/285K/69_65V/"; // NSU Cluster
-		RootFit::threshold_amp_start = -0.01;
+		Monostate::dir_name = "D:\\Data_work\\tektronix_signal\\KETEK PM1125NS-SB0\\275K\\29_06V\\"; // my PC
+		// Monostate::dir_name = "/mnt/scratch/ws/vpoleynikov/201601261856ws1/MPPC_S10362-11-100C/285K/69_65V/"; // NSU Cluster
+		RootFit::threshold_amp_start = -0.005;
 		RootFit::threshold_der = -0.0002;
 
 		file_i_start = 1;
@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
 	}
 	else if (argc == 6)
 	{
-		
+
 		cout << argv[0] << endl;
 		cout << argv[1] << endl;
 		cout << argv[2] << endl;
@@ -99,11 +99,11 @@ int main(int argc, char *argv[])
 		Monostate::dir_name = argv[1];
 		RootFit::threshold_amp_start = -atof(argv[2]);
 		RootFit::threshold_der = -atof(argv[3]);
-	
+
 		file_i_start = atoi(argv[4]);
 		file_i_stop = atoi(argv[5]);
 
-		
+
 	}
 	else
 	{
@@ -111,7 +111,7 @@ int main(int argc, char *argv[])
 		return 0;
 	}
 
-	cout << "dir_name = " <<Monostate::dir_name << endl;
+	cout << "dir_name = " << Monostate::dir_name << endl;
 	cout << "threshold_amp_start = " << RootFit::threshold_amp_start << endl;
 	cout << "threshold_der = " << RootFit::threshold_der << endl;
 
@@ -128,13 +128,13 @@ int main(int argc, char *argv[])
 	clock_t t_0 = clock();
 
 	RootFit::ReserveVectors();
-	
+
 
 	const bool CalculateAvgSignal = false;
 	RootFit::SaveGraphsBool = false;
 
 	//Double_t x, y;
-	
+
 	int counter = 0;
 	int counter_rec_length = 0;
 
@@ -142,7 +142,7 @@ int main(int argc, char *argv[])
 
 
 	//string string_tree = Monostate::dir_name + "tree.root";
-	
+
 
 	int global_counter = 0;
 
@@ -162,9 +162,9 @@ int main(int argc, char *argv[])
 			RootFit::previousIs1e = false;
 
 		RootFit::ReadFiles(RootFit::ReadDerivative, file_i, 1);
-		
+
 		ostringstream file_tree_oss;
-                file_tree_oss << Monostate::dir_name << "trees/run_" << file_i << ".root";
+		file_tree_oss << Monostate::dir_name << "trees/run_" << file_i << ".root";
 		TFile f_tree(file_tree_oss.str().c_str(), "RECREATE");
 
 
@@ -243,14 +243,14 @@ int main(int argc, char *argv[])
 
 
 		if (CalculateAvgSignal)
-		{			
+		{
 			RootFit::CalculateAverageSignal(200); //time_dead in ns
 		}
 
 		//RootFit::CalculateStaircases_der(5); //time_dead in ns
 		//RootFit::CalculateStaircases_amp(10); //time_dead in ns
 
-		
+
 		if (!CalculateAvgSignal && RootFit::ReadDerivative)
 		{
 			RootFit::FindStartStop(5, 20); // найти начало и конец суммы сигналов
@@ -264,7 +264,7 @@ int main(int argc, char *argv[])
 				cout << endl << "calculate fit ... " << i + 1 << " run time is (in s) " << (double)(clock() - t_0) / CLOCKS_PER_SEC << " part: " << (i*100.0) / RootFit::time_finish.size() << " % file є " << file_i << endl;
 				cout << "speed of fit = " << ((double)(clock() - t_0) / CLOCKS_PER_SEC) / global_counter << endl << endl;
 
-                    bool rigid_boundaries = true;
+				bool rigid_boundaries = false;
 
 				RootFit::current_signal = i;
 				RootFit::CalculateStartParameters(5/*5*/);//вычислить стартовые параметры. ѕараметр - мертвое врем¤ производной в нс	
@@ -273,51 +273,51 @@ int main(int argc, char *argv[])
 
 				cout << "\t single step 1 ... " << endl;
 				RootFit *Fit_single = new RootFit(1);
-				
-                  double A_start[] = { 0.2 };
-                  double A_limit_l[] = { 0 };
-                  double A_limit_h[] = { 10 };
+
+				double A_start[] = { 0.2 };
+				double A_limit_l[] = { 0 };
+				double A_limit_h[] = { 10 };
 
 				if (rigid_boundaries)
 				{
-                         A_start[0] = 0.17;
-                         A_limit_l[0] = 0.1;
-                         A_limit_h[0] = 0.24;
+					A_start[0] = 0.17;
+					A_limit_l[0] = 0.1;
+					A_limit_h[0] = 0.24;
 				}
 
-				Fit_single->SetParametersTwoComp_fit1(A_start, A_limit_l, A_limit_h);
+				Fit_single->SetParametersOneComp_fit1(A_start, A_limit_l, A_limit_h);
 				Fit_single->DoFit();
 				//Fit_single->SaveAllGraphs();
 
 				if (rigid_boundaries)
 				{
-                    if (Fit_single->GetChi2PerDof() > 4)
+					if (Fit_single->GetChi2PerDof() > 4)
 					{
 						cout << "\t single step 2 ... " << endl;
-                              A_start[0] = 0.34;
-                              A_limit_l[0] = 0.27;
-                              A_limit_h[0] = 0.4;
-						Fit_single->SetParametersTwoComp_fit1(A_start, A_limit_l, A_limit_h);
+						A_start[0] = 0.34;
+						A_limit_l[0] = 0.27;
+						A_limit_h[0] = 0.4;
+						Fit_single->SetParametersOneComp_fit1(A_start, A_limit_l, A_limit_h);
 						Fit_single->DoFit();
 					}
 
-                        if (Fit_single->GetChi2PerDof() > 4)
-                        {
-                                cout << "\t single step 3 ... " << endl;
-                                A_start[0] =  0.5 ;
-                                A_limit_l[0] =  0.44 ;
-                                A_limit_h[0] =  0.60 ;
-                                Fit_single->SetParametersTwoComp_fit1(A_start, A_limit_l, A_limit_h);
-                                Fit_single->DoFit();
-                        }
+					if (Fit_single->GetChi2PerDof() > 4)
+					{
+						cout << "\t single step 3 ... " << endl;
+						A_start[0] = 0.5;
+						A_limit_l[0] = 0.44;
+						A_limit_h[0] = 0.60;
+						Fit_single->SetParametersOneComp_fit1(A_start, A_limit_l, A_limit_h);
+						Fit_single->DoFit();
+					}
 
-                    if (Fit_single->GetChi2PerDof() > 4)
+					if (Fit_single->GetChi2PerDof() > 4)
 					{
 						cout << "\t single step 4 ... " << endl;
-                                                A_start[0] = 0.2;
-                                                A_limit_l[0] = 0.001;
-                                                A_limit_h[0] = 10;
-						Fit_single->SetParametersTwoComp_fit1(A_start, A_limit_l, A_limit_h);
+						A_start[0] = 0.2;
+						A_limit_l[0] = 0.001;
+						A_limit_h[0] = 10;
+						Fit_single->SetParametersOneComp_fit1(A_start, A_limit_l, A_limit_h);
 						Fit_single->DoFit();
 					}
 				}
@@ -351,18 +351,18 @@ int main(int argc, char *argv[])
 				//*gr_der2_tree_fit1 = *(Fit_single->gr_der2);
 
 
-                if (Fit_single->GetChi2PerDof() > 1.5 && true)
+				if (Fit_single->GetChi2PerDof() > 1.5 && false)
 				{
-                         rigid_boundaries = false;
-					
+					rigid_boundaries = false;
+
 					cout << "\t double step 1  ... " << endl;
 
 					RootFit *Fit_double = new RootFit(2);
 
-                        double A_start[] = { 0.1, 0.1 };
-                        double A_limit_l[] = { 0.001, 0.001 };
-                        double A_limit_h[] = { 10, 10 };
-					
+					double A_start[] = { 0.1, 0.1 };
+					double A_limit_l[] = { 0.001, 0.001 };
+					double A_limit_h[] = { 10, 10 };
+
 					if (rigid_boundaries)
 					{
 						double A_start[] = { 0.25, 0.25 };
@@ -371,22 +371,22 @@ int main(int argc, char *argv[])
 					}
 
 
-					Fit_double->SetParametersTwoComp_fit2(A_start, A_limit_l, A_limit_h);
+					Fit_double->SetParametersOneComp_fit2(A_start, A_limit_l, A_limit_h);
 					Fit_double->DoFit();
 					//Fit_double->SaveAllGraphs();
 
 					if (rigid_boundaries)
-					{					
+					{
 						if (Fit_double->GetChi2PerDof() > 4)
 						{
 							cout << "\t double step 2  ... " << endl;
 							double A_start[] = { 0.2, 0.2 };
 							double A_limit_l[] = { 0.001, 0.001 };
 							double A_limit_h[] = { 10, 10 };
-							Fit_double->SetParametersTwoComp_fit2(A_start, A_limit_l, A_limit_h);
+							Fit_double->SetParametersOneComp_fit2(A_start, A_limit_l, A_limit_h);
 							Fit_double->DoFit();
 						}
-					}	
+					}
 
 					//if (fabs(Fit_double->fitFcn->GetParameter(9) - Fit_double->fitFcn->GetParameter(1)) < 1)
 					//{
@@ -397,13 +397,13 @@ int main(int argc, char *argv[])
 					//	Fit_double->SetParametersTwoComp_fit2(A_start, A_limit_l, A_limit_h);
 					//	Fit_double->DoFit();
 					//}
-					ntuple.Fill(a_1, chi_1, a_2, b_2, chi_2, dt_2_ab);	
+					ntuple.Fill(a_1, chi_1, a_2, b_2, chi_2, dt_2_ab);
 					a_2 = Fit_double->fitFcn->GetParameter(0);
-					b_2 = Fit_double->fitFcn->GetParameter(8);
+					b_2 = Fit_double->fitFcn->GetParameter(5);
 					chi_2 = Fit_double->GetChi2PerDof();
 					dt_2_ab = fabs(Fit_double->fitFcn->GetParameter(9) - Fit_double->fitFcn->GetParameter(1));
-					time_2_a = min(Fit_double->fitFcn->GetParameter(1), Fit_double->fitFcn->GetParameter(9));
-					time_2_b = max(Fit_double->fitFcn->GetParameter(1), Fit_double->fitFcn->GetParameter(9));
+					time_2_a = min(Fit_double->fitFcn->GetParameter(1), Fit_double->fitFcn->GetParameter(6));
+					time_2_b = max(Fit_double->fitFcn->GetParameter(1), Fit_double->fitFcn->GetParameter(6));
 
 					*gr_tree_fit2 = *(Fit_double->gr);
 					*gr_front_tree_fit2 = *(Fit_double->gr_front);
@@ -435,14 +435,14 @@ int main(int argc, char *argv[])
 					//if ((i + 1) % 100 == 1) tree.AutoSave("SaveSelf");
 					////fill tree end
 					//////////////////////////////////////////////////
-					
+
 					if (Fit_double->GetChi2PerDof() > 1.5 && false)
 					{
 						cout << "\t \t triple ... " << endl;
 
 						RootFit *Fit_triple = new RootFit(3);
 						double A_start[] = { 0.2, 0.2, 0.2 };
-						double A_limit_l[] = { 0.001, 0.001, 0.001};
+						double A_limit_l[] = { 0.001, 0.001, 0.001 };
 						double A_limit_h[] = { 10, 10, 10 };
 						Fit_triple->SetParametersTwoComp_fit3(A_start, A_limit_l, A_limit_h);
 						Fit_triple->DoFit();
@@ -454,13 +454,13 @@ int main(int argc, char *argv[])
 						c_3 = Fit_triple->fitFcn->GetParameter(15);
 						chi_3 = Fit_triple->GetChi2PerDof();
 
-                        //vector<double> time_abc = { Fit_double->fitFcn->GetParameter(1), Fit_double->fitFcn->GetParameter(9), Fit_double->fitFcn->GetParameter(16) };
-                        vector<double> time_abc;
-                        time_abc.push_back(Fit_double->fitFcn->GetParameter(1));
-                        time_abc.push_back(Fit_double->fitFcn->GetParameter(9));
-                        time_abc.push_back(Fit_double->fitFcn->GetParameter(16));
+						//vector<double> time_abc = { Fit_double->fitFcn->GetParameter(1), Fit_double->fitFcn->GetParameter(9), Fit_double->fitFcn->GetParameter(16) };
+						vector<double> time_abc;
+						time_abc.push_back(Fit_double->fitFcn->GetParameter(1));
+						time_abc.push_back(Fit_double->fitFcn->GetParameter(9));
+						time_abc.push_back(Fit_double->fitFcn->GetParameter(16));
 
-                        sort(time_abc.begin(), time_abc.end());
+						sort(time_abc.begin(), time_abc.end());
 						dt_3_ab = time_abc[1] - time_abc[0];
 						dt_3_bc = time_abc[2] - time_abc[1];
 						time_3_a = time_abc[0];
@@ -498,7 +498,7 @@ int main(int argc, char *argv[])
 							//delete Fit_quadruple;
 
 						}
-						
+
 
 						delete Fit_triple;
 
@@ -509,7 +509,7 @@ int main(int argc, char *argv[])
 				}
 
 				delete Fit_single;
-				
+
 				tree.Fill();
 				//if ((i + 1) % 100 == 1) tree.AutoSave("SaveSelf");
 
@@ -524,30 +524,30 @@ int main(int argc, char *argv[])
 		//f_tree.Close();
 
 		delete multi_graph_fit1;
-                //delete gr_tree_fit1;
+		//delete gr_tree_fit1;
 
-                //delete gr_front_tree_fit1;
+		//delete gr_front_tree_fit1;
 		//delete gr_der_tree_fit1;
 		//delete gr_der2_tree_fit1;
 
 		delete multi_graph_fit2;
-                //delete gr_tree_fit2;
+		//delete gr_tree_fit2;
 
-                //delete gr_front_tree_fit2;
+		//delete gr_front_tree_fit2;
 		//delete gr_der_tree_fit2;
 		//delete gr_der2_tree_fit2;
 
 		delete multi_graph_fit3;
-                //delete gr_tree_fit3;
+		//delete gr_tree_fit3;
 
-                //delete gr_front_tree_fit3;
+		//delete gr_front_tree_fit3;
 		//delete gr_der_tree_fit3;
 		//delete gr_der2_tree_fit3;
 
 
 
 	}//end for files
-		
+
 	//f_tree.Close();
 
 	//if (RootFit::ReadDerivative)

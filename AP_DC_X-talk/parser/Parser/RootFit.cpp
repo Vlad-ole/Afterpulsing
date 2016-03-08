@@ -64,32 +64,40 @@ RootFit::RootFit(short int number_of_functions)
 	gr_front->SetMarkerSize(1);
 
 	
-	if (!RecoveryTimeTwoComponents)
-	{
-		if (number_of_functions == 1)
-			fitFcn = new TF1("fitFcn", fitFunction, xv[time_start_index], xv[time_finish_index], 6);
-		if (number_of_functions == 2)
-			fitFcn = new TF1("fitFcn", fitFunction_2, xv[time_start_index], xv[time_finish_index], 6 + 5);
-		if (number_of_functions == 3)
-			fitFcn = new TF1("fitFcn", fitFunction_3, xv[time_start_index], xv[time_finish_index], 6 + 10);
-		if (number_of_functions == 4)
-			fitFcn = new TF1("fitFcn", fitFunction_4, xv[time_start_index], xv[time_finish_index], 6 + 15);
-		if (number_of_functions == 5)
-			fitFcn = new TF1("fitFcn", fitFunction_5, xv[time_start_index], xv[time_finish_index], 6 + 20);
-	}
-	else
-	{
-		if (number_of_functions == 1)
-			fitFcn = new TF1("fitFcn", fitFunctionTwoComp, xv[time_start_index], xv[time_finish_index], 8 + 7*0);
-		if (number_of_functions == 2)
-			fitFcn = new TF1("fitFcn", fitFunction_2_TwoComp, xv[time_start_index], xv[time_finish_index], 8 + 7*1);
-		if (number_of_functions == 3)
-			fitFcn = new TF1("fitFcn", fitFunction_3_TwoComp, xv[time_start_index], xv[time_finish_index], 8 + 7*2);
-		if (number_of_functions == 4)
-			fitFcn = new TF1("fitFcn", fitFunction_4, xv[time_start_index], xv[time_finish_index], 8 + 7*4);
-		if (number_of_functions == 5)
-			fitFcn = new TF1("fitFcn", fitFunction_5, xv[time_start_index], xv[time_finish_index], 8 + 7*5);
-	}
+	//if (!RecoveryTimeTwoComponents)
+	//{
+	//	if (number_of_functions == 1)
+	//		fitFcn = new TF1("fitFcn", fitFunction, xv[time_start_index], xv[time_finish_index], 6);
+	//	if (number_of_functions == 2)
+	//		fitFcn = new TF1("fitFcn", fitFunction_2, xv[time_start_index], xv[time_finish_index], 6 + 5);
+	//	if (number_of_functions == 3)
+	//		fitFcn = new TF1("fitFcn", fitFunction_3, xv[time_start_index], xv[time_finish_index], 6 + 10);
+	//	if (number_of_functions == 4)
+	//		fitFcn = new TF1("fitFcn", fitFunction_4, xv[time_start_index], xv[time_finish_index], 6 + 15);
+	//	if (number_of_functions == 5)
+	//		fitFcn = new TF1("fitFcn", fitFunction_5, xv[time_start_index], xv[time_finish_index], 6 + 20);
+	//}
+	//else
+	//{
+	//	if (number_of_functions == 1)
+	//		fitFcn = new TF1("fitFcn", fitFunctionTwoComp, xv[time_start_index], xv[time_finish_index], 8 + 7*0);
+	//	if (number_of_functions == 2)
+	//		fitFcn = new TF1("fitFcn", fitFunction_2_TwoComp, xv[time_start_index], xv[time_finish_index], 8 + 7*1);
+	//	if (number_of_functions == 3)
+	//		fitFcn = new TF1("fitFcn", fitFunction_3_TwoComp, xv[time_start_index], xv[time_finish_index], 8 + 7*2);
+	//	if (number_of_functions == 4)
+	//		fitFcn = new TF1("fitFcn", fitFunction_4, xv[time_start_index], xv[time_finish_index], 8 + 7*4);
+	//	if (number_of_functions == 5)
+	//		fitFcn = new TF1("fitFcn", fitFunction_5, xv[time_start_index], xv[time_finish_index], 8 + 7*5);
+	//}
+
+
+	if (number_of_functions == 1)
+		fitFcn = new TF1("fitFcn", fitFunctionOneComp, xv[time_start_index], xv[time_finish_index], 4 + 1);
+	if (number_of_functions == 2)
+		fitFcn = new TF1("fitFcn", fitFunction_2_OneComp, xv[time_start_index], xv[time_finish_index], 4*2 + 1);
+
+
 
 	//ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit", "Simplex");
 	//ROOT::Math::MinimizerOptions::SetDefaultPrecision(17);
@@ -422,6 +430,44 @@ void RootFit::SetParametersTwoComp_fit1(const double * const A_start, const doub
 }
 
 
+void RootFit::SetParametersOneComp_fit1(const double * const A_start, const double * const A_limit_l, const double * const A_limit_h)
+{
+	const double tau_rec = 42;
+	const double tau_rise = 3;
+
+	const double baseline_limit = 0.006;
+
+	const double time_first = xv[time_front[0]];
+	//const double time_first = xv[time_start[current_signal]];
+
+
+	// A
+	fitFcn->SetParameter(0, A_start[0]);
+	fitFcn->SetParLimits(0, A_limit_l[0], A_limit_h[0]);
+
+	//t_0
+	fitFcn->SetParameter(1, time_first);
+	fitFcn->SetParLimits(1, xv[time_start_index], xv[time_finish_index]); //simple variant
+	//fitFcn->SetParLimits(1, xv[time_start_index] + 5, time_first); // more complex variant
+
+	//fitFcn->SetParameter(1, time_first + 5);
+	//fitFcn->SetParLimits(1, xv[time_start_index] + 5, time_first+10); // slava variant
+
+	// tau_rec
+	fitFcn->SetParameter(2, tau_rec);
+	fitFcn->SetParLimits(2, tau_rec, tau_rec);
+
+	// tau_rise
+	fitFcn->SetParameter(3, tau_rise);
+	fitFcn->SetParLimits(3, tau_rise, tau_rise);
+
+	//baseline
+	fitFcn->SetParameter(4, 0);
+	fitFcn->SetParLimits(4, -baseline_limit, baseline_limit);
+
+}
+
+
 void RootFit::SetParametersTwoComp_fit2(const double * const A_start, const double * const A_limit_l, const double * const A_limit_h)
 {
 	const double tau_rec_fast = 2.21513;
@@ -513,7 +559,69 @@ void RootFit::SetParametersTwoComp_fit2(const double * const A_start, const doub
 }
 
 
+void RootFit::SetParametersOneComp_fit2(const double * const A_start, const double * const A_limit_l, const double * const A_limit_h)
+{
+	const double tau_rec = 42;
+	const double tau_rise = 3;
 
+	const double baseline_limit = 0.006;
+
+	const double time_first = xv[time_front[0]];
+	//const double time_first = xv[time_start[current_signal]];
+
+
+	// A
+	fitFcn->SetParameter(0, A_start[0]);
+	fitFcn->SetParLimits(0, A_limit_l[0], A_limit_h[0]);
+
+	//t_0
+	fitFcn->SetParameter(1, time_first);
+	fitFcn->SetParLimits(1, xv[time_start_index], xv[time_finish_index]); //simple variant
+	//fitFcn->SetParLimits(1, xv[time_start_index] + 5, time_first); // more complex variant
+
+	//fitFcn->SetParameter(1, time_first + 5);
+	//fitFcn->SetParLimits(1, xv[time_start_index] + 5, time_first+10); // slava variant
+
+	// tau_rec
+	fitFcn->SetParameter(2, tau_rec);
+	fitFcn->SetParLimits(2, tau_rec, tau_rec);
+
+	// tau_rise
+	fitFcn->SetParameter(3, tau_rise);
+	fitFcn->SetParLimits(3, tau_rise, tau_rise);
+
+	//baseline
+	fitFcn->SetParameter(4, 0);
+	fitFcn->SetParLimits(4, -baseline_limit, baseline_limit);
+
+	double time_second;
+	if (time_front.size() > 1)
+	{
+		time_second = xv[time_front[1]];
+	}
+	else
+	{
+		time_second = xv[time_front[0]];
+	}
+
+
+	// A
+	fitFcn->SetParameter(5, A_start[1]);
+	fitFcn->SetParLimits(5, A_limit_l[1], A_limit_h[1]);
+
+	//t_0
+	fitFcn->SetParameter(6, time_second);
+	fitFcn->SetParLimits(6, xv[time_start_index], xv[time_finish_index]);
+
+	// tau_rec
+	fitFcn->SetParameter(7, tau_rec);
+	fitFcn->SetParLimits(7, tau_rec, tau_rec);
+
+	// tau_rise
+	fitFcn->SetParameter(8, tau_rise);
+	fitFcn->SetParLimits(8, tau_rise, tau_rise);
+
+}
 
 void RootFit::SetParametersTwoComp_fit3(const double * const A_start, const double * const A_limit_l, const double * const A_limit_h)
 {
@@ -1945,6 +2053,30 @@ double RootFit::fitFunction_nobaseline(double *x, double *par)
 	return -(A / 2) * (F(t, sigma, tau_rec_fast) - F(t, sigma, tau_total_fast));
 }
 
+//функция сигнала для быстрой компоненты времени восстановления без учета базовой линии (sigma = 0)
+double RootFit::fitFunction_nobaseline_exp(double *x, double *par)
+{
+	//основные параметры
+	const double A = par[0];
+	const double t_0 = par[1];
+	const double tau_rec = par[2];
+	const double tau_rise = par[3];
+
+	double time = x[0] - t_0;
+
+	if (time > 0)
+	{
+		return -A * TMath::Exp(-time / tau_rec) * (1 - TMath::Exp(-time / tau_rise));
+	}
+	else
+	{
+		return 0;
+	}
+	
+}
+
+
+
 //функция сигнала для быстрой и медленной компоненты времени восстановления без учета базовой линии
 double RootFit::fitFunction_nobaseline_fast_slow(double *x, double *par)
 {
@@ -1980,6 +2112,14 @@ Double_t RootFit::fitFunctionTwoComp(Double_t *x, Double_t *par)
 	return fitFunction_nobaseline_fast_slow(x, par) + V_0;
 }
 
+Double_t RootFit::fitFunctionOneComp(Double_t *x, Double_t *par)
+{
+	const double V_0 = par[4];
+
+	return fitFunction_nobaseline_exp(x, par) + V_0;
+
+}
+
 
 //сумма двух сигналов
 double RootFit::fitFunction_2(Double_t *x, Double_t *par)
@@ -1992,6 +2132,13 @@ double RootFit::fitFunction_2_TwoComp(Double_t *x, Double_t *par)
 {
 	const double V_0 = par[7];
 	return fitFunction_nobaseline_fast_slow(x, par) + V_0 + fitFunction_nobaseline_fast_slow(x, &par[8]);
+}
+
+double RootFit::fitFunction_2_OneComp(Double_t *x, Double_t *par)
+{
+	const double V_0 = par[4];
+
+	return fitFunction_nobaseline_exp(x, par) + V_0 + fitFunction_nobaseline_exp(x, &par[5]);
 }
 
 

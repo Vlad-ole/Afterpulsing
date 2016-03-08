@@ -19,7 +19,8 @@ yData1           = [];
 %internal flags
 nSaved           = 0;
 
-dir_name = 'D:/Data_work/tektronix_signal/MPPC_S10362-11-100C/290K/70_33V/raw/binary/run_';
+dir_name = 'D:/Data_work/tektronix_signal/KETEK PM1125NS-SB0/275K/30_76V/raw/binary/run_';
+%dir_name = 'D:/Data_work/tektronix_signal/KETEK PM1125NS-SB0/275K/run_';
 
 makeGUI(); 
 connectToInstrument();

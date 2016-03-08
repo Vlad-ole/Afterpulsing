@@ -22,7 +22,8 @@ int main()
 	yv_der.reserve(20 * 1000 * 1000);
 	yv_der2.reserve(20 * 1000 * 1000);
 	
-	string dir_name = "D:\\Data_work\\tektronix_signal\\MPPC_S10362-11-100C\\285K\\69_15V\\";
+	string dir_name = "D:\\Data_work\\tektronix_signal\\KETEK PM1125NS-SB0\\275K\\29_76V\\";
+	//string dir_name = "D:\\Data_work\\tektronix_signal\\MPPC_S10362-11-100C\\290K\\70_33V\\";
 	int file_run = 1;
 	double part_or_file = 1;
 	
@@ -38,11 +39,11 @@ int main()
 		system("pause");
 	}
 
-	int yv_size;
-	fread(&yv_size, sizeof(int), 1, f);
-	cout << "file length = " << yv_size << endl;
+	//int yv_size;
+	//fread(&yv_size, sizeof(int), 1, f);
+	//cout << "file length = " << yv_size << endl;
 
-	int yv_size_new = yv_size * part_or_file; // выбрать долю от всех данных. 
+	int yv_size_new = 5*1000*1000; // выбрать долю от всех данных. 
 	cout << "file length cutted= " << yv_size_new << endl;
 
 	yv.resize(yv_size_new);
@@ -53,28 +54,28 @@ int main()
 	ostringstream f_der_oss;
 	f_der_oss << dir_name << "der\\run_" << file_run << ".bin";
 
-	ostringstream f_der2_oss;
-	f_der2_oss << dir_name << "der2\\run_" << file_run << ".bin";
+	//ostringstream f_der2_oss;
+	//f_der2_oss << dir_name << "der2\\run_" << file_run << ".bin";
 
 	string der_name = f_der_oss.str();
-	string der2_name = f_der2_oss.str();
+	//string der2_name = f_der2_oss.str();
 
 
 	//прочитать первую и вторую производную из файла
 	FILE *f_der = fopen(der_name.c_str(), "rb");
-	FILE *f_der2 = fopen(der2_name.c_str(), "rb");
+	//FILE *f_der2 = fopen(der2_name.c_str(), "rb");
 
-	if (f_der == NULL || f_der2 == NULL)
+	if (f_der == NULL /*|| f_der2 == NULL*/)
 	{
 		cout << "Can't open this file: " << der_name.c_str() << endl;
-		cout << "Can't open this file: " << der2_name.c_str() << endl;
+		//cout << "Can't open this file: " << der2_name.c_str() << endl;
 		system("pause");
 	}
 
 	yv_der.resize(yv_size_new);
-	yv_der2.resize(yv_size_new);
+	//yv_der2.resize(yv_size_new);
 	fread(&yv_der[0], sizeof(vector<double>::value_type), yv_size_new, f_der);
-	fread(&yv_der2[0], sizeof(vector<double>::value_type), yv_size_new, f_der2);
+	//fread(&yv_der2[0], sizeof(vector<double>::value_type), yv_size_new, f_der2);
 
 	//end of reading
 	////////////////////////////////////////////////////////////////////////////////
@@ -96,7 +97,7 @@ int main()
 
 	int conter_temp = 0;
 
-	const double th_amp_start = -0.01;
+	const double th_amp_start = -0.0005;
 	const double th_amp_stop = 0;
 	const int th_amp_points = 100;
 
@@ -105,7 +106,7 @@ int main()
 	TFile f_tree(string_tree.c_str(), "RECREATE");
 	//ofstream file(dir_name + "th_amp.dat");
 
-	const bool starecases_der = false;
+	const bool starecases_der = true;
 
 
 	for (tau_amp = 10; tau_amp < 11; tau_amp+= 10)
@@ -122,7 +123,7 @@ int main()
 			{
 				if (starecases_der)
 				{
-					if ((yv_der[i] < th_amp_temp) && flag && (yv[i] < -0.005))
+					if ((yv_der[i] < th_amp_temp) && flag && (yv[i] < -0.004))
 					{
 						x_time = i * 0.2;
 						flag = 0;
@@ -160,6 +161,7 @@ int main()
 			{
 				counter = counter_temp;
 				th_amp = th_amp_temp;
+				cout << th_amp << "\t" << counter_temp << endl;
 				tree.Fill();
 				if (conter_temp % 100 == 1) tree.AutoSave("SaveSelf");
 			}

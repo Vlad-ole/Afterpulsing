@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       157,          7]
-NotebookDataLength[      5808,        192]
-NotebookOptionsPosition[      5124,        166]
-NotebookOutlinePosition[      5566,        183]
-CellTagsIndexPosition[      5523,        180]
+NotebookDataLength[      6133,        204]
+NotebookOptionsPosition[      5376,        175]
+NotebookOutlinePosition[      5818,        192]
+CellTagsIndexPosition[      5775,        189]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -149,16 +149,25 @@ Cell[BoxData[
   "\[IndentingNewLine]", "\[IndentingNewLine]"}]], "Input",
  CellChangeTimes->{{3.6602791488701706`*^9, 3.6602791492211905`*^9}}],
 
+Cell[CellGroupData[{
+
 Cell[BoxData[
  RowBox[{
   SubsuperscriptBox["\[Integral]", "0", "1"], 
   RowBox[{
-   SuperscriptBox["y", "2"], "*", 
+   SuperscriptBox["y", "100"], "*", 
    RowBox[{"DiracDelta", "[", 
     RowBox[{"1", "-", "y"}], "]"}], 
    RowBox[{"\[DifferentialD]", "y"}]}]}]], "Input",
  CellChangeTimes->{{3.660279173235564*^9, 3.6602791768027687`*^9}, 
-   3.660279256240312*^9, {3.6602792907602863`*^9, 3.660279292340377*^9}}],
+   3.660279256240312*^9, {3.6602792907602863`*^9, 3.660279292340377*^9}, {
+   3.660279475956879*^9, 3.6602794880525713`*^9}}],
+
+Cell[BoxData[
+ RowBox[{"HeavisideTheta", "[", "0", "]"}]], "Output",
+ CellChangeTimes->{
+  3.6602792962786016`*^9, {3.660279478783041*^9, 3.660279490534713*^9}}]
+}, Open  ]],
 
 Cell[BoxData[""], "Input",
  CellChangeTimes->{{3.660279190659561*^9, 3.6602791946417885`*^9}, {
@@ -192,8 +201,11 @@ Cell[1631, 55, 2048, 65, 358, "Output"]
 }, Open  ]],
 Cell[3694, 123, 450, 12, 89, "Input"],
 Cell[4147, 137, 444, 12, 164, InheritFromParent],
-Cell[4594, 151, 378, 9, 89, "Input"],
-Cell[4975, 162, 145, 2, 57, "Input"]
+Cell[CellGroupData[{
+Cell[4616, 153, 432, 10, 89, "Input"],
+Cell[5051, 165, 161, 3, 82, "Output"]
+}, Open  ]],
+Cell[5227, 171, 145, 2, 57, "Input"]
 }
 ]
 *)
